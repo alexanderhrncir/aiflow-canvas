@@ -2264,9 +2264,19 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
   function nowIso() { return new Date().toISOString(); }
 
-  // Embedded default workspace for first-time visitors.
-  // The app still loads localStorage first. This object is only used
-  // when no saved workspace exists for the current browser/origin.
+  // ============================================================
+  // EMBEDDED DEFAULT WORKSPACE
+  // ------------------------------------------------------------
+  // Shipped with index.html. Used for first-time visitors who have
+  // no localStorage, AND for visitors whose localStorage holds a
+  // stale default seed (Customer Support demo, or older HRGI seed)
+  // that pre-dates the current DEFAULT_WORKSPACE_REVISION.
+  //
+  // Genuine user edits are preserved — see boot() / looksLikeOldDefault.
+  // ============================================================
+  const DEFAULT_WORKSPACE_REVISION = "2026-05-02-hr-onboarding-v2";
+  const REVISION_KEY = "aiflow:defaultRevision";
+
   const EMBEDDED_DEFAULT_WORKSPACE = {
   "boards": [
     {
@@ -2279,1185 +2289,75 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       "lineageRoot": "b_nk2leksylr",
       "data": {
         "nodes": [
-          {
-            "id": "trigger",
-            "type": "manual",
-            "shape": "process",
-            "x": 123,
-            "y": 42,
-            "title": "New-Hire Notification",
-            "kind": "Trigger · Source",
-            "sub": "Group leader or Scientific Training emails HR that a new employee will start. Initial info often incomplete.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "clarify_lead",
-            "type": "manual",
-            "shape": "process",
-            "x": 747,
-            "y": 150,
-            "title": "Clarify with Group Leader",
-            "kind": "Manual · Loop",
-            "sub": "Email back-and-forth until salary, contract length, visa, and basics are complete.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "data_complete",
-            "type": "manual",
-            "shape": "decision",
-            "x": 444,
-            "y": 21.5,
-            "title": "Data complete?",
-            "kind": "Decision · Branch",
-            "sub": "Loops back to clarification if any base data is missing.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "funding_check",
-            "type": "manual",
-            "shape": "process",
-            "x": 1108,
-            "y": 42,
-            "title": "Funding Check",
-            "kind": "Manual · Coordination",
-            "sub": "HR asks Controlling/Grants whether funding is approved; clarifies SAP grant number if applicable.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "funding_ok",
-            "type": "manual",
-            "shape": "decision",
-            "x": 1425,
-            "y": 21.5,
-            "title": "Funding OK?",
-            "kind": "Decision · Branch",
-            "sub": "If rejected, the onboarding pauses pending internal clarification.",
-            "documents": [],
-            "showDocuments": false,
-            "undefined": "—"
-          },
-          {
-            "id": "eintrittsliste",
-            "type": "manual",
-            "shape": "database",
-            "x": 844,
-            "y": 389.5,
-            "title": "Entry List",
-            "kind": "Data Store",
-            "sub": "Central Excel master list. Feeds Welcome Meeting invite, presentation, and several downstream steps.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "welcome_mail",
-            "type": "manual",
-            "shape": "process",
-            "x": 1719,
-            "y": 264,
-            "title": "Send Welcome Mail",
-            "kind": "Output · Email",
-            "sub": "Welcome email to candidate with blank Personal Sheet PDF attached for completion.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "candidate_returns",
-            "type": "manual",
-            "shape": "process",
-            "x": 1473,
-            "y": 419,
-            "title": "Candidate Returns Sheet",
-            "kind": "Manual · Inbound",
-            "sub": "Candidate returns Personal Sheet (sometimes handwritten) plus passport scan.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "clarify_candidate",
-            "type": "manual",
-            "shape": "process",
-            "x": 1157,
-            "y": 369,
-            "title": "Clarify with Candidate",
-            "kind": "Manual · Loop",
-            "sub": "Email loop with candidate until all personal data and contract-relevant info are complete.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "kv_needed",
-            "type": "manual",
-            "shape": "decision",
-            "x": 565,
-            "y": 348.5,
-            "title": "KV grading needed?",
-            "kind": "Decision · Branch",
-            "sub": "Skip classification block if not needed for this position.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "onlyfy",
-            "type": "manual",
-            "shape": "database",
-            "x": 27,
-            "y": 231,
-            "title": "onlyfy",
-            "kind": "Data Store",
-            "sub": "Recruiting tool. Potential source for the candidate CV when not already attached to the trigger email.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "gather_docs",
-            "type": "manual",
-            "shape": "process",
-            "x": 235,
-            "y": 406,
-            "title": "Gather Classification Docs",
-            "kind": "Manual · Collection",
-            "sub": "Pull CV from email or onlyfy; if insufficient, request insurance data extract from candidate.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "kv_excel",
-            "type": "manual",
-            "shape": "process",
-            "x": 87,
-            "y": 599,
-            "title": "KV Calculation",
-            "kind": "Manual · Data",
-            "sub": "Compute collective-agreement grade and 6th-vacation-week eligibility in the KV workbook (Excel).",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "generate_contract",
-            "type": "manual",
-            "shape": "process",
-            "x": 385,
-            "y": 798.5,
-            "title": "Generate Contract Set",
-            "kind": "Manual · Documents",
-            "sub": "Contract plus Gleitzeit, Home Office and Data Protection Agreement as required by position. Additional Documents if required: Hosting Agreement, Confirmation Letter, Invitation Letter",
-            "documents": [
-              "GMI Contract",
-              "IMBA Contract",
-              "Flexietime Agreement",
-              "Home Office Agreement",
-              "etc."
-            ],
-            "showDocuments": true,
-            "undefined": "GMI Contract\\nIMBA Contract\\nFlexietime Agreement\\nHome Office Agreement\\netc."
-          },
-          {
-            "id": "sage_entry",
-            "type": "manual",
-            "shape": "process",
-            "x": 87,
-            "y": 797.5,
-            "title": "Enter 6th-Week into Sage",
-            "kind": "System · Integration",
-            "sub": "Jessica enters the start date for 6th-vacation-week eligibility into the HR system of record.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "sage_dpw",
-            "type": "manual",
-            "shape": "database",
-            "x": 97,
-            "y": 983.5,
-            "title": "Sage DPW",
-            "kind": "Data Store",
-            "sub": "HR system of record. Holds employee master data and entitlements.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "crush_upload",
-            "type": "manual",
-            "shape": "database",
-            "x": 842,
-            "y": 622.5,
-            "title": "Upload to Crush",
-            "kind": "System · Integration",
-            "sub": "Upload contract draft, Entry List + Personal Sheet to Infoniqa Crush. Data lands in LGV.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "crush_lgv",
-            "type": "manual",
-            "shape": "database",
-            "x": 1147,
-            "y": 622.5,
-            "title": "LGV",
-            "kind": "Data Store",
-            "sub": "Infoniqa payroll system. Receives the contract draft and Personal Sheet data.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "send_to_candidate",
-            "type": "manual",
-            "shape": "process",
-            "x": 843,
-            "y": 987,
-            "title": "Send Contracts to Candidate",
-            "kind": "Output · Email",
-            "sub": "Send the contract set to the candidate for signature.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "candidate_signs",
-            "type": "manual",
-            "shape": "process",
-            "x": 1146,
-            "y": 987,
-            "title": "Candidate Signs & Returns",
-            "kind": "Manual · Inbound",
-            "sub": "eceive the signed contract along with the Hosting Agreement, Data Protection, and Flexitime documents back from the candidate.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "print_contract",
-            "type": "manual",
-            "shape": "process",
-            "x": 838,
-            "y": 797.5,
-            "title": "Print & Prepare Folder",
-            "kind": "Manual · Physical",
-            "sub": "Print the contract to place it into a physical folder for the director meeting.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "director_signs",
-            "type": "manual",
-            "shape": "process",
-            "x": 1141,
-            "y": 806,
-            "title": "Director Signs",
-            "kind": "Manual · Physical",
-            "sub": "Director signs the printed contract during the regular HR meeting.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "welcome_folder",
-            "type": "manual",
-            "shape": "database",
-            "x": 1730,
-            "y": 797,
-            "title": "Welcome Folder",
-            "kind": "Output · Physical",
-            "sub": "Single physical folder per new hire. Check-in sheet pages chosen by institute (GMI/IMBA) and position; signed contract added at the end.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "welcome_ppt",
-            "type": "manual",
-            "shape": "process",
-            "x": 1718,
-            "y": 1031.5,
-            "title": "Welcome PowerPoint",
-            "kind": "Output · Document",
-            "sub": "Slide listing new hires (group, position, name) — separate output, not part of the Welcome Folder.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "welcome_invite",
-            "type": "manual",
-            "shape": "process",
-            "x": 1698,
-            "y": 598,
-            "title": "Send Welcome Meeting Invite",
-            "kind": "Output · Email",
-            "sub": "Invite the candidate to the Welcome Meeting using the email from the Eintrittsliste.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "nyhyib",
-            "type": "manual",
-            "shape": "process",
-            "x": 1719,
-            "y": 58.5,
-            "title": "Notify Group Leader (Funding)",
-            "kind": "Manual · Notification",
-            "sub": "Inform the Group Leader that the hiring process has been cancelled because funding is not available.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "n0g4ip",
-            "type": "manual",
-            "shape": "database",
-            "x": 1439,
-            "y": 631,
-            "title": "Midpoint",
-            "kind": "Data Store",
-            "sub": "Provisions user rights and automatically generates the Welcome Letter containing initial IT access credentials.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "n1igu2",
-            "type": "manual",
-            "shape": "database",
-            "x": 1438,
-            "y": 979,
-            "title": "Personnel Record (SharePoint)",
-            "kind": "Data Store",
-            "sub": "Digital repository on SharePoint. Stores the returned signed contract and serves as the official employee record.",
-            "documents": [],
-            "showDocuments": false
-          }
+          {"id":"trigger","type":"manual","shape":"process","x":123,"y":42,"title":"New-Hire Notification","kind":"Trigger · Source","sub":"Group leader or Scientific Training emails HR that a new employee will start. Initial info often incomplete.","documents":[],"showDocuments":false},
+          {"id":"clarify_lead","type":"manual","shape":"process","x":747,"y":150,"title":"Clarify with Group Leader","kind":"Manual · Loop","sub":"Email back-and-forth until salary, contract length, visa, and basics are complete.","documents":[],"showDocuments":false},
+          {"id":"data_complete","type":"manual","shape":"decision","x":444,"y":21.5,"title":"Data complete?","kind":"Decision · Branch","sub":"Loops back to clarification if any base data is missing.","documents":[],"showDocuments":false},
+          {"id":"funding_check","type":"manual","shape":"process","x":1108,"y":42,"title":"Funding Check","kind":"Manual · Coordination","sub":"HR asks Controlling/Grants whether funding is approved; clarifies SAP grant number if applicable.","documents":[],"showDocuments":false},
+          {"id":"funding_ok","type":"manual","shape":"decision","x":1425,"y":21.5,"title":"Funding OK?","kind":"Decision · Branch","sub":"If rejected, the onboarding pauses pending internal clarification.","documents":[],"showDocuments":false},
+          {"id":"eintrittsliste","type":"manual","shape":"database","x":844,"y":389.5,"title":"Entry List","kind":"Data Store","sub":"Central Excel master list. Feeds Welcome Meeting invite, presentation, and several downstream steps.","documents":[],"showDocuments":false},
+          {"id":"welcome_mail","type":"manual","shape":"process","x":1719,"y":264,"title":"Send Welcome Mail","kind":"Output · Email","sub":"Welcome email to candidate with blank Personal Sheet PDF attached for completion.","documents":[],"showDocuments":false},
+          {"id":"candidate_returns","type":"manual","shape":"process","x":1473,"y":419,"title":"Candidate Returns Sheet","kind":"Manual · Inbound","sub":"Candidate returns Personal Sheet (sometimes handwritten) plus passport scan.","documents":[],"showDocuments":false},
+          {"id":"clarify_candidate","type":"manual","shape":"process","x":1157,"y":369,"title":"Clarify with Candidate","kind":"Manual · Loop","sub":"Email loop with candidate until all personal data and contract-relevant info are complete.","documents":[],"showDocuments":false},
+          {"id":"kv_needed","type":"manual","shape":"decision","x":565,"y":348.5,"title":"KV grading needed?","kind":"Decision · Branch","sub":"Skip classification block if not needed for this position.","documents":[],"showDocuments":false},
+          {"id":"onlyfy","type":"manual","shape":"database","x":27,"y":231,"title":"onlyfy","kind":"Data Store","sub":"Recruiting tool. Potential source for the candidate CV when not already attached to the trigger email.","documents":[],"showDocuments":false},
+          {"id":"gather_docs","type":"manual","shape":"process","x":235,"y":406,"title":"Gather Classification Docs","kind":"Manual · Collection","sub":"Pull CV from email or onlyfy; if insufficient, request insurance data extract from candidate.","documents":[],"showDocuments":false},
+          {"id":"kv_excel","type":"manual","shape":"process","x":87,"y":599,"title":"KV Calculation","kind":"Manual · Data","sub":"Compute collective-agreement grade and 6th-vacation-week eligibility in the KV workbook (Excel).","documents":[],"showDocuments":false},
+          {"id":"generate_contract","type":"manual","shape":"process","x":385,"y":798.5,"title":"Generate Contract Set","kind":"Manual · Documents","sub":"Contract plus Gleitzeit, Home Office and Data Protection Agreement as required by position. Additional Documents if required: Hosting Agreement, Confirmation Letter, Invitation Letter","documents":["GMI Contract","IMBA Contract","Flexietime Agreement","Home Office Agreement","etc."],"showDocuments":true},
+          {"id":"sage_entry","type":"manual","shape":"process","x":87,"y":797.5,"title":"Enter 6th-Week into Sage","kind":"System · Integration","sub":"Jessica enters the start date for 6th-vacation-week eligibility into the HR system of record.","documents":[],"showDocuments":false},
+          {"id":"sage_dpw","type":"manual","shape":"database","x":97,"y":983.5,"title":"Sage DPW","kind":"Data Store","sub":"HR system of record. Holds employee master data and entitlements.","documents":[],"showDocuments":false},
+          {"id":"crush_upload","type":"manual","shape":"database","x":842,"y":622.5,"title":"Upload to Crush","kind":"System · Integration","sub":"Upload contract draft, Entry List + Personal Sheet to Infoniqa Crush. Data lands in LGV.","documents":[],"showDocuments":false},
+          {"id":"crush_lgv","type":"manual","shape":"database","x":1147,"y":622.5,"title":"LGV","kind":"Data Store","sub":"Infoniqa payroll system. Receives the contract draft and Personal Sheet data.","documents":[],"showDocuments":false},
+          {"id":"send_to_candidate","type":"manual","shape":"process","x":843,"y":987,"title":"Send Contracts to Candidate","kind":"Output · Email","sub":"Send the contract set to the candidate for signature.","documents":[],"showDocuments":false},
+          {"id":"candidate_signs","type":"manual","shape":"process","x":1146,"y":987,"title":"Candidate Signs & Returns","kind":"Manual · Inbound","sub":"eceive the signed contract along with the Hosting Agreement, Data Protection, and Flexitime documents back from the candidate.","documents":[],"showDocuments":false},
+          {"id":"print_contract","type":"manual","shape":"process","x":838,"y":797.5,"title":"Print & Prepare Folder","kind":"Manual · Physical","sub":"Print the contract to place it into a physical folder for the director meeting.","documents":[],"showDocuments":false},
+          {"id":"director_signs","type":"manual","shape":"process","x":1141,"y":806,"title":"Director Signs","kind":"Manual · Physical","sub":"Director signs the printed contract during the regular HR meeting.","documents":[],"showDocuments":false},
+          {"id":"welcome_folder","type":"manual","shape":"database","x":1730,"y":797,"title":"Welcome Folder","kind":"Output · Physical","sub":"Single physical folder per new hire. Check-in sheet pages chosen by institute (GMI/IMBA) and position; signed contract added at the end.","documents":[],"showDocuments":false},
+          {"id":"welcome_ppt","type":"manual","shape":"process","x":1718,"y":1031.5,"title":"Welcome PowerPoint","kind":"Output · Document","sub":"Slide listing new hires (group, position, name) — separate output, not part of the Welcome Folder.","documents":[],"showDocuments":false},
+          {"id":"welcome_invite","type":"manual","shape":"process","x":1698,"y":598,"title":"Send Welcome Meeting Invite","kind":"Output · Email","sub":"Invite the candidate to the Welcome Meeting using the email from the Eintrittsliste.","documents":[],"showDocuments":false},
+          {"id":"nyhyib","type":"manual","shape":"process","x":1719,"y":58.5,"title":"Notify Group Leader (Funding)","kind":"Manual · Notification","sub":"Inform the Group Leader that the hiring process has been cancelled because funding is not available.","documents":[],"showDocuments":false},
+          {"id":"n0g4ip","type":"manual","shape":"database","x":1439,"y":631,"title":"Midpoint","kind":"Data Store","sub":"Provisions user rights and automatically generates the Welcome Letter containing initial IT access credentials.","documents":[],"showDocuments":false},
+          {"id":"n1igu2","type":"manual","shape":"database","x":1438,"y":979,"title":"Personnel Record (SharePoint)","kind":"Data Store","sub":"Digital repository on SharePoint. Stores the returned signed contract and serves as the official employee record.","documents":[],"showDocuments":false}
         ],
         "edges": [
-          {
-            "id": "e_fc_fok",
-            "from": "funding_check",
-            "to": "funding_ok",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "FundingDecision",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "approval status",
-              "confirmed SAP number"
-            ],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e_send_sign",
-            "from": "send_to_candidate",
-            "to": "candidate_signs",
-            "type": "manual",
-            "direction": "bidirectional",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "email/outlook",
-              "payload": "SignatureLoop",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "unsigned contract (out)",
-              "signed contract (in)"
-            ],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e_print_dir",
-            "from": "print_contract",
-            "to": "director_signs",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "physical.handoff",
-              "payload": "PaperContract",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "printed contract in folder"
-            ],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "edvzblknz",
-            "from": "trigger",
-            "to": "data_complete",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "eeeyiqaf6",
-            "from": "clarify_lead",
-            "to": "funding_check",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "egfkbdph2",
-            "from": "candidate_returns",
-            "to": "clarify_candidate",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "egggymxy7",
-            "from": "funding_check",
-            "to": "eintrittsliste",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "SAP Grant Number",
-              "Cost Center Number"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 1028,
-                "y": 262
-              }
-            ]
-          },
-          {
-            "id": "eggz6tf1h",
-            "from": "clarify_candidate",
-            "to": "eintrittsliste",
-            "type": "manual",
-            "direction": "bidirectional",
-            "sourceAnchor": "left",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "expuzer0e",
-            "from": "funding_ok",
-            "to": "welcome_mail",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "Yes",
-            "waypoints": []
-          },
-          {
-            "id": "exq5th6n1",
-            "from": "welcome_mail",
-            "to": "candidate_returns",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "exqpxfcfb",
-            "from": "trigger",
-            "to": "eintrittsliste",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Name of the Candidate",
-              "Entry Date",
-              "Contract End Date",
-              "Email Address",
-              "Department",
-              "Cost Center",
-              "Position Title",
-              "Visa required",
-              "Eventually: Salary, Working Hours"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 514,
-                "y": 255
-              },
-              {
-                "x": 805,
-                "y": 364
-              }
-            ]
-          },
-          {
-            "id": "exr2m4sx0",
-            "from": "candidate_returns",
-            "to": "eintrittsliste",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "top",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Title",
-              "Date of birth",
-              "Check Name"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 1300,
-                "y": 284
-              }
-            ]
-          },
-          {
-            "id": "exrjvb8wx",
-            "from": "clarify_lead",
-            "to": "eintrittsliste",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Missing Details from New-Hire Notification → Eintrittsliste"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "eyfkramcn",
-            "from": "data_complete",
-            "to": "funding_check",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "Yes",
-            "waypoints": []
-          },
-          {
-            "id": "eyjikkrb0",
-            "from": "funding_ok",
-            "to": "nyhyib",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "No",
-            "waypoints": []
-          },
-          {
-            "id": "ezarvyrsz",
-            "from": "data_complete",
-            "to": "clarify_lead",
-            "type": "manual",
-            "direction": "bidirectional",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "No",
-            "waypoints": []
-          },
-          {
-            "id": "ezkqq81jx",
-            "from": "eintrittsliste",
-            "to": "kv_needed",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "right",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "eznqgb586",
-            "from": "kv_needed",
-            "to": "gather_docs",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "right",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "yes",
-            "waypoints": []
-          },
-          {
-            "id": "ezoworg42",
-            "from": "eintrittsliste",
-            "to": "generate_contract",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 744,
-                "y": 653
-              }
-            ]
-          },
-          {
-            "id": "ezq6kvted",
-            "from": "gather_docs",
-            "to": "kv_excel",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "ezqll1tlz",
-            "from": "onlyfy",
-            "to": "kv_excel",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "CV"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "ezvrmvtzo",
-            "from": "kv_excel",
-            "to": "generate_contract",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "ezzrdchfg",
-            "from": "trigger",
-            "to": "gather_docs",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "CV"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e039xgx7x",
-            "from": "generate_contract",
-            "to": "crush_upload",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e08jgbg1m",
-            "from": "kv_needed",
-            "to": "generate_contract",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "no",
-            "waypoints": []
-          },
-          {
-            "id": "e09d8q7z1",
-            "from": "kv_excel",
-            "to": "sage_entry",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e09m7lsrr",
-            "from": "sage_entry",
-            "to": "sage_dpw",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0aux7es4",
-            "from": "crush_upload",
-            "to": "crush_lgv",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0gt91qfa",
-            "from": "crush_lgv",
-            "to": "n0g4ip",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0idhni7w",
-            "from": "eintrittsliste",
-            "to": "crush_upload",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0ostgpzx",
-            "from": "generate_contract",
-            "to": "print_contract",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0pfscwvn",
-            "from": "generate_contract",
-            "to": "send_to_candidate",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0y4q1qs8",
-            "from": "eintrittsliste",
-            "to": "welcome_ppt",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Name",
-              "Research Group / Department"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 1091,
-                "y": 639
-              },
-              {
-                "x": 1172,
-                "y": 1179
-              }
-            ]
-          },
-          {
-            "id": "e108fzbbs",
-            "from": "eintrittsliste",
-            "to": "welcome_invite",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Email Adress"
-            ],
-            "kind": "process",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 1148,
-                "y": 605
-              },
-              {
-                "x": 1595,
-                "y": 605
-              }
-            ]
-          },
-          {
-            "id": "e143ndirz",
-            "from": "generate_contract",
-            "to": "welcome_ppt",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Position Title"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 703,
-                "y": 1152
-              }
-            ]
-          },
-          {
-            "id": "e17epect8",
-            "from": "candidate_returns",
-            "to": "generate_contract",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Address"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 1386,
-                "y": 554
-              }
-            ]
-          },
-          {
-            "id": "e1i7mt86r",
-            "from": "n0g4ip",
-            "to": "welcome_folder",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e1iadkklw",
-            "from": "director_signs",
-            "to": "welcome_folder",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e5egrpktp",
-            "from": "candidate_signs",
-            "to": "n1igu2",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          }
+          {"id":"e_fc_fok","from":"funding_check","to":"funding_ok","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"FundingDecision","latency":0,"throughput":"—"},"dataItems":["approval status","confirmed SAP number"],"kind":"process","label":"","waypoints":[]},
+          {"id":"e_send_sign","from":"send_to_candidate","to":"candidate_signs","type":"manual","direction":"bidirectional","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"email/outlook","payload":"SignatureLoop","latency":0,"throughput":"—"},"dataItems":["unsigned contract (out)","signed contract (in)"],"kind":"process","label":"","waypoints":[]},
+          {"id":"e_print_dir","from":"print_contract","to":"director_signs","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"physical.handoff","payload":"PaperContract","latency":0,"throughput":"—"},"dataItems":["printed contract in folder"],"kind":"process","label":"","waypoints":[]},
+          {"id":"edvzblknz","from":"trigger","to":"data_complete","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"eeeyiqaf6","from":"clarify_lead","to":"funding_check","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"egfkbdph2","from":"candidate_returns","to":"clarify_candidate","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"egggymxy7","from":"funding_check","to":"eintrittsliste","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["SAP Grant Number","Cost Center Number"],"kind":"data","label":"","waypoints":[{"x":1028,"y":262}]},
+          {"id":"eggz6tf1h","from":"clarify_candidate","to":"eintrittsliste","type":"manual","direction":"bidirectional","sourceAnchor":"left","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"expuzer0e","from":"funding_ok","to":"welcome_mail","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"Yes","waypoints":[]},
+          {"id":"exq5th6n1","from":"welcome_mail","to":"candidate_returns","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"exqpxfcfb","from":"trigger","to":"eintrittsliste","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Name of the Candidate","Entry Date","Contract End Date","Email Address","Department","Cost Center","Position Title","Visa required","Eventually: Salary, Working Hours"],"kind":"data","label":"","waypoints":[{"x":514,"y":255},{"x":805,"y":364}]},
+          {"id":"exr2m4sx0","from":"candidate_returns","to":"eintrittsliste","type":"manual","direction":"forward","sourceAnchor":"top","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Title","Date of birth","Check Name"],"kind":"data","label":"","waypoints":[{"x":1300,"y":284}]},
+          {"id":"exrjvb8wx","from":"clarify_lead","to":"eintrittsliste","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Missing Details from New-Hire Notification → Eintrittsliste"],"kind":"data","label":"","waypoints":[]},
+          {"id":"eyfkramcn","from":"data_complete","to":"funding_check","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"Yes","waypoints":[]},
+          {"id":"eyjikkrb0","from":"funding_ok","to":"nyhyib","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"No","waypoints":[]},
+          {"id":"ezarvyrsz","from":"data_complete","to":"clarify_lead","type":"manual","direction":"bidirectional","sourceAnchor":"bottom","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"No","waypoints":[]},
+          {"id":"ezkqq81jx","from":"eintrittsliste","to":"kv_needed","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"right","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"eznqgb586","from":"kv_needed","to":"gather_docs","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"right","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"yes","waypoints":[]},
+          {"id":"ezoworg42","from":"eintrittsliste","to":"generate_contract","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"data","label":"","waypoints":[{"x":744,"y":653}]},
+          {"id":"ezq6kvted","from":"gather_docs","to":"kv_excel","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"ezqll1tlz","from":"onlyfy","to":"kv_excel","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["CV"],"kind":"data","label":"","waypoints":[]},
+          {"id":"ezvrmvtzo","from":"kv_excel","to":"generate_contract","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"ezzrdchfg","from":"trigger","to":"gather_docs","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["CV"],"kind":"data","label":"","waypoints":[]},
+          {"id":"e039xgx7x","from":"generate_contract","to":"crush_upload","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e08jgbg1m","from":"kv_needed","to":"generate_contract","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"no","waypoints":[]},
+          {"id":"e09d8q7z1","from":"kv_excel","to":"sage_entry","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e09m7lsrr","from":"sage_entry","to":"sage_dpw","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0aux7es4","from":"crush_upload","to":"crush_lgv","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0gt91qfa","from":"crush_lgv","to":"n0g4ip","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0idhni7w","from":"eintrittsliste","to":"crush_upload","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0ostgpzx","from":"generate_contract","to":"print_contract","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0pfscwvn","from":"generate_contract","to":"send_to_candidate","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0y4q1qs8","from":"eintrittsliste","to":"welcome_ppt","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Name","Research Group / Department"],"kind":"data","label":"","waypoints":[{"x":1091,"y":639},{"x":1172,"y":1179}]},
+          {"id":"e108fzbbs","from":"eintrittsliste","to":"welcome_invite","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Email Adress"],"kind":"process","label":"","waypoints":[{"x":1148,"y":605},{"x":1595,"y":605}]},
+          {"id":"e143ndirz","from":"generate_contract","to":"welcome_ppt","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Position Title"],"kind":"data","label":"","waypoints":[{"x":703,"y":1152}]},
+          {"id":"e17epect8","from":"candidate_returns","to":"generate_contract","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Address"],"kind":"data","label":"","waypoints":[{"x":1386,"y":554}]},
+          {"id":"e1i7mt86r","from":"n0g4ip","to":"welcome_folder","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e1iadkklw","from":"director_signs","to":"welcome_folder","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e5egrpktp","from":"candidate_signs","to":"n1igu2","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]}
         ]
       }
     },
@@ -3471,1292 +2371,80 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       "lineageRoot": "b_nk2leksylr",
       "data": {
         "nodes": [
-          {
-            "id": "trigger",
-            "type": "manual",
-            "shape": "process",
-            "x": 123,
-            "y": 42,
-            "title": "New-Hire Notification",
-            "kind": "Trigger · Source",
-            "sub": "Group leader or Scientific Training emails HR that a new employee will start. Initial info often incomplete.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "clarify_lead",
-            "type": "manual",
-            "shape": "process",
-            "x": 747,
-            "y": 150,
-            "title": "Clarify with Group Leader",
-            "kind": "Manual · Loop",
-            "sub": "Email back-and-forth until salary, contract length, visa, and basics are complete.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "data_complete",
-            "type": "manual",
-            "shape": "decision",
-            "x": 444,
-            "y": 21.5,
-            "title": "Data complete?",
-            "kind": "Decision · Branch",
-            "sub": "Loops back to clarification if any base data is missing.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "funding_check",
-            "type": "manual",
-            "shape": "process",
-            "x": 1108,
-            "y": 42,
-            "title": "Funding Check",
-            "kind": "Manual · Coordination",
-            "sub": "HR asks Controlling/Grants whether funding is approved; clarifies SAP grant number if applicable.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "funding_ok",
-            "type": "manual",
-            "shape": "decision",
-            "x": 1425,
-            "y": 21.5,
-            "title": "Funding OK?",
-            "kind": "Decision · Branch",
-            "sub": "If rejected, the onboarding pauses pending internal clarification.",
-            "documents": [],
-            "showDocuments": false,
-            "undefined": "—"
-          },
-          {
-            "id": "eintrittsliste",
-            "type": "ai",
-            "shape": "database",
-            "x": 844,
-            "y": 389.5,
-            "title": "AI-ready Entry List",
-            "kind": "Data Store",
-            "sub": "Central Excel master list. Feeds Welcome Meeting invite, presentation, and several downstream steps.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "welcome_mail",
-            "type": "manual",
-            "shape": "process",
-            "x": 1719,
-            "y": 264,
-            "title": "Send Welcome Mail",
-            "kind": "Output · Email",
-            "sub": "Welcome email to candidate with blank Personal Sheet PDF attached for completion.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "candidate_returns",
-            "type": "manual",
-            "shape": "process",
-            "x": 1473,
-            "y": 419,
-            "title": "Candidate Returns Sheet",
-            "kind": "Manual · Inbound",
-            "sub": "Candidate returns Personal Sheet (sometimes handwritten) plus passport scan.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "clarify_candidate",
-            "type": "manual",
-            "shape": "process",
-            "x": 1157,
-            "y": 338,
-            "title": "Clarify with Candidate",
-            "kind": "Manual · Loop",
-            "sub": "Email loop with candidate until all personal data and contract-relevant info are complete.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "kv_needed",
-            "type": "manual",
-            "shape": "decision",
-            "x": 565,
-            "y": 348.5,
-            "title": "KV grading needed?",
-            "kind": "Decision · Branch",
-            "sub": "Skip classification block if not needed for this position.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "onlyfy",
-            "type": "manual",
-            "shape": "database",
-            "x": 27,
-            "y": 231,
-            "title": "onlyfy",
-            "kind": "Data Store",
-            "sub": "Recruiting tool. Potential source for the candidate CV when not already attached to the trigger email.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "gather_docs",
-            "type": "manual",
-            "shape": "process",
-            "x": 235,
-            "y": 406,
-            "title": "Gather Classification Docs",
-            "kind": "Manual · Collection",
-            "sub": "Pull CV from email or onlyfy; if insufficient, request insurance data extract from candidate.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "kv_excel",
-            "type": "ai",
-            "shape": "process",
-            "x": 87,
-            "y": 599,
-            "title": "KV Calculation",
-            "kind": "AI · Data",
-            "sub": "Compute collective-agreement grade and 6th-vacation-week eligibility in the KV workbook (Excel).",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "generate_contract",
-            "type": "ai",
-            "shape": "process",
-            "x": 385,
-            "y": 797.5,
-            "title": "Generate Contracts",
-            "kind": "AI · Documents",
-            "sub": "AI generates GMI and IMBA contracts from approved skill.md contract templates and structured HR data.",
-            "documents": [
-              "GMI Contract",
-              "IMBA Contract"
-            ],
-            "showDocuments": true,
-            "undefined": "GMI Contract\\nIMBA Contract"
-          },
-          {
-            "id": "sage_entry",
-            "type": "manual",
-            "shape": "process",
-            "x": 87,
-            "y": 797.5,
-            "title": "Enter 6th-Week into Sage",
-            "kind": "System · Integration",
-            "sub": "Jessica enters the start date for 6th-vacation-week eligibility into the HR system of record.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "sage_dpw",
-            "type": "manual",
-            "shape": "database",
-            "x": 97,
-            "y": 983.5,
-            "title": "Sage DPW",
-            "kind": "Data Store",
-            "sub": "HR system of record. Holds employee master data and entitlements.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "crush_upload",
-            "type": "manual",
-            "shape": "database",
-            "x": 842,
-            "y": 622.5,
-            "title": "Upload to Crush",
-            "kind": "System · Integration",
-            "sub": "Upload contract draft, Entry List + Personal Sheet to Infoniqa Crush. Data lands in LGV.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "crush_lgv",
-            "type": "manual",
-            "shape": "database",
-            "x": 1147,
-            "y": 622.5,
-            "title": "LGV",
-            "kind": "Data Store",
-            "sub": "Infoniqa payroll system. Receives the contract draft and Personal Sheet data.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "send_to_candidate",
-            "type": "manual",
-            "shape": "process",
-            "x": 843,
-            "y": 987,
-            "title": "Send Contracts to Candidate",
-            "kind": "Output · Email",
-            "sub": "Send the contract set to the candidate for signature.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "candidate_signs",
-            "type": "manual",
-            "shape": "process",
-            "x": 1146,
-            "y": 987,
-            "title": "Candidate Signs & Returns",
-            "kind": "Manual · Inbound",
-            "sub": "eceive the signed contract along with the Hosting Agreement, Data Protection, and Flexitime documents back from the candidate.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "print_contract",
-            "type": "manual",
-            "shape": "process",
-            "x": 838,
-            "y": 797.5,
-            "title": "Print & Prepare Folder",
-            "kind": "Manual · Physical",
-            "sub": "Print the contract to place it into a physical folder for the director meeting.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "director_signs",
-            "type": "manual",
-            "shape": "process",
-            "x": 1141,
-            "y": 806,
-            "title": "Director Signs",
-            "kind": "Manual · Physical",
-            "sub": "Director signs the printed contract during the regular HR meeting.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "welcome_folder",
-            "type": "manual",
-            "shape": "database",
-            "x": 1730,
-            "y": 797,
-            "title": "Welcome Folder",
-            "kind": "Output · Physical",
-            "sub": "Single physical folder per new hire. Check-in sheet pages chosen by institute (GMI/IMBA) and position; signed contract added at the end.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "welcome_ppt",
-            "type": "manual",
-            "shape": "process",
-            "x": 1704,
-            "y": 1033.5,
-            "title": "Welcome PowerPoint",
-            "kind": "Output · Document",
-            "sub": "Slide listing new hires (group, position, name) — separate output, not part of the Welcome Folder.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "welcome_invite",
-            "type": "manual",
-            "shape": "process",
-            "x": 1698,
-            "y": 598,
-            "title": "Send Welcome Meeting Invite",
-            "kind": "Output · Email",
-            "sub": "Invite the candidate to the Welcome Meeting using the email from the Eintrittsliste.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "nyhyib",
-            "type": "manual",
-            "shape": "process",
-            "x": 1719,
-            "y": 58.5,
-            "title": "Notify Group Leader (Funding)",
-            "kind": "Manual · Notification",
-            "sub": "Inform the Group Leader that the hiring process has been cancelled because funding is not available.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "n0g4ip",
-            "type": "manual",
-            "shape": "database",
-            "x": 1439,
-            "y": 600,
-            "title": "Midpoint",
-            "kind": "Data Store",
-            "sub": "Provisions user rights and automatically generates the Welcome Letter containing initial IT access credentials.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "n0rujd",
-            "type": "ai",
-            "shape": "process",
-            "x": 1430,
-            "y": 814,
-            "title": "Create Print-Ready Package",
-            "kind": "AI · Document Gen",
-            "sub": "Automatically compiles the Welcome Letter, Info Sheets, and pre-filled Check-In Sheet into a single, print-ready PDF per new hire for the physical folder.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "n1oysx",
-            "type": "manual",
-            "shape": "database",
-            "x": 1437,
-            "y": 992,
-            "title": "Personnel Record (SharePoint)",
-            "kind": "Data Store",
-            "sub": "Digital repository on SharePoint. Stores the returned signed contract and serves as the official employee record.",
-            "documents": [],
-            "showDocuments": false
-          },
-          {
-            "id": "n1s050",
-            "type": "manual",
-            "shape": "process",
-            "x": 334,
-            "y": 991.5,
-            "title": "Prepare Additional Documents",
-            "kind": "Manual · Documents",
-            "sub": "Gleitzeit, Home Office and Data Protection Agreement as required by position. Additional Documents if required: Hosting Agreement, Confirmation Letter, Invitation Letter",
-            "documents": [
-              "Flexietime Agreement",
-              "Home Office",
-              "Data Protection",
-              "Hosting Agreement",
-              "Confirmation Letters"
-            ],
-            "showDocuments": true,
-            "undefined": "Flexietime Agreement\\nHome Office\\nData Protection\\nHosting Agreement\\nConfirmation Letters"
-          }
+          {"id":"trigger","type":"manual","shape":"process","x":123,"y":42,"title":"New-Hire Notification","kind":"Trigger · Source","sub":"Group leader or Scientific Training emails HR that a new employee will start. Initial info often incomplete.","documents":[],"showDocuments":false},
+          {"id":"clarify_lead","type":"manual","shape":"process","x":747,"y":150,"title":"Clarify with Group Leader","kind":"Manual · Loop","sub":"Email back-and-forth until salary, contract length, visa, and basics are complete.","documents":[],"showDocuments":false},
+          {"id":"data_complete","type":"manual","shape":"decision","x":444,"y":21.5,"title":"Data complete?","kind":"Decision · Branch","sub":"Loops back to clarification if any base data is missing.","documents":[],"showDocuments":false},
+          {"id":"funding_check","type":"manual","shape":"process","x":1108,"y":42,"title":"Funding Check","kind":"Manual · Coordination","sub":"HR asks Controlling/Grants whether funding is approved; clarifies SAP grant number if applicable.","documents":[],"showDocuments":false},
+          {"id":"funding_ok","type":"manual","shape":"decision","x":1425,"y":21.5,"title":"Funding OK?","kind":"Decision · Branch","sub":"If rejected, the onboarding pauses pending internal clarification.","documents":[],"showDocuments":false},
+          {"id":"eintrittsliste","type":"ai","shape":"database","x":844,"y":389.5,"title":"AI-ready Entry List","kind":"Data Store","sub":"Central Excel master list. Feeds Welcome Meeting invite, presentation, and several downstream steps.","documents":[],"showDocuments":false},
+          {"id":"welcome_mail","type":"manual","shape":"process","x":1719,"y":264,"title":"Send Welcome Mail","kind":"Output · Email","sub":"Welcome email to candidate with blank Personal Sheet PDF attached for completion.","documents":[],"showDocuments":false},
+          {"id":"candidate_returns","type":"manual","shape":"process","x":1473,"y":419,"title":"Candidate Returns Sheet","kind":"Manual · Inbound","sub":"Candidate returns Personal Sheet (sometimes handwritten) plus passport scan.","documents":[],"showDocuments":false},
+          {"id":"clarify_candidate","type":"manual","shape":"process","x":1157,"y":338,"title":"Clarify with Candidate","kind":"Manual · Loop","sub":"Email loop with candidate until all personal data and contract-relevant info are complete.","documents":[],"showDocuments":false},
+          {"id":"kv_needed","type":"manual","shape":"decision","x":565,"y":348.5,"title":"KV grading needed?","kind":"Decision · Branch","sub":"Skip classification block if not needed for this position.","documents":[],"showDocuments":false},
+          {"id":"onlyfy","type":"manual","shape":"database","x":27,"y":231,"title":"onlyfy","kind":"Data Store","sub":"Recruiting tool. Potential source for the candidate CV when not already attached to the trigger email.","documents":[],"showDocuments":false},
+          {"id":"gather_docs","type":"manual","shape":"process","x":235,"y":406,"title":"Gather Classification Docs","kind":"Manual · Collection","sub":"Pull CV from email or onlyfy; if insufficient, request insurance data extract from candidate.","documents":[],"showDocuments":false},
+          {"id":"kv_excel","type":"ai","shape":"process","x":87,"y":599,"title":"KV Calculation","kind":"AI · Data","sub":"Compute collective-agreement grade and 6th-vacation-week eligibility in the KV workbook (Excel).","documents":[],"showDocuments":false},
+          {"id":"generate_contract","type":"ai","shape":"process","x":385,"y":797.5,"title":"Generate Contracts","kind":"AI · Documents","sub":"AI generates GMI and IMBA contracts from approved skill.md contract templates and structured HR data.","documents":["GMI Contract","IMBA Contract"],"showDocuments":true},
+          {"id":"sage_entry","type":"manual","shape":"process","x":87,"y":797.5,"title":"Enter 6th-Week into Sage","kind":"System · Integration","sub":"Jessica enters the start date for 6th-vacation-week eligibility into the HR system of record.","documents":[],"showDocuments":false},
+          {"id":"sage_dpw","type":"manual","shape":"database","x":97,"y":983.5,"title":"Sage DPW","kind":"Data Store","sub":"HR system of record. Holds employee master data and entitlements.","documents":[],"showDocuments":false},
+          {"id":"crush_upload","type":"manual","shape":"database","x":842,"y":622.5,"title":"Upload to Crush","kind":"System · Integration","sub":"Upload contract draft, Entry List + Personal Sheet to Infoniqa Crush. Data lands in LGV.","documents":[],"showDocuments":false},
+          {"id":"crush_lgv","type":"manual","shape":"database","x":1147,"y":622.5,"title":"LGV","kind":"Data Store","sub":"Infoniqa payroll system. Receives the contract draft and Personal Sheet data.","documents":[],"showDocuments":false},
+          {"id":"send_to_candidate","type":"manual","shape":"process","x":843,"y":987,"title":"Send Contracts to Candidate","kind":"Output · Email","sub":"Send the contract set to the candidate for signature.","documents":[],"showDocuments":false},
+          {"id":"candidate_signs","type":"manual","shape":"process","x":1146,"y":987,"title":"Candidate Signs & Returns","kind":"Manual · Inbound","sub":"eceive the signed contract along with the Hosting Agreement, Data Protection, and Flexitime documents back from the candidate.","documents":[],"showDocuments":false},
+          {"id":"print_contract","type":"manual","shape":"process","x":838,"y":797.5,"title":"Print & Prepare Folder","kind":"Manual · Physical","sub":"Print the contract to place it into a physical folder for the director meeting.","documents":[],"showDocuments":false},
+          {"id":"director_signs","type":"manual","shape":"process","x":1141,"y":806,"title":"Director Signs","kind":"Manual · Physical","sub":"Director signs the printed contract during the regular HR meeting.","documents":[],"showDocuments":false},
+          {"id":"welcome_folder","type":"manual","shape":"database","x":1730,"y":797,"title":"Welcome Folder","kind":"Output · Physical","sub":"Single physical folder per new hire. Check-in sheet pages chosen by institute (GMI/IMBA) and position; signed contract added at the end.","documents":[],"showDocuments":false},
+          {"id":"welcome_ppt","type":"manual","shape":"process","x":1704,"y":1033.5,"title":"Welcome PowerPoint","kind":"Output · Document","sub":"Slide listing new hires (group, position, name) — separate output, not part of the Welcome Folder.","documents":[],"showDocuments":false},
+          {"id":"welcome_invite","type":"manual","shape":"process","x":1698,"y":598,"title":"Send Welcome Meeting Invite","kind":"Output · Email","sub":"Invite the candidate to the Welcome Meeting using the email from the Eintrittsliste.","documents":[],"showDocuments":false},
+          {"id":"nyhyib","type":"manual","shape":"process","x":1719,"y":58.5,"title":"Notify Group Leader (Funding)","kind":"Manual · Notification","sub":"Inform the Group Leader that the hiring process has been cancelled because funding is not available.","documents":[],"showDocuments":false},
+          {"id":"n0g4ip","type":"manual","shape":"database","x":1439,"y":600,"title":"Midpoint","kind":"Data Store","sub":"Provisions user rights and automatically generates the Welcome Letter containing initial IT access credentials.","documents":[],"showDocuments":false},
+          {"id":"n0rujd","type":"ai","shape":"process","x":1430,"y":814,"title":"Create Print-Ready Package","kind":"AI · Document Gen","sub":"Automatically compiles the Welcome Letter, Info Sheets, and pre-filled Check-In Sheet into a single, print-ready PDF per new hire for the physical folder.","documents":[],"showDocuments":false},
+          {"id":"n1oysx","type":"manual","shape":"database","x":1437,"y":992,"title":"Personnel Record (SharePoint)","kind":"Data Store","sub":"Digital repository on SharePoint. Stores the returned signed contract and serves as the official employee record.","documents":[],"showDocuments":false},
+          {"id":"n1s050","type":"manual","shape":"process","x":334,"y":991.5,"title":"Prepare Additional Documents","kind":"Manual · Documents","sub":"Gleitzeit, Home Office and Data Protection Agreement as required by position. Additional Documents if required: Hosting Agreement, Confirmation Letter, Invitation Letter","documents":["Flexietime Agreement","Home Office","Data Protection","Hosting Agreement","Confirmation Letters"],"showDocuments":true}
         ],
         "edges": [
-          {
-            "id": "e_fc_fok",
-            "from": "funding_check",
-            "to": "funding_ok",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "FundingDecision",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "approval status",
-              "confirmed SAP number"
-            ],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e_send_sign",
-            "from": "send_to_candidate",
-            "to": "candidate_signs",
-            "type": "manual",
-            "direction": "bidirectional",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "email/outlook",
-              "payload": "SignatureLoop",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "unsigned contract (out)",
-              "signed contract (in)"
-            ],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e_print_dir",
-            "from": "print_contract",
-            "to": "director_signs",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "physical.handoff",
-              "payload": "PaperContract",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "printed contract in folder"
-            ],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "edvzblknz",
-            "from": "trigger",
-            "to": "data_complete",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "eeeyiqaf6",
-            "from": "clarify_lead",
-            "to": "funding_check",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "egfkbdph2",
-            "from": "candidate_returns",
-            "to": "clarify_candidate",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "egggymxy7",
-            "from": "funding_check",
-            "to": "eintrittsliste",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "SAP Grant Number",
-              "Cost Center Number"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 1028,
-                "y": 262
-              }
-            ]
-          },
-          {
-            "id": "eggz6tf1h",
-            "from": "clarify_candidate",
-            "to": "eintrittsliste",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "expuzer0e",
-            "from": "funding_ok",
-            "to": "welcome_mail",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "Yes",
-            "waypoints": []
-          },
-          {
-            "id": "exq5th6n1",
-            "from": "welcome_mail",
-            "to": "candidate_returns",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "exqpxfcfb",
-            "from": "trigger",
-            "to": "eintrittsliste",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Name of the Candidate",
-              "Entry Date",
-              "Contract End Date",
-              "Email Address",
-              "Department",
-              "Cost Center",
-              "Position Title",
-              "Visa required",
-              "Eventually: Salary, Working Hours"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 514,
-                "y": 255
-              },
-              {
-                "x": 805,
-                "y": 364
-              }
-            ]
-          },
-          {
-            "id": "exr2m4sx0",
-            "from": "candidate_returns",
-            "to": "eintrittsliste",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "top",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Title",
-              "Date of birth",
-              "Check Name"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 1300,
-                "y": 284
-              }
-            ]
-          },
-          {
-            "id": "exrjvb8wx",
-            "from": "clarify_lead",
-            "to": "eintrittsliste",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Missing Details from New-Hire Notification → Eintrittsliste"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "eyfkramcn",
-            "from": "data_complete",
-            "to": "funding_check",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "Yes",
-            "waypoints": []
-          },
-          {
-            "id": "eyjikkrb0",
-            "from": "funding_ok",
-            "to": "nyhyib",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "No",
-            "waypoints": []
-          },
-          {
-            "id": "ezarvyrsz",
-            "from": "data_complete",
-            "to": "clarify_lead",
-            "type": "manual",
-            "direction": "bidirectional",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "No",
-            "waypoints": []
-          },
-          {
-            "id": "ezkqq81jx",
-            "from": "eintrittsliste",
-            "to": "kv_needed",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "right",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "eznqgb586",
-            "from": "kv_needed",
-            "to": "gather_docs",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "right",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "yes",
-            "waypoints": []
-          },
-          {
-            "id": "ezoworg42",
-            "from": "eintrittsliste",
-            "to": "generate_contract",
-            "type": "ai",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 744,
-                "y": 653
-              }
-            ]
-          },
-          {
-            "id": "ezq6kvted",
-            "from": "gather_docs",
-            "to": "kv_excel",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "ezqll1tlz",
-            "from": "onlyfy",
-            "to": "kv_excel",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "CV"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "ezvrmvtzo",
-            "from": "kv_excel",
-            "to": "generate_contract",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "ezzrdchfg",
-            "from": "trigger",
-            "to": "gather_docs",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "CV"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e039xgx7x",
-            "from": "generate_contract",
-            "to": "crush_upload",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e08jgbg1m",
-            "from": "kv_needed",
-            "to": "generate_contract",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "no",
-            "waypoints": []
-          },
-          {
-            "id": "e09d8q7z1",
-            "from": "kv_excel",
-            "to": "sage_entry",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e09m7lsrr",
-            "from": "sage_entry",
-            "to": "sage_dpw",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0aux7es4",
-            "from": "crush_upload",
-            "to": "crush_lgv",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0gt91qfa",
-            "from": "crush_lgv",
-            "to": "n0g4ip",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0idhni7w",
-            "from": "eintrittsliste",
-            "to": "crush_upload",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0ostgpzx",
-            "from": "generate_contract",
-            "to": "print_contract",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0pfscwvn",
-            "from": "generate_contract",
-            "to": "send_to_candidate",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0vt0gy5y",
-            "from": "n0g4ip",
-            "to": "n0rujd",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0xftqen8",
-            "from": "n0rujd",
-            "to": "welcome_folder",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e0y4q1qs8",
-            "from": "eintrittsliste",
-            "to": "welcome_ppt",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Name",
-              "Research Group / Department"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 1091,
-                "y": 639
-              },
-              {
-                "x": 1176,
-                "y": 1169
-              }
-            ]
-          },
-          {
-            "id": "e108fzbbs",
-            "from": "eintrittsliste",
-            "to": "welcome_invite",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Email Adress"
-            ],
-            "kind": "process",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 1180,
-                "y": 596
-              },
-              {
-                "x": 1457,
-                "y": 586
-              },
-              {
-                "x": 1657,
-                "y": 589
-              }
-            ]
-          },
-          {
-            "id": "e143ndirz",
-            "from": "generate_contract",
-            "to": "welcome_ppt",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Position Title"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 703,
-                "y": 1152
-              }
-            ]
-          },
-          {
-            "id": "e17epect8",
-            "from": "candidate_returns",
-            "to": "generate_contract",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "left",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Address"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 1386,
-                "y": 554
-              }
-            ]
-          },
-          {
-            "id": "e1sa38pa5",
-            "from": "generate_contract",
-            "to": "n1s050",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          },
-          {
-            "id": "e2bsbpv5z",
-            "from": "director_signs",
-            "to": "welcome_folder",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "top",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 1427,
-                "y": 800
-              },
-              {
-                "x": 1701,
-                "y": 789
-              }
-            ]
-          },
-          {
-            "id": "e2xssm1lv",
-            "from": "n1s050",
-            "to": "n1oysx",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 957,
-                "y": 1138
-              },
-              {
-                "x": 1354,
-                "y": 1117
-              }
-            ]
-          },
-          {
-            "id": "e5h18ouhu",
-            "from": "candidate_signs",
-            "to": "n1oysx",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
-          }
+          {"id":"e_fc_fok","from":"funding_check","to":"funding_ok","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"FundingDecision","latency":0,"throughput":"—"},"dataItems":["approval status","confirmed SAP number"],"kind":"process","label":"","waypoints":[]},
+          {"id":"e_send_sign","from":"send_to_candidate","to":"candidate_signs","type":"manual","direction":"bidirectional","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"email/outlook","payload":"SignatureLoop","latency":0,"throughput":"—"},"dataItems":["unsigned contract (out)","signed contract (in)"],"kind":"process","label":"","waypoints":[]},
+          {"id":"e_print_dir","from":"print_contract","to":"director_signs","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"physical.handoff","payload":"PaperContract","latency":0,"throughput":"—"},"dataItems":["printed contract in folder"],"kind":"process","label":"","waypoints":[]},
+          {"id":"edvzblknz","from":"trigger","to":"data_complete","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"eeeyiqaf6","from":"clarify_lead","to":"funding_check","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"egfkbdph2","from":"candidate_returns","to":"clarify_candidate","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"egggymxy7","from":"funding_check","to":"eintrittsliste","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["SAP Grant Number","Cost Center Number"],"kind":"data","label":"","waypoints":[{"x":1028,"y":262}]},
+          {"id":"eggz6tf1h","from":"clarify_candidate","to":"eintrittsliste","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"expuzer0e","from":"funding_ok","to":"welcome_mail","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"Yes","waypoints":[]},
+          {"id":"exq5th6n1","from":"welcome_mail","to":"candidate_returns","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"exqpxfcfb","from":"trigger","to":"eintrittsliste","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Name of the Candidate","Entry Date","Contract End Date","Email Address","Department","Cost Center","Position Title","Visa required","Eventually: Salary, Working Hours"],"kind":"data","label":"","waypoints":[{"x":514,"y":255},{"x":805,"y":364}]},
+          {"id":"exr2m4sx0","from":"candidate_returns","to":"eintrittsliste","type":"manual","direction":"forward","sourceAnchor":"top","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Title","Date of birth","Check Name"],"kind":"data","label":"","waypoints":[{"x":1300,"y":284}]},
+          {"id":"exrjvb8wx","from":"clarify_lead","to":"eintrittsliste","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Missing Details from New-Hire Notification → Eintrittsliste"],"kind":"data","label":"","waypoints":[]},
+          {"id":"eyfkramcn","from":"data_complete","to":"funding_check","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"Yes","waypoints":[]},
+          {"id":"eyjikkrb0","from":"funding_ok","to":"nyhyib","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"No","waypoints":[]},
+          {"id":"ezarvyrsz","from":"data_complete","to":"clarify_lead","type":"manual","direction":"bidirectional","sourceAnchor":"bottom","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"No","waypoints":[]},
+          {"id":"ezkqq81jx","from":"eintrittsliste","to":"kv_needed","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"right","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"eznqgb586","from":"kv_needed","to":"gather_docs","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"right","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"yes","waypoints":[]},
+          {"id":"ezoworg42","from":"eintrittsliste","to":"generate_contract","type":"ai","direction":"forward","sourceAnchor":"left","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"data","label":"","waypoints":[{"x":744,"y":653}]},
+          {"id":"ezq6kvted","from":"gather_docs","to":"kv_excel","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"ezqll1tlz","from":"onlyfy","to":"kv_excel","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["CV"],"kind":"data","label":"","waypoints":[]},
+          {"id":"ezvrmvtzo","from":"kv_excel","to":"generate_contract","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"ezzrdchfg","from":"trigger","to":"gather_docs","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["CV"],"kind":"data","label":"","waypoints":[]},
+          {"id":"e039xgx7x","from":"generate_contract","to":"crush_upload","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e08jgbg1m","from":"kv_needed","to":"generate_contract","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"no","waypoints":[]},
+          {"id":"e09d8q7z1","from":"kv_excel","to":"sage_entry","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e09m7lsrr","from":"sage_entry","to":"sage_dpw","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0aux7es4","from":"crush_upload","to":"crush_lgv","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0gt91qfa","from":"crush_lgv","to":"n0g4ip","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0idhni7w","from":"eintrittsliste","to":"crush_upload","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0ostgpzx","from":"generate_contract","to":"print_contract","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0pfscwvn","from":"generate_contract","to":"send_to_candidate","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0vt0gy5y","from":"n0g4ip","to":"n0rujd","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0xftqen8","from":"n0rujd","to":"welcome_folder","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e0y4q1qs8","from":"eintrittsliste","to":"welcome_ppt","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Name","Research Group / Department"],"kind":"data","label":"","waypoints":[{"x":1091,"y":639},{"x":1176,"y":1169}]},
+          {"id":"e108fzbbs","from":"eintrittsliste","to":"welcome_invite","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Email Adress"],"kind":"process","label":"","waypoints":[{"x":1180,"y":596},{"x":1457,"y":586},{"x":1657,"y":589}]},
+          {"id":"e143ndirz","from":"generate_contract","to":"welcome_ppt","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Position Title"],"kind":"data","label":"","waypoints":[{"x":703,"y":1152}]},
+          {"id":"e17epect8","from":"candidate_returns","to":"generate_contract","type":"manual","direction":"forward","sourceAnchor":"left","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":["Address"],"kind":"data","label":"","waypoints":[{"x":1386,"y":554}]},
+          {"id":"e1sa38pa5","from":"generate_contract","to":"n1s050","type":"manual","direction":"forward","sourceAnchor":"bottom","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]},
+          {"id":"e2bsbpv5z","from":"director_signs","to":"welcome_folder","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"top","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[{"x":1427,"y":800},{"x":1701,"y":789}]},
+          {"id":"e2xssm1lv","from":"n1s050","to":"n1oysx","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"left","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[{"x":957,"y":1138},{"x":1354,"y":1117}]},
+          {"id":"e5h18ouhu","from":"candidate_signs","to":"n1oysx","type":"manual","direction":"forward","sourceAnchor":"right","targetAnchor":"auto","meta":{"protocol":"in-process","payload":"—","latency":0,"throughput":"—"},"dataItems":[],"kind":"process","label":"","waypoints":[]}
         ]
       }
     }
@@ -4766,6 +2454,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 };
 
   function defaultWorkspace() {
+    // Deep clone so the embedded constant is never mutated.
     return JSON.parse(JSON.stringify(EMBEDDED_DEFAULT_WORKSPACE));
   }
 
@@ -7679,329 +5368,53 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   }
 
   // ============================================================
-  // SEED: Confluence HRGI Onboarding Workflow
+  // STALE-DEFAULT DETECTION
   // ------------------------------------------------------------
-  // One-time seeded board derived from the Confluence whiteboard prompt
-  // at vbc.atlassian.net/wiki/spaces/HRGI/whiteboard/4409426104.
+  // Returns true if a saved workspace looks like a stale default
+  // seed that should be replaced with the current embedded default.
   //
-  // The Confluence source uses a long horizontal "sausage" layout. Here
-  // we re-lay it out as 4 vertical bands flowing top-to-bottom, with
-  // each band reading left-to-right. Database/system nodes (Eintritts-
-  // liste, onlyfy, Crush/LGV, Sage DPW, Welcome Folder) are placed
-  // adjacent to the steps that read or write them.
+  // Heuristics (any one matches → stale):
+  //   1. Contains a board literally named the old Customer Support
+  //      Workflow demo. That demo is gone; nobody should still be
+  //      seeing it.
+  //   2. Looks like the older HRGI seed: a single board named
+  //      'HR Onboarding · HRGI' (the legacy seedConfluenceBoardIfMissing
+  //      title) AND missing the v1.1 marker nodes (Create Print-Ready
+  //      Package, Prepare Additional Documents).
   //
-  // All steps default to type='manual' — this is the AS-IS process the
-  // organisation captured to identify AI-automation potential. Users
-  // can then toggle individual nodes/edges to AI and watch the
-  // automation share rise in the topbar tracker.
+  // We DO NOT replace if the workspace contains nodes that only exist
+  // in the user's edits (e.g. titles they renamed, custom node ids).
+  // The boolean intent here: "this is clearly an unedited old default".
   // ============================================================
-  function confluenceHrgiBoard() {
-    const id = uid('b');
-    const ts = nowIso();
+  function looksLikeOldDefault(ws) {
+    if (!ws || !Array.isArray(ws.boards) || ws.boards.length === 0) return true;
 
-    // Layout coordinates are tuned to a roughly 1300×880 canvas area.
-    const BAND_1 = 60;
-    const BAND_2 = 230;
-    const BAND_3 = 400;
-    const BAND_4 = 580;
-    const BAND_5 = 770;
+    // Old Customer Support demo — replace.
+    const hasCustomerSupport = ws.boards.some(b =>
+      typeof b.name === 'string' && /customer support workflow/i.test(b.name));
+    if (hasCustomerSupport) return true;
 
-    return {
-      id, name: 'HR Onboarding · HRGI',
-      version: '1.0',
-      createdAt: ts, updatedAt: ts,
-      parentBoardId: null,
-      lineageRoot: id,
-      data: {
-        nodes: [
-          // ---------- Band 1: Trigger + clarification + funding ----------
-          { id: 'trigger',     type: 'manual', shape: 'process',  x:  40, y: BAND_1,
-            title: 'New-Hire Notification',
-            kind:  'Trigger · Source',
-            sub:   'Group leader or Scientific Training emails HR that a new employee will start. Initial info often incomplete.' },
+    // Old HRGI seed: titled 'HR Onboarding · HRGI' (note the slightly
+    // different separator from the new 'HR GMI IMBA · Onboarding').
+    // The legacy seed produces exactly one board with that name; the
+    // new embedded default uses a different title and includes v1.1
+    // marker nodes. If we see the legacy title AND none of the marker
+    // nodes exist anywhere in the workspace, it's the old seed.
+    const hasLegacyTitle = ws.boards.some(b =>
+      typeof b.name === 'string' && /HR Onboarding ·\s*HRGI/i.test(b.name));
+    if (hasLegacyTitle) {
+      const hasMarkerNode = ws.boards.some(b =>
+        Array.isArray(b?.data?.nodes) &&
+        b.data.nodes.some(n =>
+          /Create Print-Ready Package/i.test(n.title || '') ||
+          /Prepare Additional Documents/i.test(n.title || '') ||
+          /AI-ready Entry List/i.test(n.title || '')
+        )
+      );
+      if (!hasMarkerNode) return true;
+    }
 
-          { id: 'clarify_lead', type: 'manual', shape: 'process', x: 290, y: BAND_1,
-            title: 'Clarify with Group Leader',
-            kind:  'Manual · Loop',
-            sub:   'Email back-and-forth until salary, contract length, visa, and basics are complete.' },
-
-          { id: 'data_complete', type: 'manual', shape: 'decision', x: 555, y: BAND_1 - 10,
-            title: 'Data complete?',
-            kind:  'Decision · Branch',
-            sub:   'Loops back to clarification if any base data is missing.' },
-
-          { id: 'funding_check', type: 'manual', shape: 'process', x: 760, y: BAND_1,
-            title: 'Funding Check',
-            kind:  'Manual · Coordination',
-            sub:   'HR asks Controlling/Grants whether funding is approved; clarifies SAP grant number if applicable.' },
-
-          { id: 'funding_ok',   type: 'manual', shape: 'decision', x: 1010, y: BAND_1 - 10,
-            title: 'Funding OK?',
-            kind:  'Decision · Branch',
-            sub:   'If rejected, the onboarding pauses pending internal clarification.' },
-
-          // ---------- Band 2: Candidate data collection ----------
-          // Eintrittsliste sits on the upper right. The funding_ok decision
-          // diamond's bounding box reaches y=230 but the diamond shape's
-          // right vertex is only at (1100, 140), so x=1210 has clear space.
-          { id: 'eintrittsliste', type: 'manual', shape: 'database', x: 1210, y: 180,
-            title: 'Eintrittsliste',
-            kind:  'Data Store',
-            sub:   'Central Excel master list. Feeds Welcome Meeting invite, presentation, and several downstream steps.' },
-
-          { id: 'welcome_mail', type: 'manual', shape: 'process',  x:  40, y: BAND_2,
-            title: 'Send Welcome Mail',
-            kind:  'Output · Email',
-            sub:   'Welcome email to candidate with blank Personal Sheet PDF attached for completion.' },
-
-          { id: 'candidate_returns', type: 'manual', shape: 'process', x: 290, y: BAND_2,
-            title: 'Candidate Returns Sheet',
-            kind:  'Manual · Inbound',
-            sub:   'Candidate returns Personal Sheet (sometimes handwritten) plus passport scan.' },
-
-          { id: 'clarify_candidate', type: 'manual', shape: 'process', x: 540, y: BAND_2,
-            title: 'Clarify with Candidate',
-            kind:  'Manual · Loop',
-            sub:   'Email loop with candidate until all personal data and contract-relevant info are complete.' },
-
-          { id: 'kv_needed', type: 'manual', shape: 'decision', x: 800, y: BAND_2 - 10,
-            title: 'KV grading needed?',
-            kind:  'Decision · Branch',
-            sub:   'Skip classification block if not needed for this position.' },
-
-          // onlyfy stacks directly below eintrittsliste, in the gap between
-          // Bands 2 and 3 on the right edge. Clear of kv_needed (ends at
-          // x=980) horizontally and clear of sage_dpw at (1140, 400)
-          // vertically (onlyfy ends at y=420, sage_dpw starts y=400 but
-          // their x ranges are 1210-1430 vs 1140-1360 — they'd overlap.
-          // Push onlyfy y up to 310 so it ends at 420, and sage_dpw
-          // ranges 1140-1360 vs onlyfy 1210-1430 — overlap region 1210-
-          // 1360 from y=400-420. Negligible (20px) but technically
-          // overlapping. Use y=290 instead so onlyfy ends at y=400 with
-          // a 0px touch only — visually fine.)
-          { id: 'onlyfy', type: 'manual', shape: 'database', x: 1210, y: 290,
-            title: 'onlyfy',
-            kind:  'Data Store',
-            sub:   'Recruiting tool. Source for the candidate CV when not already attached to the trigger email.' },
-
-          // ---------- Band 3: Classification + contract generation ----------
-          { id: 'gather_docs', type: 'manual', shape: 'process', x:  40, y: BAND_3,
-            title: 'Gather Classification Docs',
-            kind:  'Manual · Collection',
-            sub:   'Pull CV from email or onlyfy; if insufficient, request insurance data extract from candidate.' },
-
-          { id: 'kv_excel',    type: 'manual', shape: 'process', x: 320, y: BAND_3,
-            title: 'KV Calculation',
-            kind:  'Manual · Excel',
-            sub:   'Compute collective-agreement grade and 6th-vacation-week eligibility in the KV workbook (Excel).' },
-
-          { id: 'generate_contract', type: 'manual', shape: 'process', x: 600, y: BAND_3,
-            title: 'Generate Contract Set',
-            kind:  'Manual · Documents',
-            sub:   'Contract plus Gleitzeit, Home Office, and Hosting Agreement as required by position.' },
-
-          { id: 'sage_entry', type: 'manual', shape: 'process', x: 880, y: BAND_3,
-            title: 'Enter 6th-Week into Sage',
-            kind:  'System · Integration',
-            sub:   'Jessica enters the start date for 6th-vacation-week eligibility into the HR system of record.' },
-
-          { id: 'sage_dpw', type: 'manual', shape: 'database', x: 1140, y: BAND_3,
-            title: 'Sage DPW',
-            kind:  'Data Store',
-            sub:   'HR system of record. Holds employee master data and entitlements.' },
-
-          // ---------- Band 4: Three parallel strands ----------
-          // Left strand: Crush / LGV
-          { id: 'crush_upload', type: 'manual', shape: 'process', x:  40, y: BAND_4,
-            title: 'Upload to Crush',
-            kind:  'System · Integration',
-            sub:   'Upload contract draft + Personal Sheet to Infoniqa Crush. Data lands in LGV.' },
-
-          { id: 'crush_lgv', type: 'manual', shape: 'database', x:  40, y: BAND_4 + 130,
-            title: 'Crush / LGV',
-            kind:  'Data Store',
-            sub:   'Infoniqa payroll system. Receives the contract draft and Personal Sheet data.' },
-
-          // Middle strand: Candidate signature
-          { id: 'send_to_candidate', type: 'manual', shape: 'process', x: 360, y: BAND_4,
-            title: 'Send Contracts to Candidate',
-            kind:  'Output · Email',
-            sub:   'Send the contract set to the candidate for signature.' },
-
-          { id: 'candidate_signs', type: 'manual', shape: 'process', x: 620, y: BAND_4,
-            title: 'Candidate Signs & Returns',
-            kind:  'Manual · Inbound',
-            sub:   'Receive the signed contract back from the candidate.' },
-
-          // Right strand: Director signature (physical)
-          { id: 'print_contract', type: 'manual', shape: 'process', x: 880, y: BAND_4,
-            title: 'Print & Prepare Folder',
-            kind:  'Manual · Physical',
-            sub:   'Print the contract and place it into a physical folder for the director meeting.' },
-
-          { id: 'director_signs', type: 'manual', shape: 'process', x: 1140, y: BAND_4,
-            title: 'Director Signs',
-            kind:  'Manual · Physical',
-            sub:   'Director signs the printed contract during the regular HR meeting.' },
-
-          // ---------- Band 5: Welcome assembly outputs ----------
-          { id: 'welcome_folder', type: 'manual', shape: 'database', x: 320, y: BAND_5,
-            title: 'Welcome Folder',
-            kind:  'Output · Physical',
-            sub:   'Single physical folder per new hire. Check-in sheet pages chosen by institute (GMI/IMBA) and position; signed contract added at the end.' },
-
-          { id: 'welcome_ppt', type: 'manual', shape: 'process', x: 620, y: BAND_5,
-            title: 'Welcome PowerPoint',
-            kind:  'Output · Document',
-            sub:   'Slide listing new hires (group, position, name) — separate output, not part of the Welcome Folder.' },
-
-          { id: 'welcome_invite', type: 'manual', shape: 'process', x: 900, y: BAND_5,
-            title: 'Send Meeting Invite',
-            kind:  'Output · Email',
-            sub:   'Invite the candidate to the Welcome Meeting using the email from the Eintrittsliste.' },
-        ],
-
-        edges: [
-          // ---- Band 1 flow ----
-          { id: 'e_t_cl',    from: 'trigger',           to: 'clarify_lead',     type: 'manual', direction: 'forward',       sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'email/outlook', payload: 'NewHireNotification', latency: 0, throughput: '—' },
-            dataItems: ['expected start date', 'group / department', 'role title (often partial)'] },
-
-          { id: 'e_cl_dc',   from: 'clarify_lead',      to: 'data_complete',    type: 'manual', direction: 'bidirectional', sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'email/outlook', payload: 'ClarificationLoop', latency: 0, throughput: '—' },
-            dataItems: ['salary range', 'contract duration', 'visa requirements', 'SAP grant number candidate'] },
-
-          { id: 'e_dc_fc',   from: 'data_complete',     to: 'funding_check',    type: 'manual', direction: 'forward',       sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'email/outlook', payload: 'FundingRequest', latency: 0, throughput: '—' },
-            dataItems: ['expected salary', 'duration', 'SAP grant number (if grant-funded)'] },
-
-          { id: 'e_fc_fok',  from: 'funding_check',     to: 'funding_ok',       type: 'manual', direction: 'forward',       sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'in-process', payload: 'FundingDecision', latency: 0, throughput: '—' },
-            dataItems: ['approval status', 'confirmed SAP number'] },
-
-          { id: 'e_fok_eint',from: 'funding_ok',        to: 'eintrittsliste',   type: 'manual', direction: 'forward',       sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'excel.write', payload: 'EntryRecord', latency: 0, throughput: '—' },
-            dataItems: ['name', 'group', 'start date', 'SAP number'] },
-
-          // ---- Band 1 → Band 2 transition ----
-          { id: 'e_fok_wm',  from: 'funding_ok',        to: 'welcome_mail',     type: 'manual', direction: 'forward',       sourceAnchor: 'bottom', targetAnchor: 'top',
-            meta: { protocol: 'in-process', payload: 'GoSignal', latency: 0, throughput: '—' },
-            dataItems: ['approved candidate handle'] },
-
-          // ---- Band 2 flow ----
-          { id: 'e_wm_cr',   from: 'welcome_mail',      to: 'candidate_returns', type: 'manual', direction: 'bidirectional', sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'email/outlook', payload: 'PersonalSheet', latency: 0, throughput: '—' },
-            dataItems: ['blank Personal Sheet PDF (out)', 'completed Personal Sheet (in)', 'passport scan (in)'] },
-
-          { id: 'e_cr_cc',   from: 'candidate_returns', to: 'clarify_candidate', type: 'manual', direction: 'bidirectional', sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'email/outlook', payload: 'CandidateLoop', latency: 0, throughput: '—' },
-            dataItems: ['missing fields', 'IBAN', 'social security number', 'address corrections'] },
-
-          { id: 'e_cc_kv',   from: 'clarify_candidate', to: 'kv_needed',        type: 'manual', direction: 'forward',       sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'in-process', payload: 'CompleteCandidateData', latency: 0, throughput: '—' },
-            dataItems: ['final personal data set'] },
-
-          { id: 'e_eint_cc', from: 'eintrittsliste',    to: 'clarify_candidate', type: 'manual', direction: 'forward',      sourceAnchor: 'left',   targetAnchor: 'top',
-            meta: { protocol: 'excel.read', payload: 'CandidateRow', latency: 0, throughput: '—' },
-            dataItems: ['existing record reference'] },
-
-          // ---- Band 2 → Band 3 transition ----
-          { id: 'e_kv_gd',   from: 'kv_needed',         to: 'gather_docs',      type: 'manual', direction: 'forward',       sourceAnchor: 'bottom', targetAnchor: 'top',
-            meta: { protocol: 'in-process', payload: 'NeedsClassification', latency: 0, throughput: '—' },
-            dataItems: ['YES branch — classification required'] },
-
-          { id: 'e_kv_gen',  from: 'kv_needed',         to: 'generate_contract', type: 'manual', direction: 'forward',      sourceAnchor: 'bottom', targetAnchor: 'top',
-            meta: { protocol: 'in-process', payload: 'SkipClassification', latency: 0, throughput: '—' },
-            dataItems: ['NO branch — straight to contract'] },
-
-          { id: 'e_oly_gd',  from: 'onlyfy',            to: 'gather_docs',      type: 'manual', direction: 'forward',       sourceAnchor: 'left',   targetAnchor: 'top',
-            meta: { protocol: 'web/manual', payload: 'CV', latency: 0, throughput: '—' },
-            dataItems: ['candidate CV', 'application metadata'] },
-
-          // ---- Band 3 flow ----
-          { id: 'e_gd_kvx',  from: 'gather_docs',       to: 'kv_excel',         type: 'manual', direction: 'forward',       sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'in-process', payload: 'ClassificationInputs', latency: 0, throughput: '—' },
-            dataItems: ['CV', 'insurance data extract', 'prior employment history'] },
-
-          { id: 'e_kvx_gen', from: 'kv_excel',          to: 'generate_contract', type: 'manual', direction: 'forward',      sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'in-process', payload: 'GradingResult', latency: 0, throughput: '—' },
-            dataItems: ['KV grade', '6th-week start date'] },
-
-          { id: 'e_gen_sage',from: 'generate_contract', to: 'sage_entry',       type: 'manual', direction: 'forward',       sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'in-process', payload: 'EntitlementHandoff', latency: 0, throughput: '—' },
-            dataItems: ['employee handle', '6th-week start date'] },
-
-          { id: 'e_sage_dpw',from: 'sage_entry',        to: 'sage_dpw',         type: 'manual', direction: 'forward',       sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'system.write', payload: 'EmployeeMasterUpdate', latency: 0, throughput: '—' },
-            dataItems: ['vacation entitlement record'] },
-
-          // ---- Band 3 → Band 4: contract fans out into three strands ----
-          { id: 'e_gen_crush',from: 'generate_contract', to: 'crush_upload',    type: 'manual', direction: 'forward',       sourceAnchor: 'bottom', targetAnchor: 'top',
-            meta: { protocol: 'in-process', payload: 'ContractDraft', latency: 0, throughput: '—' },
-            dataItems: ['contract draft', 'completed Personal Sheet'] },
-
-          { id: 'e_gen_send',from: 'generate_contract', to: 'send_to_candidate', type: 'manual', direction: 'forward',      sourceAnchor: 'bottom', targetAnchor: 'top',
-            meta: { protocol: 'in-process', payload: 'ContractSet', latency: 0, throughput: '—' },
-            dataItems: ['contract', 'Gleitzeit', 'Home Office', 'Hosting Agreement (if applicable)'] },
-
-          { id: 'e_gen_print',from: 'generate_contract', to: 'print_contract',  type: 'manual', direction: 'forward',       sourceAnchor: 'bottom', targetAnchor: 'top',
-            meta: { protocol: 'in-process', payload: 'ContractFinal', latency: 0, throughput: '—' },
-            dataItems: ['final contract for printing'] },
-
-          // ---- Band 4: within strands ----
-          { id: 'e_crush_lgv',from: 'crush_upload',     to: 'crush_lgv',        type: 'manual', direction: 'forward',       sourceAnchor: 'bottom', targetAnchor: 'top',
-            meta: { protocol: 'system.upload', payload: 'PayrollPackage', latency: 0, throughput: '—' },
-            dataItems: ['contract draft', 'Personal Sheet', 'IBAN', 'SV-Nummer'] },
-
-          { id: 'e_send_sign',from: 'send_to_candidate', to: 'candidate_signs', type: 'manual', direction: 'bidirectional', sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'email/outlook', payload: 'SignatureLoop', latency: 0, throughput: '—' },
-            dataItems: ['unsigned contract (out)', 'signed contract (in)'] },
-
-          { id: 'e_print_dir',from: 'print_contract',  to: 'director_signs',    type: 'manual', direction: 'forward',       sourceAnchor: 'right',  targetAnchor: 'left',
-            meta: { protocol: 'physical.handoff', payload: 'PaperContract', latency: 0, throughput: '—' },
-            dataItems: ['printed contract in folder'] },
-
-          // ---- Band 4 → Band 5: convergence ----
-          { id: 'e_dir_wf',  from: 'director_signs',    to: 'welcome_folder',   type: 'manual', direction: 'forward',       sourceAnchor: 'bottom', targetAnchor: 'right',
-            meta: { protocol: 'physical.handoff', payload: 'SignedContract', latency: 0, throughput: '—' },
-            dataItems: ['fully signed physical contract'] },
-
-          { id: 'e_sign_wf', from: 'candidate_signs',   to: 'welcome_folder',   type: 'manual', direction: 'forward',       sourceAnchor: 'bottom', targetAnchor: 'top',
-            meta: { protocol: 'physical.handoff', payload: 'CountersignedContract', latency: 0, throughput: '—' },
-            dataItems: ['candidate-signed copy'] },
-
-          { id: 'e_eint_ppt',from: 'eintrittsliste',    to: 'welcome_ppt',      type: 'manual', direction: 'forward',       sourceAnchor: 'bottom', targetAnchor: 'top',
-            meta: { protocol: 'excel.read', payload: 'NewHireList', latency: 0, throughput: '—' },
-            dataItems: ['group / department', 'first name', 'last name'] },
-
-          { id: 'e_gen_ppt', from: 'generate_contract', to: 'welcome_ppt',      type: 'manual', direction: 'forward',       sourceAnchor: 'bottom', targetAnchor: 'top',
-            meta: { protocol: 'in-process', payload: 'PositionData', latency: 0, throughput: '—' },
-            dataItems: ['final position title from contract'] },
-
-          { id: 'e_eint_inv',from: 'eintrittsliste',    to: 'welcome_invite',   type: 'manual', direction: 'forward',       sourceAnchor: 'bottom', targetAnchor: 'top',
-            meta: { protocol: 'excel.read', payload: 'CandidateContact', latency: 0, throughput: '—' },
-            dataItems: ['candidate email address'] },
-        ],
-      },
-    };
-  }
-
-  /**
-   * Seed the HRGI board into the workspace exactly once.
-   * Marker is stored on the workspace itself (not on individual boards)
-   * so it survives even if the user later deletes the seeded board —
-   * we don't want to silently re-add it on every refresh.
-   */
-  function seedConfluenceBoardIfMissing(ws) {
-    if (!ws) return false;
-    if (ws.seededConfluenceHrgi) return false;
-    ws.boards.push(confluenceHrgiBoard());
-    ws.seededConfluenceHrgi = true;
-    // Make the new board active so the user sees it immediately on first
-    // boot after this feature lands. Existing boards remain intact in
-    // the sidebar.
-    ws.activeBoardId = ws.boards[ws.boards.length - 1].id;
-    return true;
+    return false;
   }
 
   // ============================================================
@@ -8009,25 +5422,83 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   // ============================================================
   async function boot() {
     const saved = await persist.load();
-    workspace = (saved && saved.boards && saved.boards.length) ? saved : defaultWorkspace();
-    migrateWorkspace(workspace);
+    let savedRevision = null;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        savedRevision = localStorage.getItem(REVISION_KEY);
+      }
+    } catch (_) { /* ignore */ }
 
-    // One-time seed: add the Confluence HRGI onboarding board if it has
-    // never been seeded into this workspace before. Persist the seed
-    // immediately so a refresh before the user makes any change still
-    // remembers it. This runs AFTER migration so the seeded board's
-    // shape/dataItems already align with the current data model.
-    const didSeed = seedConfluenceBoardIfMissing(workspace);
-    if (didSeed) {
-      // Best-effort persist; we don't await this on the boot path so
-      // the loading veil can lift quickly.
-      persist.save(workspace);
+    let source = 'embedded-default';
+
+    if (saved && saved.boards && saved.boards.length) {
+      // We have a saved workspace. Decide whether to keep it or replace
+      // with the embedded default.
+      const revisionMatches = savedRevision === DEFAULT_WORKSPACE_REVISION;
+      const stale = looksLikeOldDefault(saved);
+
+      if (revisionMatches) {
+        // User is on the current revision — always preserve their state.
+        workspace = saved;
+        source = 'localStorage';
+      } else if (stale) {
+        // Old default seed (Customer Support demo or legacy HRGI). The
+        // user has not made meaningful edits; replace with the new
+        // embedded default and stamp the revision marker so we don't
+        // do this again on the next visit.
+        workspace = defaultWorkspace();
+        source = 'embedded-default (replaced stale ' +
+                 (saved.boards.find(b => /customer support/i.test(b.name)) ? 'CustomerSupport' :
+                  saved.boards.find(b => /HR Onboarding ·\s*HRGI/i.test(b.name)) ? 'legacyHRGI' :
+                  'unknown') + ')';
+      } else {
+        // Saved workspace exists, doesn't match the current default
+        // revision, but doesn't look like a stale default either —
+        // i.e. the user has genuinely edited their workspace. Preserve
+        // it. Stamp the revision so we don't re-evaluate every load.
+        workspace = saved;
+        source = 'localStorage (user-edited, kept across revision change)';
+      }
+    } else {
+      // Nothing saved — pristine first-time visit.
+      workspace = defaultWorkspace();
+      source = 'embedded-default (no saved state)';
     }
 
-    // Validate active board still exists
+    migrateWorkspace(workspace);
+
+    // Validate active board still exists; fall back to first board.
     if (!workspace.boards.find(b => b.id === workspace.activeBoardId)) {
       workspace.activeBoardId = workspace.boards[0].id;
     }
+
+    // Stamp the current revision in localStorage so subsequent loads
+    // can short-circuit the stale check.
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(REVISION_KEY, DEFAULT_WORKSPACE_REVISION);
+      }
+    } catch (_) { /* ignore */ }
+
+    // Persist immediately if we just installed (or replaced with) the
+    // embedded default, so a refresh stays consistent without waiting
+    // for any user action.
+    if (source.indexOf('embedded-default') === 0) {
+      persist.save(workspace);
+    }
+
+    // Diagnostic: visible in DevTools so you can confirm what loaded.
+    const active = workspace.boards.find(b => b.id === workspace.activeBoardId);
+    try {
+      console.log('[AIFlow] boot:', {
+        source,
+        defaultRevision: DEFAULT_WORKSPACE_REVISION,
+        activeBoardId: workspace.activeBoardId,
+        activeBoardName: active ? active.name : null,
+        activeBoardVersion: active ? active.version : null,
+        boardCount: workspace.boards.length,
+      });
+    } catch (_) { /* ignore */ }
 
     fullRender();
 
@@ -8039,7 +5510,6 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
 
     // Save on unload as a safety net (in addition to debounced saves)
     window.addEventListener('beforeunload', () => {
-      // Synchronous attempt — best effort
       try { persist.save(workspace); } catch {}
     });
   }

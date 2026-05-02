@@ -2185,6 +2185,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         </svg>
         Present
       </button>
+      <button class="tbtn" id="exportPngBtn" title="Export the current board as a PNG">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+          <circle cx="8" cy="10" r="1.5"></circle>
+          <path d="M21 16l-5-5-4 4-2-2-5 5"></path>
+        </svg>
+        Export PNG
+      </button>
       <div class="tbtn-group" id="addNodeGroup">
         <button class="tbtn" id="addNodeBtn" title="Add new node — click to choose shape">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
@@ -2584,6 +2592,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     inspectorContent: document.getElementById('inspectorContent'),
     addNodeBtn:    document.getElementById('addNodeBtn'),
     presentModeBtn: document.getElementById('presentModeBtn'),
+    exportPngBtn:  document.getElementById('exportPngBtn'),
     presentationPill: document.getElementById('presentationPill'),
     downloadJsonBtn: document.getElementById('downloadJsonBtn'),
     reloadPublishedJsonBtn: document.getElementById('reloadPublishedJsonBtn'),
@@ -2829,6 +2838,677 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     } catch (err) {
       console.error('[download-json]', err);
       showToast('Could not download JSON');
+    }
+  }
+
+  const PNG_EXPORT_PADDING = 120;
+  const PNG_EXPORT_EDGE_PAD = 28;
+  const PNG_EXPORT_MAX_DIMENSION = 6000;
+  const PNG_EXPORT_MAX_PIXELS = 24000000;
+
+  function stageRectFromDom(el) {
+    if (!el || el.hidden || getComputedStyle(el).display === 'none') return null;
+    const rect = el.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return null;
+    const stageRect = els.canvasStage.getBoundingClientRect();
+    return {
+      minX: rect.left - stageRect.left,
+      minY: rect.top - stageRect.top,
+      maxX: rect.right - stageRect.left,
+      maxY: rect.bottom - stageRect.top,
+    };
+  }
+
+  function mergeExportRect(bounds, rect) {
+    if (!rect) return bounds;
+    if (!bounds) return { ...rect };
+    bounds.minX = Math.min(bounds.minX, rect.minX);
+    bounds.minY = Math.min(bounds.minY, rect.minY);
+    bounds.maxX = Math.max(bounds.maxX, rect.maxX);
+    bounds.maxY = Math.max(bounds.maxY, rect.maxY);
+    return bounds;
+  }
+
+  function computePngExportBounds() {
+    const board = activeBoard();
+    let bounds = null;
+
+    (board?.data?.nodes || []).forEach(node => {
+      bounds = mergeExportRect(bounds, stageRectFromDom(nodeEls.get(node.id)));
+      const fallbackSize = fallbackNodeSize(node);
+      bounds = mergeExportRect(bounds, {
+        minX: node.x,
+        minY: node.y,
+        maxX: node.x + fallbackSize.width,
+        maxY: node.y + fallbackSize.height,
+      });
+      const docs = nodeDocsEls.get(node.id);
+      const docsVisible = docs && docs.style.display !== 'none' &&
+        (docs.classList.contains('is-pinned') || docs.classList.contains('is-hovering'));
+      if (docsVisible) {
+        bounds = mergeExportRect(bounds, stageRectFromDom(docs));
+        bounds = mergeExportRect(bounds, fallbackNodeDocsRect(node));
+      }
+    });
+
+    (board?.data?.edges || []).forEach(edge => {
+      const refs = edgeEls.get(edge.id);
+      if (refs?.line) {
+        try {
+          const b = refs.line.getBBox();
+          if (b.width || b.height) {
+            bounds = mergeExportRect(bounds, {
+              minX: b.x - PNG_EXPORT_EDGE_PAD,
+              minY: b.y - PNG_EXPORT_EDGE_PAD,
+              maxX: b.x + b.width + PNG_EXPORT_EDGE_PAD,
+              maxY: b.y + b.height + PNG_EXPORT_EDGE_PAD,
+            });
+          }
+        } catch {}
+      }
+    });
+
+    edgeLabelEls.forEach(label => {
+      bounds = mergeExportRect(bounds, stageRectFromDom(label));
+    });
+
+    if (!bounds) return null;
+    const minX = Math.floor(bounds.minX - PNG_EXPORT_PADDING);
+    const minY = Math.floor(bounds.minY - PNG_EXPORT_PADDING);
+    const maxX = Math.ceil(bounds.maxX + PNG_EXPORT_PADDING);
+    const maxY = Math.ceil(bounds.maxY + PNG_EXPORT_PADDING);
+    return {
+      x: minX,
+      y: minY,
+      width: Math.max(1, maxX - minX),
+      height: Math.max(1, maxY - minY),
+    };
+  }
+
+  function pngExportRenderPlan(bounds) {
+    const width = Number(bounds?.width);
+    const height = Number(bounds?.height);
+    if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+      throw new Error(`Invalid PNG export bounds: ${JSON.stringify(bounds)}`);
+    }
+
+    const dimensionScale = Math.min(1, PNG_EXPORT_MAX_DIMENSION / Math.max(width, height));
+    const pixelScale = Math.min(1, Math.sqrt(PNG_EXPORT_MAX_PIXELS / (width * height)));
+    const scale = Math.min(dimensionScale, pixelScale);
+
+    return {
+      sourceWidth: width,
+      sourceHeight: height,
+      width: Math.max(1, Math.round(width * scale)),
+      height: Math.max(1, Math.round(height * scale)),
+      scale,
+      scaled: scale < 1,
+    };
+  }
+
+  function collectInlineStyleText() {
+    return Array.from(document.querySelectorAll('style'))
+      .map(style => style.textContent || '')
+      .join('\n');
+  }
+
+  function sanitizeCssForPngExport(css) {
+    return String(css || '')
+      .replace(/@property\s+[^{]+\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g, '')
+      .replace(/@keyframes\s+[^{]+\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g, '')
+      .replace(/-webkit-backdrop-filter\s*:[^;]+;/g, '')
+      .replace(/backdrop-filter\s*:[^;]+;/g, '')
+      .replace(/animation(?:-[a-z-]+)?\s*:[^;]+;/g, '')
+      .replace(/transition(?:-[a-z-]+)?\s*:[^;]+;/g, '')
+      .replace(/mask(?:-[a-z-]+)?\s*:[^;]+;/g, '')
+      .replace(/-webkit-mask(?:-[a-z-]+)?\s*:[^;]+;/g, '');
+  }
+
+  function collectCssVariableDeclarations(styleText) {
+    const rootStyle = getComputedStyle(document.documentElement);
+    const names = new Set(Array.from(styleText.matchAll(/--[a-zA-Z0-9_-]+/g), m => m[0]));
+    return Array.from(names).map(name => {
+      const value = rootStyle.getPropertyValue(name).trim();
+      return value ? `${name}:${value};` : '';
+    }).join('');
+  }
+
+  function sanitizeFilenamePart(value, fallback = 'board') {
+    const clean = String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return clean || fallback;
+  }
+
+  function timestampForFilename(date = new Date()) {
+    return date.toISOString().slice(0, 16).replace('T', '-').replace(':', '');
+  }
+
+  function pngExportFilename(board) {
+    const name = sanitizeFilenamePart(board?.name, 'board');
+    const version = sanitizeFilenamePart(board?.version, '1');
+    return `aiflow-${name}-v${version}-${timestampForFilename()}.png`;
+  }
+
+  function resetCloneEdgeMarkers(stageClone) {
+    const board = activeBoard();
+    stageClone.querySelectorAll('.edge').forEach(group => {
+      const edge = board?.data?.edges?.find(e => e.id === group.dataset.id);
+      group.classList.remove('is-selected');
+      const line = group.querySelector('.edge__line');
+      if (!edge || !line) return;
+      const markerType = edge.type === 'ai'
+        ? 'Ai'
+        : edge.type === 'automated'
+          ? 'Automated'
+          : 'Manual';
+      line.setAttribute('marker-end', `url(#arrow${markerType})`);
+      if (edge.direction === 'bidirectional') {
+        line.setAttribute('marker-start', `url(#arrow${markerType}Start)`);
+      } else {
+        line.removeAttribute('marker-start');
+      }
+    });
+  }
+
+  function buildPngExportSvg(bounds, plan) {
+    const stageSize = currentStageSize();
+    const styleText = sanitizeCssForPngExport(collectInlineStyleText());
+    const cssVars = collectCssVariableDeclarations(styleText);
+    const stageClone = els.canvasStage.cloneNode(true);
+
+    stageClone.querySelectorAll('.is-selected, .is-drop-target, .node--connecting, .is-dragging')
+      .forEach(el => el.classList.remove('is-selected', 'is-drop-target', 'node--connecting', 'is-dragging'));
+    stageClone.querySelectorAll('[contenteditable]')
+      .forEach(el => el.setAttribute('contenteditable', 'false'));
+    stageClone.querySelectorAll('.node__toggle, .node__conn, .edge__hit, .edge-preview, .edge__waypoints, .alignment-guide, .canvas-loading, .edge-tooltip, .tbtn-menu')
+      .forEach(el => el.remove());
+    resetCloneEdgeMarkers(stageClone);
+
+    const exportCss = `
+${styleText}
+.png-export-root {
+  ${cssVars}
+  position: relative;
+  width: ${bounds.width}px;
+  height: ${bounds.height}px;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-base);
+  background-image:
+    radial-gradient(ellipse 70% 50% at 30% 30%, rgba(124, 58, 237, 0.07), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 70%, rgba(6, 182, 212, 0.05), transparent 70%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: auto, auto, 22px 22px;
+}
+.png-export-root .canvas-stage {
+  position: absolute !important;
+  left: ${-bounds.x}px !important;
+  top: ${-bounds.y}px !important;
+  width: ${stageSize.width}px !important;
+  height: ${stageSize.height}px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+.png-export-root .node__conn,
+.png-export-root .node__toggle,
+.png-export-root .edge__waypoint,
+.png-export-root .edge__waypoints,
+.png-export-root .edge__hit,
+.png-export-root .edge-preview,
+.png-export-root .alignment-guide {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+.png-export-root .node,
+.png-export-root .edge-label,
+.png-export-root .node-docs {
+  pointer-events: none !important;
+}
+.png-export-root *,
+.png-export-root *::before,
+.png-export-root *::after {
+  animation: none !important;
+  transition: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+`;
+
+    const root = document.createElement('div');
+    root.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
+    root.setAttribute('class', 'png-export-root');
+    root.setAttribute('style', `width:${bounds.width}px;height:${bounds.height}px;${cssVars}`);
+
+    const style = document.createElement('style');
+    style.textContent = exportCss;
+    root.appendChild(style);
+    root.appendChild(stageClone);
+
+    const html = new XMLSerializer().serializeToString(root);
+    return `
+<svg xmlns="http://www.w3.org/2000/svg" width="${plan.width}" height="${plan.height}" viewBox="0 0 ${bounds.width} ${bounds.height}">
+  <foreignObject x="0" y="0" width="${bounds.width}" height="${bounds.height}">
+    ${html}
+  </foreignObject>
+</svg>`;
+  }
+
+  function loadImageFromUrl(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = (event) => reject(new Error(`Could not render exported SVG image: ${event?.type || 'unknown image error'}`));
+      img.src = url;
+    });
+  }
+
+  function canvasToPngBlob(canvas) {
+    return new Promise((resolve, reject) => {
+      try {
+        canvas.toBlob(blob => {
+          if (blob) resolve(blob);
+          else reject(new Error('canvas.toBlob returned null.'));
+        }, 'image/png');
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  function triggerDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+
+  async function renderSvgStringToPngBlob(svg, plan, diagnostics, label) {
+    diagnostics[`${label}SvgLength`] = svg.length;
+    console.log(`[AIFlow PNG] ${label}: generated SVG string`, { length: svg.length });
+    const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    let img;
+    try {
+      img = await loadImageFromUrl(svgUrl);
+      diagnostics[`${label}ImageLoaded`] = true;
+      console.log(`[AIFlow PNG] ${label}: image load succeeded`, {
+        naturalWidth: img.naturalWidth,
+        naturalHeight: img.naturalHeight,
+      });
+    } finally {
+      URL.revokeObjectURL(svgUrl);
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = plan.width;
+    canvas.height = plan.height;
+    diagnostics[`${label}Canvas`] = { width: canvas.width, height: canvas.height };
+    console.log(`[AIFlow PNG] ${label}: drawing to canvas`, diagnostics[`${label}Canvas`]);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Could not create 2D canvas context.');
+    ctx.drawImage(img, 0, 0, plan.width, plan.height);
+    const pngBlob = await canvasToPngBlob(canvas);
+    diagnostics[`${label}BlobSize`] = pngBlob.size;
+    console.log(`[AIFlow PNG] ${label}: canvas.toBlob succeeded`, { bytes: pngBlob.size });
+    return pngBlob;
+  }
+
+  function svgAttr(value) {
+    return escapeHtml(value);
+  }
+
+  function wrapSvgText(text, maxChars, maxLines = 2) {
+    const words = String(text || '').trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return [];
+    const lines = [];
+    let line = '';
+    words.forEach(word => {
+      const next = line ? `${line} ${word}` : word;
+      if (next.length <= maxChars) {
+        line = next;
+      } else {
+        if (line) lines.push(line);
+        line = word.length > maxChars ? word.slice(0, Math.max(1, maxChars - 1)) : word;
+      }
+    });
+    if (line) lines.push(line);
+    const clipped = lines.slice(0, maxLines);
+    if (lines.length > maxLines && clipped.length) {
+      clipped[clipped.length - 1] = clipped[clipped.length - 1].replace(/\s+$/, '').replace(/[,.!?;:]+$/, '') + '…';
+    }
+    return clipped;
+  }
+
+  function fallbackNodeWidth(node) {
+    const el = nodeEls.get(node.id);
+    const shape = node.shape || 'process';
+    if (shape === 'decision') return Math.max(180, Math.min(200, el?.offsetWidth || 180));
+    return Math.max(230, Math.min(260, el?.offsetWidth || 240));
+  }
+
+  function fallbackNodeTextLayout(node, width) {
+    const shape = node.shape || 'process';
+    const titleChars = Math.max(14, Math.floor((width - 34) / 8));
+    const descChars = Math.max(18, Math.floor((width - 34) / 6.4));
+    const titleLines = wrapSvgText(node.title || 'Untitled', titleChars, shape === 'decision' ? 3 : 2);
+    const descMaxLines = shape === 'decision' ? 2 : shape === 'database' ? 4 : 4;
+    const descLines = wrapSvgText(node.sub || '', descChars, descMaxLines);
+    return { titleLines, descLines };
+  }
+
+  function fallbackNodeSize(node) {
+    const shape = node.shape || 'process';
+    const width = fallbackNodeWidth(node);
+    if (shape === 'decision') return { width, height: Math.max(180, width) };
+    const { titleLines, descLines } = fallbackNodeTextLayout(node, width);
+    const base = shape === 'database' ? 78 : 68;
+    const height = Math.max(
+      shape === 'database' ? 142 : 132,
+      base + titleLines.length * 17 + descLines.length * 15
+    );
+    return { width, height };
+  }
+
+  function fallbackNodeDocsRect(node) {
+    const panel = nodeDocsEls.get(node.id);
+    if (!panel || panel.style.display === 'none') return null;
+    const nodeSize = fallbackNodeSize(node);
+    const w = panel.offsetWidth || NODE_DOCS_WIDTH;
+    const h = panel.offsetHeight || 120;
+    const x = node.x + nodeSize.width + NODE_DOCS_GAP;
+    const y = node.y + nodeSize.height / 2 - h / 2;
+    return { minX: x, minY: y, maxX: x + w, maxY: y + h };
+  }
+
+  function fallbackEdgeColor(edge) {
+    if (edge.type === 'ai') return 'url(#fbAiStroke)';
+    if (edge.type === 'automated') return '#44d7f5';
+    return '#5b6177';
+  }
+
+  function fallbackMarkerId(edge, start = false) {
+    const type = edge.type === 'ai' ? 'Ai' : edge.type === 'automated' ? 'Auto' : 'Manual';
+    return start ? `fbArrow${type}Start` : `fbArrow${type}`;
+  }
+
+  function fallbackText(x, y, lines, opts = {}) {
+    if (!Array.isArray(lines) || lines.length === 0) return '';
+    const {
+      size = 13,
+      fill = '#ebecf2',
+      weight = 500,
+      family = 'Arial, Helvetica, sans-serif',
+      anchor = 'start',
+      lineHeight = size * 1.25,
+      opacity = 1,
+      transform = '',
+    } = opts;
+    const tspans = lines.map((line, i) =>
+      `<tspan x="${x}" ${i === 0 ? `y="${y}"` : `dy="${lineHeight}"`}>${escapeHtml(line)}</tspan>`
+    ).join('');
+    return `<text${transform ? ` transform="${svgAttr(transform)}"` : ''} text-anchor="${anchor}" font-family="${svgAttr(family)}" font-size="${size}" font-weight="${weight}" fill="${fill}" opacity="${opacity}">${tspans}</text>`;
+  }
+
+  function fallbackNodeSvg(node) {
+    const { width: w, height: h } = fallbackNodeSize(node);
+    const x = node.x;
+    const y = node.y;
+    const shape = node.shape || 'process';
+    const isAi = node.type === 'ai';
+    const isDb = shape === 'database';
+    const stroke = isAi ? '#a78bfa' : isDb ? '#22d3ee' : '#3b4053';
+    const fill = isAi ? '#151021' : isDb ? '#0b1922' : '#151925';
+    const { titleLines, descLines } = fallbackNodeTextLayout(node, w);
+    const kind = String(node.kind || '').toUpperCase();
+
+    if (shape === 'decision') {
+      const cx = x + w / 2;
+      const cy = y + h / 2;
+      const points = `${cx},${y} ${x + w},${cy} ${cx},${y + h} ${x},${cy}`;
+      return `
+<g>
+  <polygon points="${points}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
+  ${fallbackText(cx, cy - 42, kind ? [kind] : [], { size: 9, fill: '#969aab', family: 'Consolas, monospace', anchor: 'middle', weight: 600 })}
+  ${fallbackText(cx, cy - 19, titleLines, { size: 14, fill: '#ebecf2', anchor: 'middle', weight: 600, lineHeight: 17 })}
+  ${fallbackText(cx, cy + 34, descLines.slice(0, 2), { size: 10.5, fill: '#aeb2c1', anchor: 'middle', weight: 400, lineHeight: 13 })}
+</g>`;
+    }
+
+    if (shape === 'database') {
+      return `
+<g>
+  <rect x="${x}" y="${y + 12}" width="${w}" height="${h - 24}" rx="16" fill="${fill}" stroke="${stroke}" stroke-width="1.4"/>
+  <ellipse cx="${x + w / 2}" cy="${y + 16}" rx="${w / 2}" ry="15" fill="#102331" stroke="${stroke}" stroke-width="1.4"/>
+  <path d="M ${x} ${y + h - 18} C ${x + w * 0.2} ${y + h - 2}, ${x + w * 0.8} ${y + h - 2}, ${x + w} ${y + h - 18}" fill="none" stroke="${stroke}" stroke-width="1.1" opacity="0.65"/>
+  ${fallbackText(x + 16, y + 43, kind ? [kind] : [], { size: 9, fill: '#22d3ee', family: 'Consolas, monospace', weight: 600 })}
+  ${fallbackText(x + 16, y + 66, titleLines, { size: 14, fill: '#ebecf2', weight: 600, lineHeight: 17 })}
+  ${fallbackText(x + 16, y + 84 + Math.max(0, titleLines.length - 1) * 17, descLines, { size: 11.5, fill: '#aeb2c1', weight: 400, lineHeight: 15 })}
+</g>`;
+    }
+
+    return `
+<g>
+  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="20" fill="${fill}" stroke="${stroke}" stroke-width="1.4"/>
+  ${fallbackText(x + 16, y + 24, kind ? [kind] : [], { size: 9, fill: isAi ? '#c4b5fd' : '#969aab', family: 'Consolas, monospace', weight: 600 })}
+  ${fallbackText(x + 16, y + 50, titleLines, { size: 14, fill: '#ebecf2', weight: 600, lineHeight: 17 })}
+  ${fallbackText(x + 16, y + 70 + Math.max(0, titleLines.length - 1) * 17, descLines, { size: 11.5, fill: '#aeb2c1', weight: 400, lineHeight: 15 })}
+</g>`;
+  }
+
+  function fallbackDocsSvg(node) {
+    const panel = nodeDocsEls.get(node.id);
+    const visible = panel && panel.style.display !== 'none' &&
+      (panel.classList.contains('is-pinned') || panel.classList.contains('is-hovering'));
+    if (!visible) return '';
+    const rect = fallbackNodeDocsRect(node);
+    if (!rect) return '';
+    const x = rect.minX;
+    const y = rect.minY;
+    const w = rect.maxX - rect.minX;
+    const h = rect.maxY - rect.minY;
+    const docs = (node.documents || []).filter(Boolean);
+    const maxItems = Math.max(1, Math.floor((h - 38) / 17));
+    const items = docs.slice(0, maxItems);
+    const more = docs.length > items.length ? `+${docs.length - items.length} more` : '';
+    const itemSvg = items.map((doc, i) =>
+      fallbackText(x + 20, y + 43 + i * 17, [String(doc).slice(0, 26)], { size: 11, fill: '#d8dbe8', weight: 400 })
+    ).join('');
+    return `
+<g>
+  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="13" fill="#10131d" stroke="${node.type === 'ai' ? '#a78bfa' : node.shape === 'database' ? '#22d3ee' : '#3b4053'}" stroke-width="1" opacity="0.96"/>
+  ${fallbackText(x + 12, y + 22, [`OUTPUTS · ${docs.length}`], { size: 8.5, fill: '#969aab', family: 'Consolas, monospace', weight: 600 })}
+  ${itemSvg}
+  ${more ? fallbackText(x + 20, y + h - 12, [more], { size: 10, fill: '#969aab', weight: 500 }) : ''}
+</g>`;
+  }
+
+  function fallbackAnchorPoint(node, side) {
+    const { width: w, height: h } = fallbackNodeSize(node);
+    switch (side) {
+      case 'left':   return { x: node.x,     y: node.y + h / 2 };
+      case 'right':  return { x: node.x + w, y: node.y + h / 2 };
+      case 'top':    return { x: node.x + w / 2, y: node.y };
+      case 'bottom': return { x: node.x + w / 2, y: node.y + h };
+      default:       return { x: node.x + w, y: node.y + h / 2 };
+    }
+  }
+
+  function fallbackAutoAnchors(from, to) {
+    const aSize = fallbackNodeSize(from);
+    const bSize = fallbackNodeSize(to);
+    const ax = from.x + aSize.width / 2;
+    const ay = from.y + aSize.height / 2;
+    const bx = to.x + bSize.width / 2;
+    const by = to.y + bSize.height / 2;
+    const dx = bx - ax;
+    const dy = by - ay;
+    if (Math.abs(dx) >= Math.abs(dy)) {
+      return dx >= 0
+        ? { source: 'right', target: 'left' }
+        : { source: 'left', target: 'right' };
+    }
+    return dy >= 0
+      ? { source: 'bottom', target: 'top' }
+      : { source: 'top', target: 'bottom' };
+  }
+
+  function fallbackRenderedEndpoint(node, side, isSource) {
+    return offsetPointFromNode(fallbackAnchorPoint(node, side), side, isSource ? ARROW_OFFSET : -ARROW_OFFSET);
+  }
+
+  function computeFallbackEdgePath(edge) {
+    const board = activeBoard();
+    const from = board?.data?.nodes?.find(n => n.id === edge.from);
+    const to = board?.data?.nodes?.find(n => n.id === edge.to);
+    if (!from || !to) return null;
+
+    let sourceSide = edge.sourceAnchor && edge.sourceAnchor !== 'auto' ? edge.sourceAnchor : null;
+    let targetSide = edge.targetAnchor && edge.targetAnchor !== 'auto' ? edge.targetAnchor : null;
+    if (!sourceSide || !targetSide) {
+      const auto = fallbackAutoAnchors(from, to);
+      if (!sourceSide) sourceSide = auto.source;
+      if (!targetSide) targetSide = auto.target;
+    }
+
+    const a = fallbackRenderedEndpoint(from, sourceSide, true);
+    const b = fallbackRenderedEndpoint(to, targetSide, false);
+    return getPreviewPath(a, b, sourceSide, targetSide, edge.waypoints);
+  }
+
+  function buildFallbackPngSvg(bounds, plan) {
+    const board = activeBoard();
+    const nodes = board?.data?.nodes || [];
+    const edges = board?.data?.edges || [];
+    const edgeSvgs = edges.map(edge => {
+      const d = computeFallbackEdgePath(edge);
+      if (!d) return '';
+      const markerEnd = fallbackMarkerId(edge);
+      const markerStart = fallbackMarkerId(edge, true);
+      return `<path d="${svgAttr(d)}" fill="none" stroke="${fallbackEdgeColor(edge)}" stroke-width="${edge.type === 'ai' ? 2.2 : 2}" stroke-linecap="round" stroke-linejoin="round" opacity="0.95" ${edge.kind === 'data' ? 'stroke-dasharray="8 6"' : ''} marker-end="url(#${markerEnd})" ${edge.direction === 'bidirectional' ? `marker-start="url(#${markerStart})"` : ''}/>`;
+    }).join('\n');
+
+    const labelSvgs = edges.map(edge => {
+      const text = (edge.label || '').trim();
+      if (!text) return '';
+      const label = edgeLabelEls.get(edge.id);
+      const rect = stageRectFromDom(label);
+      if (!rect) return '';
+      const x = rect.minX;
+      const y = rect.minY;
+      const w = rect.maxX - rect.minX;
+      const h = rect.maxY - rect.minY;
+      const stroke = edge.type === 'ai' ? '#a78bfa' : edge.type === 'automated' ? '#44d7f5' : '#4f546a';
+      return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h / 2}" fill="#10131d" stroke="${stroke}" stroke-width="1"/><text x="${x + w / 2}" y="${y + h / 2 + 3.5}" text-anchor="middle" font-family="Consolas, monospace" font-size="9.5" font-weight="700" letter-spacing="1.2" fill="#ebecf2">${escapeHtml(text.toUpperCase())}</text></g>`;
+    }).join('\n');
+
+    const nodeSvgs = nodes.map(fallbackNodeSvg).join('\n');
+    const docsSvgs = nodes.map(fallbackDocsSvg).join('\n');
+
+    return `
+<svg xmlns="http://www.w3.org/2000/svg" width="${plan.width}" height="${plan.height}" viewBox="${bounds.x} ${bounds.y} ${bounds.width} ${bounds.height}">
+  <defs>
+    <pattern id="fbGrid" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#ffffff" opacity="0.07"/>
+    </pattern>
+    <linearGradient id="fbAiStroke" x1="${bounds.x}" y1="${bounds.y}" x2="${bounds.x + bounds.width}" y2="${bounds.y}" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="45%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <marker id="fbArrowManual" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#5b6177"/></marker>
+    <marker id="fbArrowManualStart" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10 0 L0 5 L10 10z" fill="#5b6177"/></marker>
+    <marker id="fbArrowAuto" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="#44d7f5"/></marker>
+    <marker id="fbArrowAutoStart" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M10 0 L0 5 L10 10z" fill="#44d7f5"/></marker>
+    <marker id="fbArrowAi" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1.5 L8.5 5 L1 8.5 L2.5 5z" fill="#c4b5fd"/></marker>
+    <marker id="fbArrowAiStart" viewBox="0 0 10 10" refX="1.5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M9 1.5 L1.5 5 L9 8.5 L7.5 5z" fill="#c4b5fd"/></marker>
+  </defs>
+  <rect x="${bounds.x}" y="${bounds.y}" width="${bounds.width}" height="${bounds.height}" fill="#08090f"/>
+  <rect x="${bounds.x}" y="${bounds.y}" width="${bounds.width}" height="${bounds.height}" fill="url(#fbGrid)"/>
+  <g>${edgeSvgs}</g>
+  <g>${nodeSvgs}</g>
+  <g>${docsSvgs}</g>
+  <g>${labelSvgs}</g>
+</svg>`;
+  }
+
+  async function exportBoardPng() {
+    const diagnostics = {};
+    try {
+      if (!workspace) throw new Error('Workspace is not loaded yet.');
+      if (typeof setMenuOpen === 'function') setMenuOpen(false);
+      hideEdgeTooltip();
+      updateCanvasStageSize();
+
+      const board = activeBoard();
+      const stageSize = currentStageSize();
+      diagnostics.board = {
+        id: board?.id,
+        name: board?.name,
+        version: board?.version,
+        nodeCount: board?.data?.nodes?.length || 0,
+        edgeCount: board?.data?.edges?.length || 0,
+      };
+      diagnostics.stageSize = stageSize;
+      console.groupCollapsed('[AIFlow PNG] Export diagnostics');
+      console.log('[AIFlow PNG] active board', diagnostics.board);
+      console.log('[AIFlow PNG] stage size', diagnostics.stageSize);
+
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+        diagnostics.fontsReady = true;
+        console.log('[AIFlow PNG] document.fonts.ready resolved');
+      } else {
+        diagnostics.fontsReady = false;
+        console.log('[AIFlow PNG] document.fonts.ready unavailable');
+      }
+      await new Promise(resolve => requestAnimationFrame(resolve));
+
+      const bounds = computePngExportBounds();
+      if (!bounds) {
+        showToast('Nothing to export on this board');
+        console.log('[AIFlow PNG] no exportable bounds found');
+        console.groupEnd();
+        return;
+      }
+      diagnostics.bounds = bounds;
+      console.log('[AIFlow PNG] computed bounds', bounds);
+
+      const plan = pngExportRenderPlan(bounds);
+      diagnostics.renderPlan = plan;
+      console.log('[AIFlow PNG] export dimensions', plan);
+      showToast('Preparing PNG export...');
+
+      let pngBlob;
+      let usedFallback = false;
+      try {
+        const highFidelitySvg = buildPngExportSvg(bounds, plan);
+        pngBlob = await renderSvgStringToPngBlob(highFidelitySvg, plan, diagnostics, 'highFidelity');
+      } catch (highFidelityError) {
+        diagnostics.highFidelityError = highFidelityError;
+        console.warn('[AIFlow PNG] high-fidelity export failed, trying simplified renderer', highFidelityError);
+        const fallbackSvg = buildFallbackPngSvg(bounds, plan);
+        pngBlob = await renderSvgStringToPngBlob(fallbackSvg, plan, diagnostics, 'fallback');
+        usedFallback = true;
+      }
+
+      triggerDownload(pngBlob, pngExportFilename(activeBoard()));
+      console.log('[AIFlow PNG] export complete', diagnostics);
+      console.groupEnd();
+      showToast(usedFallback ? 'PNG exported using simplified renderer' : 'Exported board PNG');
+    } catch (err) {
+      diagnostics.error = err;
+      console.error('[AIFlow PNG export failed]', err, diagnostics);
+      try { console.groupEnd(); } catch {}
+      showToast('PNG export failed — see console');
     }
   }
 
@@ -5737,6 +6417,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   document.addEventListener('click', () => setMenuOpen(false));
 
   if (els.presentModeBtn) els.presentModeBtn.addEventListener('click', () => setPresentationMode(!isPresentationMode));
+  if (els.exportPngBtn) els.exportPngBtn.addEventListener('click', exportBoardPng);
   if (els.downloadJsonBtn) els.downloadJsonBtn.addEventListener('click', downloadWorkspaceJson);
   if (els.reloadPublishedJsonBtn) els.reloadPublishedJsonBtn.addEventListener('click', reloadPublishedWorkspaceJson);
   if (els.downloadHtmlBtn) els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);

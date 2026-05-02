@@ -325,6 +325,77 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 
 .topbar__actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.topbar-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  min-width: 196px;
+  max-width: 240px;
+  padding: 0 7px 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(167, 139, 250, 0.20);
+  background: rgba(10, 13, 22, 0.72);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.018) inset;
+}
+.topbar-search:focus-within {
+  border-color: rgba(34, 211, 238, 0.42);
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.08) inset,
+    0 0 18px -8px rgba(34, 211, 238, 0.55);
+}
+.topbar-search__icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+.topbar-search__input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12.5px;
+  letter-spacing: -0.005em;
+}
+.topbar-search__input::placeholder { color: var(--text-faint); }
+.topbar-search__count {
+  flex-shrink: 0;
+  min-width: 38px;
+  text-align: right;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.topbar-search__clear {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0.65;
+}
+.topbar-search__clear:hover {
+  opacity: 1;
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.06);
+  border-color: var(--stroke-soft);
+}
+.topbar-search__clear svg {
+  width: 10px;
+  height: 10px;
+}
 .presentation-pill {
   display: none;
   align-items: center;
@@ -491,6 +562,225 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .node__sub { font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; }
 .node__drag { cursor: grab; }
 .node.is-dragging .node__drag { cursor: grabbing; }
+.node__impact {
+  position: absolute;
+  right: 24px;
+  bottom: -10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 211, 238, 0.32);
+  background: rgba(6, 182, 212, 0.10);
+  color: #a5f3fc;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: help;
+  z-index: 7;
+}
+.node__impact-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22d3ee;
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.75);
+}
+.node__impact-tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  width: max-content;
+  max-width: 280px;
+  transform: translateX(-50%) translateY(4px);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(34, 211, 238, 0.26);
+  background: rgba(8, 10, 18, 0.96);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 20px rgba(6, 182, 212, 0.12);
+  color: var(--text-secondary);
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+.node__impact:hover .node__impact-tip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.node--ai .node__impact {
+  border-color: rgba(167, 139, 250, 0.40);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.18), rgba(6, 182, 212, 0.13));
+  color: #ddd6fe;
+}
+.node--decision .node__impact {
+  right: 24px;
+  bottom: 18px;
+  width: 22px;
+  justify-content: center;
+  padding: 0;
+}
+.node--decision .node__impact-label { display: none; }
+.node--database .node__impact {
+  right: 24px;
+  bottom: 4px;
+}
+.node__status {
+  position: absolute;
+  left: 16px;
+  bottom: -10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  max-width: 124px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  background:
+    linear-gradient(180deg, rgba(18, 24, 38, 0.96), rgba(8, 11, 20, 0.94));
+  color: #e2e8f0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.075em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  z-index: 7;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.035) inset,
+    0 4px 12px rgba(0, 0, 0, 0.46);
+  text-shadow: 0 0 8px rgba(226, 232, 240, 0.18);
+}
+.node__status--idea {
+  border-color: rgba(167, 139, 250, 0.58);
+  background:
+    linear-gradient(180deg, rgba(57, 38, 92, 0.96), rgba(24, 18, 42, 0.96));
+  color: #ede9fe;
+  box-shadow:
+    0 0 0 1px rgba(167, 139, 250, 0.08) inset,
+    0 4px 12px rgba(0, 0, 0, 0.46),
+    0 0 14px rgba(167, 139, 250, 0.20);
+  text-shadow: 0 0 8px rgba(167, 139, 250, 0.45);
+}
+.node__status--planned {
+  border-color: rgba(96, 165, 250, 0.58);
+  background:
+    linear-gradient(180deg, rgba(22, 54, 98, 0.96), rgba(10, 24, 46, 0.96));
+  color: #dbeafe;
+  box-shadow:
+    0 0 0 1px rgba(96, 165, 250, 0.08) inset,
+    0 4px 12px rgba(0, 0, 0, 0.46),
+    0 0 14px rgba(96, 165, 250, 0.20);
+  text-shadow: 0 0 8px rgba(96, 165, 250, 0.42);
+}
+.node__status--in_progress {
+  border-color: rgba(251, 191, 36, 0.62);
+  background:
+    linear-gradient(180deg, rgba(92, 58, 10, 0.97), rgba(42, 27, 8, 0.96));
+  color: #fef3c7;
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.08) inset,
+    0 4px 12px rgba(0, 0, 0, 0.46),
+    0 0 14px rgba(251, 191, 36, 0.22);
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.42);
+}
+.node__status--testing {
+  border-color: rgba(251, 146, 60, 0.66);
+  background:
+    linear-gradient(180deg, rgba(92, 42, 12, 0.98), rgba(42, 18, 8, 0.96));
+  color: #ffedd5;
+  box-shadow:
+    0 0 0 1px rgba(251, 146, 60, 0.10) inset,
+    0 4px 12px rgba(0, 0, 0, 0.48),
+    0 0 14px rgba(251, 146, 60, 0.26);
+  text-shadow: 0 0 8px rgba(251, 146, 60, 0.48);
+}
+.node__status--live {
+  border-color: rgba(52, 211, 153, 0.66);
+  background:
+    linear-gradient(180deg, rgba(8, 74, 48, 0.98), rgba(4, 36, 28, 0.96));
+  color: #d1fae5;
+  box-shadow:
+    0 0 0 1px rgba(52, 211, 153, 0.10) inset,
+    0 4px 12px rgba(0, 0, 0, 0.48),
+    0 0 14px rgba(52, 211, 153, 0.26);
+  text-shadow: 0 0 8px rgba(52, 211, 153, 0.48);
+}
+.node__status--blocked {
+  border-color: rgba(251, 113, 133, 0.66);
+  background:
+    linear-gradient(180deg, rgba(92, 22, 38, 0.98), rgba(42, 10, 20, 0.96));
+  color: #ffe4e6;
+  box-shadow:
+    0 0 0 1px rgba(251, 113, 133, 0.10) inset,
+    0 4px 12px rgba(0, 0, 0, 0.48),
+    0 0 14px rgba(251, 113, 133, 0.26);
+  text-shadow: 0 0 8px rgba(251, 113, 133, 0.48);
+}
+.node--decision .node__status {
+  left: 24px;
+  bottom: 18px;
+  max-width: 88px;
+}
+.node--database .node__status {
+  bottom: -8px;
+}
+.node--database .node__inner {
+  padding-bottom: 28px;
+}
+.node.is-search-match {
+  outline: 1px solid rgba(34, 211, 238, 0.48);
+  outline-offset: 5px;
+  filter: drop-shadow(0 0 12px rgba(34, 211, 238, 0.22));
+}
+.node.is-search-current {
+  outline-color: rgba(236, 72, 153, 0.78);
+  outline-offset: 7px;
+  filter:
+    drop-shadow(0 0 16px rgba(34, 211, 238, 0.34))
+    drop-shadow(0 0 26px rgba(236, 72, 153, 0.22));
+}
+.node--ai.is-search-match {
+  filter:
+    drop-shadow(0 0 14px rgba(34, 211, 238, 0.24))
+    drop-shadow(0 0 18px rgba(167, 139, 250, 0.22));
+}
+.node--ai.is-search-current {
+  filter:
+    drop-shadow(0 0 18px rgba(34, 211, 238, 0.36))
+    drop-shadow(0 0 30px rgba(236, 72, 153, 0.34));
+}
+.node--decision.is-search-match::before {
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    0 8px 24px rgba(0,0,0,0.45),
+    0 0 0 2px rgba(34, 211, 238, 0.36),
+    0 0 20px rgba(34, 211, 238, 0.24);
+}
+.node--decision.is-search-current::before {
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    0 8px 24px rgba(0,0,0,0.45),
+    0 0 0 2px rgba(236, 72, 153, 0.58),
+    0 0 28px rgba(34, 211, 238, 0.34),
+    0 0 36px rgba(236, 72, 153, 0.25);
+}
 
 /* MANUAL */
 .node--manual {
@@ -742,6 +1032,35 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow:
     0 0 30px -2px rgba(124, 58, 237, 0.85),
     0 0 80px -6px rgba(236, 72, 153, 0.6);
+}
+.node--decision.node--manual.is-search-match::before {
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    0 8px 24px rgba(0,0,0,0.45),
+    0 0 0 2px rgba(34, 211, 238, 0.36),
+    0 0 20px rgba(34, 211, 238, 0.24);
+}
+.node--decision.node--manual.is-search-current::before {
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    0 8px 24px rgba(0,0,0,0.45),
+    0 0 0 2px rgba(236, 72, 153, 0.58),
+    0 0 28px rgba(34, 211, 238, 0.34),
+    0 0 36px rgba(236, 72, 153, 0.25);
+}
+.node--decision.node--ai.is-search-match::after {
+  box-shadow:
+    0 0 24px -4px rgba(124, 58, 237, 0.55),
+    0 0 60px -10px rgba(192, 38, 211, 0.35),
+    0 0 0 2px rgba(34, 211, 238, 0.32),
+    0 0 24px rgba(34, 211, 238, 0.22);
+}
+.node--decision.node--ai.is-search-current::after {
+  box-shadow:
+    0 0 30px -2px rgba(124, 58, 237, 0.85),
+    0 0 80px -6px rgba(236, 72, 153, 0.6),
+    0 0 0 2px rgba(236, 72, 153, 0.54),
+    0 0 30px rgba(34, 211, 238, 0.28);
 }
 
 /* Decision drag handle: dim the rectangle's borderless area visually */
@@ -1226,7 +1545,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   text-transform: uppercase; color: var(--text-muted);
 }
 .np__input,
-.np__textarea {
+.np__textarea,
+.np__select {
   font-family: 'Inter Tight', sans-serif;
   font-size: 13px;
   color: var(--text-primary);
@@ -1244,14 +1564,28 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: var(--text-faint);
 }
 .np__input:hover,
-.np__textarea:hover {
+.np__textarea:hover,
+.np__select:hover {
   border-color: var(--stroke-soft);
 }
 .np__input:focus,
-.np__textarea:focus {
+.np__textarea:focus,
+.np__select:focus {
   border-color: rgba(167, 139, 250, 0.5);
   box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
   background: var(--bg-elev-3);
+}
+.np__select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) 50%,
+    calc(100% - 11px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 32px;
 }
 .np__textarea {
   resize: vertical;
@@ -2202,6 +2536,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     </div>
 
     <div class="topbar__actions">
+      <div class="topbar-search" id="topbarSearch" role="search">
+        <svg class="topbar-search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="M20 20l-4.2-4.2"></path>
+        </svg>
+        <input class="topbar-search__input" id="boardSearchInput" type="search" placeholder="Search board..." autocomplete="off" spellcheck="false" aria-label="Search board" />
+        <span class="topbar-search__count" id="boardSearchCount">0</span>
+        <button class="topbar-search__clear" id="boardSearchClear" type="button" title="Clear search" aria-label="Clear search" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+        </button>
+      </div>
       <button class="tbtn" id="presentModeBtn" title="Toggle presentation mode" aria-pressed="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="4" width="18" height="12" rx="2"></rect>
@@ -2626,6 +2971,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   let isSpaceKeyDown = false;
   let activeCanvasPan = null;
   let suppressNextCanvasClick = false;
+  let searchQuery = '';
+  let searchMatches = [];
+  let currentSearchIndex = -1;
 
   // ===== DOM HOOKS ==============================================
   const els = {
@@ -2644,6 +2992,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     exportPngMenuItem: document.getElementById('exportPngMenuItem'),
     exportPdfMenuItem: document.getElementById('exportPdfMenuItem'),
     presentationPill: document.getElementById('presentationPill'),
+    boardSearchInput: document.getElementById('boardSearchInput'),
+    boardSearchCount: document.getElementById('boardSearchCount'),
+    boardSearchClear: document.getElementById('boardSearchClear'),
     reloadPublishedJsonBtn: document.getElementById('reloadPublishedJsonBtn'),
     workspaceMenuBtn: document.getElementById('workspaceMenuBtn'),
     workspaceMenu: document.getElementById('workspaceMenu'),
@@ -3071,8 +3422,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     const cssVars = collectCssVariableDeclarations(styleText);
     const stageClone = els.canvasStage.cloneNode(true);
 
-    stageClone.querySelectorAll('.is-selected, .is-drop-target, .node--connecting, .is-dragging')
-      .forEach(el => el.classList.remove('is-selected', 'is-drop-target', 'node--connecting', 'is-dragging'));
+    stageClone.querySelectorAll('.is-selected, .is-drop-target, .node--connecting, .is-dragging, .is-search-match, .is-search-current')
+      .forEach(el => el.classList.remove('is-selected', 'is-drop-target', 'node--connecting', 'is-dragging', 'is-search-match', 'is-search-current'));
     stageClone.querySelectorAll('[contenteditable]')
       .forEach(el => el.setAttribute('contenteditable', 'false'));
     stageClone.querySelectorAll('.node__toggle, .node__conn, .edge__hit, .edge-preview, .edge__waypoints, .alignment-guide, .canvas-loading, .edge-tooltip, .tbtn-menu')
@@ -3319,6 +3670,38 @@ ${styleText}
     return `<text${transform ? ` transform="${svgAttr(transform)}"` : ''} text-anchor="${anchor}" font-family="${svgAttr(family)}" font-size="${size}" font-weight="${weight}" fill="${fill}" opacity="${opacity}">${tspans}</text>`;
   }
 
+  function fallbackImpactBadgeSvg(node, x, y, w, h, shape) {
+    if (!String(node.impactNotes || '').trim()) return '';
+    const stroke = node.type === 'ai' ? '#c4b5fd' : '#22d3ee';
+    const fill = node.type === 'ai' ? '#211734' : '#082431';
+    if (shape === 'decision') {
+      const cx = x + w * 0.72;
+      const cy = y + h * 0.30;
+      return `<g><circle cx="${cx}" cy="${cy}" r="9" fill="${fill}" stroke="${stroke}" stroke-width="1"/><circle cx="${cx}" cy="${cy}" r="2.8" fill="${stroke}"/></g>`;
+    }
+    const bx = x + w - 72;
+    const by = y + (shape === 'database' ? 31 : 12);
+    return `<g><rect x="${bx}" y="${by}" width="56" height="20" rx="10" fill="${fill}" stroke="${stroke}" stroke-width="1" opacity="0.95"/><circle cx="${bx + 12}" cy="${by + 10}" r="3" fill="${stroke}"/><text x="${bx + 21}" y="${by + 13}" font-family="Consolas, monospace" font-size="8" font-weight="700" fill="${stroke}" letter-spacing="0.7">IMPACT</text></g>`;
+  }
+
+  function fallbackStatusBadgeSvg(node, x, y, w, h, shape) {
+    const status = normalizeNodeStatus(node.status);
+    const label = nodeStatusLabel(status);
+    if (!status || !label) return '';
+    const colors = {
+      idea:        { stroke: '#a78bfa', fill: '#211734', text: '#c4b5fd' },
+      planned:     { stroke: '#60a5fa', fill: '#10213a', text: '#bfdbfe' },
+      in_progress: { stroke: '#f59e0b', fill: '#2c1d07', text: '#fde68a' },
+      testing:      { stroke: '#fb923c', fill: '#2a1208', text: '#ffedd5' },
+      live:        { stroke: '#4ade80', fill: '#0e2818', text: '#bbf7d0' },
+      blocked:     { stroke: '#fb7185', fill: '#2b1118', text: '#fecdd3' },
+    }[status];
+    const pillW = Math.min(116, Math.max(48, label.length * 6 + 18));
+    const bx = x + (shape === 'decision' ? 24 : 16);
+    const by = y + h - (shape === 'decision' ? 38 : shape === 'database' ? 24 : 10);
+    return `<g><rect x="${bx}" y="${by}" width="${pillW}" height="20" rx="10" fill="${colors.fill}" stroke="${colors.stroke}" stroke-width="1" opacity="0.95"/><text x="${bx + pillW / 2}" y="${by + 13}" text-anchor="middle" font-family="Consolas, monospace" font-size="8" font-weight="700" fill="${colors.text}" letter-spacing="0.6">${escapeHtml(label.toUpperCase())}</text></g>`;
+  }
+
   function fallbackNodeSvg(node) {
     const { width: w, height: h } = fallbackNodeSize(node);
     const x = node.x;
@@ -3338,6 +3721,8 @@ ${styleText}
       return `
 <g>
   <polygon points="${points}" fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>
+  ${fallbackStatusBadgeSvg(node, x, y, w, h, shape)}
+  ${fallbackImpactBadgeSvg(node, x, y, w, h, shape)}
   ${fallbackText(cx, cy - 42, kind ? [kind] : [], { size: 9, fill: '#969aab', family: 'Consolas, monospace', anchor: 'middle', weight: 600 })}
   ${fallbackText(cx, cy - 19, titleLines, { size: 14, fill: '#ebecf2', anchor: 'middle', weight: 600, lineHeight: 17 })}
   ${fallbackText(cx, cy + 34, descLines.slice(0, 2), { size: 10.5, fill: '#aeb2c1', anchor: 'middle', weight: 400, lineHeight: 13 })}
@@ -3350,6 +3735,8 @@ ${styleText}
   <rect x="${x}" y="${y + 12}" width="${w}" height="${h - 24}" rx="16" fill="${fill}" stroke="${stroke}" stroke-width="1.4"/>
   <ellipse cx="${x + w / 2}" cy="${y + 16}" rx="${w / 2}" ry="15" fill="#102331" stroke="${stroke}" stroke-width="1.4"/>
   <path d="M ${x} ${y + h - 18} C ${x + w * 0.2} ${y + h - 2}, ${x + w * 0.8} ${y + h - 2}, ${x + w} ${y + h - 18}" fill="none" stroke="${stroke}" stroke-width="1.1" opacity="0.65"/>
+  ${fallbackStatusBadgeSvg(node, x, y, w, h, shape)}
+  ${fallbackImpactBadgeSvg(node, x, y, w, h, shape)}
   ${fallbackText(x + 16, y + 43, kind ? [kind] : [], { size: 9, fill: '#22d3ee', family: 'Consolas, monospace', weight: 600 })}
   ${fallbackText(x + 16, y + 66, titleLines, { size: 14, fill: '#ebecf2', weight: 600, lineHeight: 17 })}
   ${fallbackText(x + 16, y + 84 + Math.max(0, titleLines.length - 1) * 17, descLines, { size: 11.5, fill: '#aeb2c1', weight: 400, lineHeight: 15 })}
@@ -3359,6 +3746,8 @@ ${styleText}
     return `
 <g>
   <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="20" fill="${fill}" stroke="${stroke}" stroke-width="1.4"/>
+  ${fallbackStatusBadgeSvg(node, x, y, w, h, shape)}
+  ${fallbackImpactBadgeSvg(node, x, y, w, h, shape)}
   ${fallbackText(x + 16, y + 24, kind ? [kind] : [], { size: 9, fill: isAi ? '#c4b5fd' : '#969aab', family: 'Consolas, monospace', weight: 600 })}
   ${fallbackText(x + 16, y + 50, titleLines, { size: 14, fill: '#ebecf2', weight: 600, lineHeight: 17 })}
   ${fallbackText(x + 16, y + 70 + Math.max(0, titleLines.length - 1) * 17, descLines, { size: 11.5, fill: '#aeb2c1', weight: 400, lineHeight: 15 })}
@@ -3917,8 +4306,22 @@ ${styleText}
   // Document-level keyboard handler. Listening on document (not window)
   // so it fires even when the canvas itself doesn't have focus.
   document.addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    const cmd = e.ctrlKey || e.metaKey;
+    if (cmd && k === 'f') {
+      e.preventDefault();
+      focusBoardSearch();
+      return;
+    }
+
     // Browser-native text undo wins inside any editable field.
     if (isEditableTarget(e.target)) return;
+
+    if (e.key === 'Escape' && searchQuery) {
+      e.preventDefault();
+      clearBoardSearch();
+      return;
+    }
 
     if (e.code === 'Space' && !e.ctrlKey && !e.metaKey && !e.altKey) {
       if (e.target.closest && e.target.closest('button, a, [role="button"]')) return;
@@ -3928,14 +4331,12 @@ ${styleText}
       return;
     }
 
-    const k = e.key.toLowerCase();
     if (!e.ctrlKey && !e.metaKey && !e.altKey && k === 'p') {
       e.preventDefault();
       setPresentationMode(!isPresentationMode);
       return;
     }
 
-    const cmd = e.ctrlKey || e.metaKey;
     if (!cmd) return;
 
     // Redo: Ctrl/Cmd+Y, or Ctrl/Cmd+Shift+Z
@@ -3963,6 +4364,31 @@ ${styleText}
     els.canvas.classList.remove('is-space-panning', 'is-panning');
     activeCanvasPan = null;
   });
+
+  if (els.boardSearchInput) {
+    els.boardSearchInput.addEventListener('input', () => {
+      setSearchQuery(els.boardSearchInput.value, { keepCurrentId: false });
+    });
+    els.boardSearchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        stepSearch(e.shiftKey ? -1 : 1);
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        if (searchQuery) clearBoardSearch();
+        else els.boardSearchInput.blur();
+      }
+    });
+  }
+
+  if (els.boardSearchClear) {
+    els.boardSearchClear.addEventListener('click', () => {
+      clearBoardSearch();
+      els.boardSearchInput?.focus();
+    });
+  }
 
   els.canvas.addEventListener('wheel', (e) => {
     if (!e.shiftKey || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
@@ -4062,13 +4488,179 @@ ${styleText}
   // ============================================================
   // NODE RENDERING
   // ============================================================
+  const NODE_STATUS_OPTIONS = [
+    { value: 'idea', label: 'Idea' },
+    { value: 'planned', label: 'Planned' },
+    { value: 'in_progress', label: 'In Progress' },
+    { value: 'testing', label: 'Testing' },
+    { value: 'live', label: 'Live' },
+    { value: 'blocked', label: 'Blocked' },
+  ];
+  const NODE_STATUS_LABELS = Object.fromEntries(NODE_STATUS_OPTIONS.map(opt => [opt.value, opt.label]));
+  const NODE_STATUS_VALUES = new Set(NODE_STATUS_OPTIONS.map(opt => opt.value));
+
+  function normalizeNodeStatus(value) {
+    if (value === 'needs_testing') return 'testing';
+    return NODE_STATUS_VALUES.has(value) ? value : '';
+  }
+
+  function nodeStatusLabel(value) {
+    return NODE_STATUS_LABELS[value] || '';
+  }
+
+  function nodeStatusOptionsHtml(currentStatus) {
+    const current = normalizeNodeStatus(currentStatus);
+    return [
+      `<option value="" ${current === '' ? 'selected' : ''}>None</option>`,
+      ...NODE_STATUS_OPTIONS.map(opt =>
+        `<option value="${opt.value}" ${current === opt.value ? 'selected' : ''}>${opt.label}</option>`
+      ),
+    ].join('');
+  }
+
+  function normalizeSearchText(value) {
+    return String(value || '')
+      .toLowerCase()
+      .replace(/[_/-]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function searchTerms(query) {
+    return normalizeSearchText(query).split(' ').filter(Boolean);
+  }
+
+  function nodeSearchHaystack(node) {
+    const status = normalizeNodeStatus(node.status);
+    return normalizeSearchText([
+      node.title,
+      node.kind,
+      node.sub,
+      Array.isArray(node.documents) ? node.documents.join(' ') : '',
+      node.impactNotes,
+      status,
+      nodeStatusLabel(status),
+      node.type,
+      node.type === 'ai' ? 'ai artificial intelligence' : '',
+      node.type === 'automated' ? 'automated automation auto' : '',
+      node.type === 'manual' ? 'manual human' : '',
+      node.shape || 'process',
+    ].filter(Boolean).join(' '));
+  }
+
+  function nodeMatchesSearch(node, terms) {
+    if (!terms.length) return false;
+    const haystack = nodeSearchHaystack(node);
+    const words = haystack.split(' ');
+    return terms.every(term => term.length <= 2 ? words.includes(term) : haystack.includes(term));
+  }
+
+  function applySearchClasses(el, nodeId) {
+    const matchIndex = searchMatches.indexOf(nodeId);
+    const isMatch = matchIndex !== -1;
+    el.classList.toggle('is-search-match', isMatch);
+    el.classList.toggle('is-search-current', isMatch && matchIndex === currentSearchIndex);
+  }
+
+  function refreshSearchHighlights() {
+    nodeEls.forEach((el, nodeId) => applySearchClasses(el, nodeId));
+  }
+
+  function renderSearchCount() {
+    if (!els.boardSearchCount) return;
+    const hasQuery = !!searchQuery.trim();
+    if (!hasQuery) {
+      els.boardSearchCount.textContent = '0';
+    } else if (searchMatches.length === 0) {
+      els.boardSearchCount.textContent = '0 matches';
+    } else {
+      els.boardSearchCount.textContent = `${currentSearchIndex + 1} / ${searchMatches.length}`;
+    }
+    if (els.boardSearchClear) els.boardSearchClear.hidden = !hasQuery;
+  }
+
+  function updateSearchResults(options = {}) {
+    const { keepCurrentId = true } = options;
+    const board = workspace ? activeBoard() : null;
+    const previousId = keepCurrentId && currentSearchIndex >= 0 ? searchMatches[currentSearchIndex] : null;
+    const terms = searchTerms(searchQuery);
+    searchMatches = terms.length
+      ? (board?.data?.nodes || []).filter(node => nodeMatchesSearch(node, terms)).map(node => node.id)
+      : [];
+    if (!searchMatches.length) {
+      currentSearchIndex = -1;
+    } else if (!keepCurrentId) {
+      currentSearchIndex = 0;
+    } else if (previousId && searchMatches.includes(previousId)) {
+      currentSearchIndex = searchMatches.indexOf(previousId);
+    } else if (currentSearchIndex < 0 || currentSearchIndex >= searchMatches.length) {
+      currentSearchIndex = 0;
+    }
+    refreshSearchHighlights();
+    renderSearchCount();
+  }
+
+  function scrollToSearchCurrent() {
+    if (currentSearchIndex < 0 || currentSearchIndex >= searchMatches.length) return;
+    const nodeId = searchMatches[currentSearchIndex];
+    const node = workspace ? activeBoard()?.data?.nodes?.find(n => n.id === nodeId) : null;
+    const el = nodeEls.get(nodeId);
+    if (!node || !el) return;
+    const stage = currentStageSize();
+    const nodeW = el.offsetWidth || fallbackNodeWidth(node);
+    const nodeH = el.offsetHeight || fallbackNodeSize(node).height;
+    const left = Math.max(0, Math.min(stage.width - els.canvas.clientWidth, node.x + nodeW / 2 - els.canvas.clientWidth / 2));
+    const top = Math.max(0, Math.min(stage.height - els.canvas.clientHeight, node.y + nodeH / 2 - els.canvas.clientHeight / 2));
+    els.canvas.scrollTo({ left, top, behavior: 'smooth' });
+  }
+
+  function stepSearch(delta) {
+    if (!searchMatches.length) return;
+    currentSearchIndex = (currentSearchIndex + delta + searchMatches.length) % searchMatches.length;
+    refreshSearchHighlights();
+    renderSearchCount();
+    scrollToSearchCurrent();
+  }
+
+  function setSearchQuery(value, options = {}) {
+    searchQuery = value || '';
+    if (els.boardSearchInput && els.boardSearchInput.value !== searchQuery) els.boardSearchInput.value = searchQuery;
+    updateSearchResults({ keepCurrentId: options.keepCurrentId !== false });
+  }
+
+  function focusBoardSearch() {
+    if (!els.boardSearchInput) return;
+    setMenuOpen?.(false);
+    els.boardSearchInput.focus();
+    els.boardSearchInput.select();
+  }
+
+  function clearBoardSearch({ blur = false } = {}) {
+    setSearchQuery('', { keepCurrentId: false });
+    if (blur && els.boardSearchInput) els.boardSearchInput.blur();
+  }
+
   function buildNode(n) {
     const el = document.createElement('div');
     // Node carries: type (manual/ai), shape (process/decision/database), and transient is-selected
     el.className = `node node--${n.type} node--${n.shape || 'process'}`;
     if (selectedKind === 'node' && selectedNodeId === n.id) el.classList.add('is-selected');
+    applySearchClasses(el, n.id);
     el.dataset.id = n.id;
     el.style.transform = `translate3d(${n.x}px, ${n.y}px, 0)`;
+    const status = normalizeNodeStatus(n.status);
+    const statusLabel = nodeStatusLabel(status);
+    const statusBadge = status
+      ? `<span class="node__status node__status--${status}" title="Implementation status: ${escapeHtml(statusLabel)}">${escapeHtml(statusLabel)}</span>`
+      : '';
+    const impactNote = String(n.impactNotes || '').trim();
+    const impactBadge = impactNote
+      ? `<span class="node__impact" data-action="impact-note" aria-label="AI Impact Notes">
+          <span class="node__impact-dot" aria-hidden="true"></span>
+          <span class="node__impact-label">Impact</span>
+          <span class="node__impact-tip">${escapeHtml(impactNote)}</span>
+        </span>`
+      : '';
 
     // Decision nodes hide the inline sub (space-constrained inside the diamond)
     // — users edit description in the inspector instead. Database nodes keep
@@ -4085,6 +4677,8 @@ ${styleText}
         <div class="node__title" data-field="title" contenteditable="${isPresentationMode ? 'false' : 'true'}" spellcheck="false">${escapeHtml(n.title)}</div>
         ${isDecision ? '' : `<div class="node__sub" data-field="sub" contenteditable="${isPresentationMode ? 'false' : 'true'}" spellcheck="false">${escapeHtml(n.sub)}</div>`}
       </div>
+      ${statusBadge}
+      ${impactBadge}
       <div class="node__conn" data-action="start-connection" data-side="right"  title="Drag to connect"></div>
       <div class="node__conn" data-action="start-connection" data-side="left"   title="Drag to connect"></div>
       <div class="node__conn" data-action="start-connection" data-side="top"    title="Drag to connect"></div>
@@ -4097,6 +4691,15 @@ ${styleText}
     attachConnectionHandle(el, n);
     attachNodeDocsHover(el, n);
     return el;
+  }
+
+  function refreshNodeBadges(node) {
+    const oldEl = nodeEls.get(node.id);
+    if (!oldEl) return;
+    const newEl = buildNode(node);
+    oldEl.replaceWith(newEl);
+    nodeEls.set(node.id, newEl);
+    updateNodeDocsPosition(node);
   }
 
   function renderAllNodes() {
@@ -4115,6 +4718,7 @@ ${styleText}
       renderNodeDocs(n);
     });
     updateCanvasStageSize();
+    updateSearchResults();
   }
 
   function refreshNodeClass(n) {
@@ -4123,6 +4727,7 @@ ${styleText}
     const shape = n.shape || 'process';
     const sel = (selectedKind === 'node' && selectedNodeId === n.id) ? ' is-selected' : '';
     el.className = `node node--${n.type} node--${shape}${sel}`;
+    applySearchClasses(el, n.id);
     const btn = el.querySelector('[data-action="toggle-ai"]');
     if (btn) btn.setAttribute('aria-pressed', n.type === 'ai' ? 'true' : 'false');
   }
@@ -5132,6 +5737,7 @@ ${styleText}
             if (edge && (edge.from === node.id || edge.to === node.id)) renderInspector();
           }
           renderBoardList();
+          updateSearchResults();
           scheduleSave('edit');
         } else {
           // Field unchanged — drop the focus-time snapshot.
@@ -5818,6 +6424,14 @@ ${styleText}
         </div>
 
         <div class="np__field">
+          <span class="k">AI Impact Notes</span>
+          <textarea class="np__textarea" data-field="impactNotes" rows="4" placeholder="Explain AI/automation impact, human review, risks, or expected efficiency gain.">${escapeHtml(node.impactNotes || '')}</textarea>
+          <span class="k" style="opacity:0.7;letter-spacing:0.06em;text-transform:none;font-size:10px;">
+            Explain AI/automation impact, human review, risks, or expected efficiency gain.
+          </span>
+        </div>
+
+        <div class="np__field">
           <span class="k">Type</span>
           <div class="np__seg" data-seg="type">
             <button class="${!isAi ? 'is-active' : ''}" data-val="manual">
@@ -5827,6 +6441,13 @@ ${styleText}
               <span class="pip"></span> AI
             </button>
           </div>
+        </div>
+
+        <div class="np__field">
+          <span class="k">Implementation Status</span>
+          <select class="np__select" data-action="edit-status" aria-label="Implementation Status">
+            ${nodeStatusOptionsHtml(node.status)}
+          </select>
         </div>
 
         <div class="np__field">
@@ -5886,7 +6507,7 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
     // blur if the field is unchanged. This gives one undo step per
     // "started editing → done editing" gesture instead of one per
     // keystroke.
-    els.inspectorContent.querySelectorAll('.np__input, .np__textarea').forEach(input => {
+    els.inspectorContent.querySelectorAll('.np__input[data-field], .np__textarea[data-field]').forEach(input => {
       const field = input.dataset.field;
       let focusValue = null;
       input.addEventListener('focus', () => {
@@ -5900,23 +6521,42 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
         focusValue = null;
       });
       input.addEventListener('input', () => {
-        const val = (input.value || '').trim() || (field === 'sub' ? '' : '—');
+        const allowsEmpty = field === 'sub' || field === 'impactNotes';
+        const val = (input.value || '').trim() || (allowsEmpty ? '' : '—');
         if (node[field] === val) return;
         node[field] = val;
 
         // Update the corresponding inline content on the canvas without
         // re-rendering the node — preserves AI animations and avoids flicker.
         const nodeEl = nodeEls.get(node.id);
-        if (nodeEl) {
+        if (field === 'impactNotes') {
+          refreshNodeBadges(node);
+        } else if (nodeEl) {
           const inline = nodeEl.querySelector(`[data-field="${field}"]`);
           if (inline && inline.textContent !== val) inline.textContent = val;
         }
 
         touchBoard();
         renderBoardList(); // titles can show in board cards
+        updateSearchResults();
         scheduleSave('inspector-edit');
       });
     });
+
+    const statusEl = els.inspectorContent.querySelector('[data-action="edit-status"]');
+    if (statusEl) {
+      statusEl.addEventListener('change', () => {
+        const next = normalizeNodeStatus(statusEl.value);
+        if ((node.status || '') === next) return;
+        pushUndoSnapshot('node-status');
+        node.status = next;
+        refreshNodeBadges(node);
+        touchBoard();
+        renderBoardList();
+        updateSearchResults();
+        scheduleSave('node-status');
+      });
+    }
 
     // Type segmented toggle
     els.inspectorContent.querySelector('[data-seg="type"]').querySelectorAll('button').forEach(btn => {
@@ -5931,6 +6571,7 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
         touchBoard();
         renderNodeInspector();
         renderBoardList();
+        updateSearchResults();
         showToast(`${node.title} → ${newType === 'ai' ? 'AI mode' : 'manual mode'}`);
         scheduleSave('inspector-type');
       });
@@ -5962,6 +6603,7 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
         touchBoard();
         renderNodeInspector();
         renderBoardList();
+        updateSearchResults();
         showToast(`${node.title} → ${newShape}`);
         scheduleSave('inspector-shape');
       });
@@ -6018,6 +6660,7 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
         }
 
         touchBoard();
+        updateSearchResults();
         scheduleSave('node-documents');
       });
     }
@@ -6587,6 +7230,8 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       title: defaults.title,
       kind:  defaults.kind,
       sub:   defaults.sub,
+      status: '',
+      impactNotes: '',
       documents: [],
       showDocuments: false,
     };
@@ -6598,6 +7243,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     updateCanvasStageSize();
     touchBoard();
     renderBoardList();
+    updateSearchResults();
     const labels = { process: 'Process step', decision: 'Decision', database: 'Database' };
     showToast(`${labels[shape] || 'Step'} added`);
     scheduleSave('add-node');
@@ -6723,6 +7369,8 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     if (typeof n.kind  !== 'string') n.kind  = '';
     if (typeof n.title !== 'string') n.title = 'Untitled';
     if (typeof n.type  !== 'string') n.type  = 'manual';
+    n.status = normalizeNodeStatus(n.status);
+    if (typeof n.impactNotes !== 'string') n.impactNotes = '';
     // Generated Documents — list of output file/document names that
     // this step produces. Older saved boards may not have these fields.
     // showDocuments controls whether the panel is pinned visible on the

@@ -20,7 +20,9 @@
             "kind": "Trigger · Source",
             "sub": "Group leader or Scientific Training emails HR that a new employee will start. Initial info often incomplete.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "clarify_lead",
@@ -32,7 +34,9 @@
             "kind": "Manual · Loop",
             "sub": "Email back-and-forth until salary, contract length, visa, and basics are complete.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "data_complete",
@@ -44,7 +48,9 @@
             "kind": "Decision · Branch",
             "sub": "Loops back to clarification if any base data is missing.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "funding_check",
@@ -56,7 +62,9 @@
             "kind": "Manual · Coordination",
             "sub": "HR asks Controlling/Grants whether funding is approved; clarifies SAP grant number if applicable.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "funding_ok",
@@ -69,7 +77,9 @@
             "sub": "If rejected, the onboarding pauses pending internal clarification.",
             "documents": [],
             "showDocuments": false,
-            "undefined": "—"
+            "undefined": "—",
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "eintrittsliste",
@@ -81,7 +91,9 @@
             "kind": "Data Store",
             "sub": "Central Excel master list. Feeds Welcome Meeting invite, presentation, and several downstream steps.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "welcome_mail",
@@ -93,7 +105,9 @@
             "kind": "Output · Email",
             "sub": "Welcome email to candidate with blank Personal Sheet PDF attached for completion.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "candidate_returns",
@@ -105,7 +119,9 @@
             "kind": "Manual · Inbound",
             "sub": "Candidate returns Personal Sheet (sometimes handwritten) plus passport scan.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "clarify_candidate",
@@ -117,7 +133,9 @@
             "kind": "Manual · Loop",
             "sub": "Email loop with candidate until all personal data and contract-relevant info are complete.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "kv_needed",
@@ -129,7 +147,9 @@
             "kind": "Decision · Branch",
             "sub": "Skip classification block if not needed for this position.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "onlyfy",
@@ -141,7 +161,9 @@
             "kind": "Data Store",
             "sub": "Recruiting tool. Potential source for the candidate CV when not already attached to the trigger email.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "gather_docs",
@@ -153,7 +175,9 @@
             "kind": "Manual · Collection",
             "sub": "Pull CV from email or onlyfy; if insufficient, request insurance data extract from candidate.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "kv_excel",
@@ -165,7 +189,9 @@
             "kind": "Manual · Data",
             "sub": "Compute collective-agreement grade and 6th-vacation-week eligibility in the KV workbook (Excel).",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "generate_contract",
@@ -184,7 +210,9 @@
               "etc."
             ],
             "showDocuments": true,
-            "undefined": "GMI Contract\nIMBA Contract\nFlexietime Agreement\nHome Office Agreement\netc."
+            "undefined": "GMI Contract\nIMBA Contract\nFlexietime Agreement\nHome Office Agreement\netc.",
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "sage_entry",
@@ -196,7 +224,9 @@
             "kind": "System · Integration",
             "sub": "Jessica enters the start date for 6th-vacation-week eligibility into the HR system of record.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "sage_dpw",
@@ -208,7 +238,9 @@
             "kind": "Data Store",
             "sub": "HR system of record. Holds employee master data and entitlements.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "crush_upload",
@@ -220,7 +252,9 @@
             "kind": "System · Integration",
             "sub": "Upload contract draft, Entry List + Personal Sheet to Infoniqa Crush. Data lands in LGV.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "crush_lgv",
@@ -232,7 +266,9 @@
             "kind": "Data Store",
             "sub": "Infoniqa payroll system. Receives the contract draft and Personal Sheet data.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "send_to_candidate",
@@ -244,7 +280,9 @@
             "kind": "Output · Email",
             "sub": "Send the contract set to the candidate for signature.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "candidate_signs",
@@ -256,7 +294,9 @@
             "kind": "Manual · Inbound",
             "sub": "Receive the signed contract back from the candidate.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "print_contract",
@@ -268,7 +308,9 @@
             "kind": "Manual · Physical",
             "sub": "Print the contract to place it into a physical folder for the director meeting.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "director_signs",
@@ -280,7 +322,9 @@
             "kind": "Manual · Physical",
             "sub": "Director signs the printed contract during the regular HR meeting.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "welcome_folder",
@@ -292,7 +336,9 @@
             "kind": "Output · Physical",
             "sub": "Single physical folder per new hire. Check-in sheet pages chosen by institute (GMI/IMBA) and position; signed contract added at the end.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "welcome_ppt",
@@ -304,7 +350,9 @@
             "kind": "Output · Document",
             "sub": "Slide listing new hires (group, position, name) — separate output, not part of the Welcome Folder.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "welcome_invite",
@@ -316,7 +364,9 @@
             "kind": "Output · Email",
             "sub": "Invite the candidate to the Welcome Meeting using the email from the Eintrittsliste.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "nyhyib",
@@ -328,7 +378,9 @@
             "kind": "Manual · Notification",
             "sub": "Inform the Group Leader that the hiring process has been cancelled because funding is not available.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "n0g4ip",
@@ -340,7 +392,9 @@
             "kind": "Data Store",
             "sub": "Provisions user rights and automatically generates the Welcome Letter containing initial IT access credentials.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "n1igu2",
@@ -352,7 +406,9 @@
             "kind": "Data Store",
             "sub": "Digital repository on SharePoint. Stores the returned signed contract and serves as the official employee record.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           }
         ],
         "edges": [
@@ -1197,7 +1253,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.1",
       "createdAt": "2026-05-02T07:48:05.697Z",
-      "updatedAt": "2026-05-02T14:24:33.446Z",
+      "updatedAt": "2026-05-02T19:19:19.513Z",
       "parentBoardId": "b_nk2leksylr",
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -1212,7 +1268,9 @@
             "kind": "Trigger · Source",
             "sub": "Group leader or Scientific Training emails HR that a new employee will start. Initial info often incomplete.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "idea"
           },
           {
             "id": "clarify_lead",
@@ -1224,7 +1282,9 @@
             "kind": "Manual · Loop",
             "sub": "Email back-and-forth until salary, contract length, visa, and basics are complete.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "idea"
           },
           {
             "id": "data_complete",
@@ -1236,7 +1296,9 @@
             "kind": "Decision · Branch",
             "sub": "Loops back to clarification if any base data is missing.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "idea"
           },
           {
             "id": "funding_check",
@@ -1248,7 +1310,9 @@
             "kind": "Manual · Coordination",
             "sub": "HR asks Controlling/Grants whether funding is approved; clarifies SAP grant number if applicable.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "idea"
           },
           {
             "id": "funding_ok",
@@ -1261,19 +1325,23 @@
             "sub": "If rejected, the onboarding pauses pending internal clarification.",
             "documents": [],
             "showDocuments": false,
-            "undefined": "—"
+            "undefined": "—",
+            "impactNotes": "",
+            "status": "idea"
           },
           {
             "id": "eintrittsliste",
             "type": "ai",
             "shape": "database",
             "x": 844,
-            "y": 389.5,
+            "y": 390.5,
             "title": "AI-ready Entry List",
             "kind": "Data Store",
             "sub": "Central web app with structured database (Next.js + PostgreSQL).",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "testing"
           },
           {
             "id": "welcome_mail",
@@ -1285,19 +1353,23 @@
             "kind": "Output · Email",
             "sub": "Welcome email to candidate with blank Personal Sheet PDF attached for completion.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "blocked"
           },
           {
             "id": "candidate_returns",
             "type": "manual",
             "shape": "process",
-            "x": 1473,
-            "y": 419,
+            "x": 1474,
+            "y": 418,
             "title": "Candidate Returns Sheet",
             "kind": "Manual · Inbound",
             "sub": "Candidate returns Personal Sheet (sometimes handwritten) plus passport scan.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "blocked"
           },
           {
             "id": "clarify_candidate",
@@ -1309,7 +1381,9 @@
             "kind": "Manual · Loop",
             "sub": "Email loop with candidate until all personal data and contract-relevant info are complete.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "blocked"
           },
           {
             "id": "kv_needed",
@@ -1321,7 +1395,9 @@
             "kind": "Decision · Branch",
             "sub": "Skip classification block if not needed for this position.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "planned"
           },
           {
             "id": "onlyfy",
@@ -1333,7 +1409,9 @@
             "kind": "Data Store",
             "sub": "Recruiting tool. Potential source for the candidate CV when not already attached to the trigger email.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "gather_docs",
@@ -1345,7 +1423,9 @@
             "kind": "Manual · Collection",
             "sub": "Pull CV from email or onlyfy; if insufficient, request insurance data extract from candidate.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "kv_excel",
@@ -1357,7 +1437,9 @@
             "kind": "AI · Data",
             "sub": "Compute collective-agreement grade and 6th-vacation-week eligibility in the KV workbook (Excel).",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "in_progress"
           },
           {
             "id": "generate_contract",
@@ -1373,7 +1455,9 @@
               "IMBA Contract"
             ],
             "showDocuments": true,
-            "undefined": "GMI Contract\nIMBA Contract"
+            "undefined": "GMI Contract\nIMBA Contract",
+            "impactNotes": "",
+            "status": "in_progress"
           },
           {
             "id": "sage_entry",
@@ -1385,7 +1469,9 @@
             "kind": "Manual · Integration",
             "sub": "Jessica enters the start date for 6th-vacation-week eligibility into the HR system of record.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "sage_dpw",
@@ -1397,7 +1483,9 @@
             "kind": "Data Store",
             "sub": "HR system of record. Holds employee master data and entitlements.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "crush_upload",
@@ -1409,7 +1497,9 @@
             "kind": "System · Integration",
             "sub": "Upload contract draft, Entry List + Personal Sheet to Infoniqa Crush. Data lands in LGV.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "crush_lgv",
@@ -1421,7 +1511,9 @@
             "kind": "Data Store",
             "sub": "Infoniqa payroll system. Receives the contract draft and Personal Sheet data.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "send_to_candidate",
@@ -1433,7 +1525,9 @@
             "kind": "Output · Email",
             "sub": "Send the contract set to the candidate for signature.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "blocked"
           },
           {
             "id": "candidate_signs",
@@ -1445,7 +1539,9 @@
             "kind": "Manual · Inbound",
             "sub": "Receive the signed contract back from the candidate.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "blocked"
           },
           {
             "id": "print_contract",
@@ -1457,7 +1553,9 @@
             "kind": "Manual · Physical",
             "sub": "Print the contract to place it into a physical folder for the director meeting.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "director_signs",
@@ -1469,7 +1567,9 @@
             "kind": "Manual · Physical",
             "sub": "Director signs the printed contract during the regular HR meeting.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "welcome_folder",
@@ -1481,19 +1581,23 @@
             "kind": "Output · Physical",
             "sub": "Single physical folder per new hire. Check-in sheet pages chosen by institute (GMI/IMBA) and position; signed contract added at the end.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "welcome_ppt",
             "type": "manual",
             "shape": "process",
-            "x": 1704,
+            "x": 1703,
             "y": 1033.5,
             "title": "Welcome PowerPoint",
             "kind": "Output · Document",
             "sub": "Slide listing new hires (group, position, name) — separate output, not part of the Welcome Folder.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "blocked"
           },
           {
             "id": "welcome_invite",
@@ -1505,7 +1609,9 @@
             "kind": "Output · Email",
             "sub": "Invite the candidate to the Welcome Meeting using the email from the Eintrittsliste.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "blocked"
           },
           {
             "id": "nyhyib",
@@ -1517,7 +1623,9 @@
             "kind": "Manual · Notification",
             "sub": "Inform the Group Leader that the hiring process has been cancelled because funding is not available.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "idea"
           },
           {
             "id": "n0g4ip",
@@ -1529,7 +1637,9 @@
             "kind": "Data Store",
             "sub": "Provisions user rights and automatically generates the Welcome Letter containing initial IT access credentials.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "n0rujd",
@@ -1541,7 +1651,9 @@
             "kind": "AI · Document Gen",
             "sub": "Automatically compiles the Welcome Letter, Info Sheets, and pre-filled Check-In Sheet into a single, print-ready PDF per new hire for the physical folder.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": "testing"
           },
           {
             "id": "n1oysx",
@@ -1553,7 +1665,9 @@
             "kind": "Data Store",
             "sub": "Digital repository on SharePoint. Stores the returned signed contract and serves as the official employee record.",
             "documents": [],
-            "showDocuments": false
+            "showDocuments": false,
+            "impactNotes": "",
+            "status": ""
           },
           {
             "id": "n1s050",
@@ -1573,7 +1687,9 @@
               "Invitation Letter"
             ],
             "showDocuments": true,
-            "undefined": "Flexietime Agreement\nHome Office\nData Protection\nHosting Agreement\nConfirmation Letter\nInvitation Letter"
+            "undefined": "Flexietime Agreement\nHome Office\nData Protection\nHosting Agreement\nConfirmation Letter\nInvitation Letter",
+            "impactNotes": "",
+            "status": "planned"
           }
         ],
         "edges": [

@@ -2107,6 +2107,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         </svg>
         Download HTML
       </button>
+      <button class="tbtn" id="resetLocalViewBtn" title="Clear this browser's saved workspace and reload the embedded default">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+          <path d="M3 4v5h5"></path>
+        </svg>
+        Reset Local View
+      </button>
       <button class="tbtn tbtn--accent" id="cloneVersionBtn" title="Clone as new version">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -2413,6 +2420,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     inspectorContent: document.getElementById('inspectorContent'),
     addNodeBtn:    document.getElementById('addNodeBtn'),
     downloadHtmlBtn: document.getElementById('downloadHtmlBtn'),
+    resetLocalViewBtn: document.getElementById('resetLocalViewBtn'),
     cloneBtn:      document.getElementById('cloneVersionBtn'),
     boardsList:    document.getElementById('boardsList'),
     newBoardBtn:   document.getElementById('newBoardBtn'),
@@ -2572,6 +2580,21 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       console.error('[download-html]', err);
       showToast('Could not download HTML');
     }
+  }
+
+  function resetLocalView() {
+    const ok = confirm(
+      "This will clear only your browser's local AIFlow workspace and reload the embedded default from index.html. It will not affect GitHub or other users. Continue?"
+    );
+    if (!ok) return;
+
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(REVISION_KEY);
+    } catch (err) {
+      console.error('[reset-local-view]', err);
+    }
+    location.reload();
   }
 
   /**
@@ -5294,6 +5317,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   document.addEventListener('click', () => setMenuOpen(false));
 
   if (els.downloadHtmlBtn) els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);
+  if (els.resetLocalViewBtn) els.resetLocalViewBtn.addEventListener('click', resetLocalView);
   els.cloneBtn.addEventListener('click', (e) => cloneVersion(e.shiftKey)); // shift = major bump
   els.newBoardBtn.addEventListener('click', newBoard);
 

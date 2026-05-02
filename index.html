@@ -387,15 +387,36 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .canvas {
   grid-area: canvas;
   position: relative;
-  overflow: hidden;
+  overflow: auto;
   background-color: var(--bg-base);
   background-image:
     radial-gradient(ellipse 70% 50% at 30% 30%, rgba(124, 58, 237, 0.07), transparent 70%),
     radial-gradient(ellipse 60% 50% at 80% 70%, rgba(6, 182, 212, 0.05), transparent 70%),
     radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
   background-size: auto, auto, 22px 22px;
+  scroll-behavior: auto;
+  scrollbar-color: rgba(150, 154, 171, 0.35) rgba(255,255,255,0.03);
+  scrollbar-width: thin;
 }
 .canvas.is-dragging * { cursor: grabbing !important; }
+.canvas.is-space-panning,
+.canvas.is-space-panning * { cursor: grab !important; }
+.canvas.is-panning,
+.canvas.is-panning * { cursor: grabbing !important; }
+.canvas::-webkit-scrollbar { width: 10px; height: 10px; }
+.canvas::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); }
+.canvas::-webkit-scrollbar-thumb {
+  background: rgba(150,154,171,0.34);
+  border-radius: 999px;
+  border: 2px solid rgba(8,9,15,0.85);
+}
+.canvas-stage {
+  position: relative;
+  width: 3600px;
+  height: 2400px;
+  min-width: 100%;
+  min-height: 100%;
+}
 .canvas__svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .nodes-layer { position: absolute; inset: 0; pointer-events: none; }
 
@@ -1871,6 +1892,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .legend .swatch--manual { background: var(--manual-stroke); }
 .legend .swatch--automated { background: linear-gradient(90deg, var(--auto-1), var(--auto-2)); box-shadow: 0 0 6px rgba(68,215,245,0.35); }
 .legend .swatch--ai { background: linear-gradient(90deg, var(--ai-1), var(--ai-3), var(--ai-4)); box-shadow: 0 0 6px rgba(167,139,250,0.5); }
+.legend .hint {
+  color: var(--text-faint);
+  letter-spacing: 0.08em;
+}
 
 .toast {
   position: absolute;
@@ -2228,6 +2253,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
   <!-- ===== CANVAS ===== -->
   <main class="canvas" id="canvas">
+    <div class="canvas-stage" id="canvasStage">
     <svg class="canvas__svg" id="edgeSvg" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <!-- Base AI line gradient — the static stroke color that defines
@@ -2304,11 +2330,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <g id="edgesGroup"></g>
     </svg>
     <div class="nodes-layer" id="nodesLayer"></div>
+    <div class="alignment-guide" id="horizontalGuide" aria-hidden="true"></div>
+    </div>
 
     <div class="legend">
       <div class="item"><span class="swatch swatch--manual"></span>Manual flow</div>
       <div class="item"><span class="swatch swatch--automated"></span>Automated flow</div>
       <div class="item"><span class="swatch swatch--ai"></span>AI flow</div>
+      <div class="item hint">Scroll / Space+drag to pan</div>
     </div>
 
     <div class="save-indicator" id="saveIndicator">
@@ -2330,8 +2359,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
          canvas width; pointer-events disabled so it never blocks edge
          creation or hit-testing. Position is set via inline `top` from
          JS during drag. -->
-    <div class="alignment-guide" id="horizontalGuide" aria-hidden="true"></div>
-
     <div class="canvas-loading" id="canvasLoading">Loading workspace…</div>
   </main>
 
@@ -2541,11 +2568,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   let selectedNodeId = null;
   let selectedEdgeId = null;
   let isPresentationMode = false;
+  let isSpaceKeyDown = false;
+  let activeCanvasPan = null;
+  let suppressNextCanvasClick = false;
 
   // ===== DOM HOOKS ==============================================
   const els = {
     app:           document.getElementById('app'),
     canvas:        document.getElementById('canvas'),
+    canvasStage:   document.getElementById('canvasStage'),
     nodesLayer:    document.getElementById('nodesLayer'),
     edgesGroup:    document.getElementById('edgesGroup'),
     edgeSvg:       document.getElementById('edgeSvg'),
@@ -2603,6 +2634,67 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   function bumpVersion(current, major = false) {
     const [maj, min] = current.split('.').map(Number);
     return major ? `${(maj || 1) + 1}.0` : `${maj || 1}.${(min || 0) + 1}`;
+  }
+
+  const STAGE_MIN_WIDTH = 3600;
+  const STAGE_MIN_HEIGHT = 2400;
+  const STAGE_PADDING = 420;
+
+  function stagePointFromClient(clientX, clientY) {
+    const rect = els.canvas.getBoundingClientRect();
+    return {
+      x: clientX - rect.left + els.canvas.scrollLeft,
+      y: clientY - rect.top + els.canvas.scrollTop,
+    };
+  }
+
+  function stagePointFromEvent(event) {
+    return stagePointFromClient(event.clientX, event.clientY);
+  }
+
+  function viewportPointFromStage(point) {
+    return {
+      x: point.x - els.canvas.scrollLeft,
+      y: point.y - els.canvas.scrollTop,
+    };
+  }
+
+  function currentStageSize() {
+    if (!els.canvasStage) return { width: STAGE_MIN_WIDTH, height: STAGE_MIN_HEIGHT };
+    return {
+      width: els.canvasStage.clientWidth || STAGE_MIN_WIDTH,
+      height: els.canvasStage.clientHeight || STAGE_MIN_HEIGHT,
+    };
+  }
+
+  function updateCanvasStageSize() {
+    if (!els.canvasStage) return;
+    let maxX = Math.max(STAGE_MIN_WIDTH, els.canvas.clientWidth || 0);
+    let maxY = Math.max(STAGE_MIN_HEIGHT, els.canvas.clientHeight || 0);
+    const board = activeBoard();
+    const nodes = board?.data?.nodes || [];
+    const edges = board?.data?.edges || [];
+
+    nodes.forEach(node => {
+      const el = nodeEls.get(node.id);
+      const w = (el && el.offsetWidth) || 220;
+      const h = (el && el.offsetHeight) || 100;
+      maxX = Math.max(maxX, node.x + w + STAGE_PADDING);
+      maxY = Math.max(maxY, node.y + h + STAGE_PADDING);
+    });
+
+    edges.forEach(edge => {
+      (edge.waypoints || []).forEach(point => {
+        maxX = Math.max(maxX, point.x + STAGE_PADDING);
+        maxY = Math.max(maxY, point.y + STAGE_PADDING);
+      });
+    });
+
+    const width = Math.ceil(maxX);
+    const height = Math.ceil(maxY);
+    els.canvasStage.style.width = `${width}px`;
+    els.canvasStage.style.height = `${height}px`;
+    els.edgeSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
   }
 
   function aiCount(board) {
@@ -2924,6 +3016,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     showToast(isPresentationMode ? 'Presentation mode on' : 'Presentation mode off');
 
     requestAnimationFrame(() => {
+      updateCanvasStageSize();
       activeBoard().data.edges.forEach(updateEdgePath);
       activeBoard().data.nodes.forEach(updateNodeDocsPosition);
     });
@@ -2934,6 +3027,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   document.addEventListener('keydown', (e) => {
     // Browser-native text undo wins inside any editable field.
     if (isEditableTarget(e.target)) return;
+
+    if (e.code === 'Space' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (e.target.closest && e.target.closest('button, a, [role="button"]')) return;
+      isSpaceKeyDown = true;
+      els.canvas.classList.add('is-space-panning');
+      e.preventDefault();
+      return;
+    }
 
     const k = e.key.toLowerCase();
     if (!e.ctrlKey && !e.metaKey && !e.altKey && k === 'p') {
@@ -2957,6 +3058,77 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       undo();
       return;
     }
+  });
+
+  document.addEventListener('keyup', (e) => {
+    if (e.code !== 'Space') return;
+    isSpaceKeyDown = false;
+    els.canvas.classList.remove('is-space-panning');
+  });
+
+  window.addEventListener('blur', () => {
+    isSpaceKeyDown = false;
+    els.canvas.classList.remove('is-space-panning', 'is-panning');
+    activeCanvasPan = null;
+  });
+
+  els.canvas.addEventListener('wheel', (e) => {
+    if (!e.shiftKey || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+    e.preventDefault();
+    els.canvas.scrollLeft += e.deltaY;
+  }, { passive: false });
+
+  els.canvas.addEventListener('scroll', () => {
+    if (!els.edgeTooltip.hidden) hideEdgeTooltip();
+  }, { passive: true });
+
+  els.canvas.addEventListener('pointerdown', (e) => {
+    const shouldPan = (isSpaceKeyDown && e.button === 0) || e.button === 1;
+    if (!shouldPan || isEditableTarget(e.target)) return;
+    e.preventDefault();
+    e.stopPropagation();
+    activeCanvasPan = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      scrollLeft: els.canvas.scrollLeft,
+      scrollTop: els.canvas.scrollTop,
+      moved: false,
+    };
+    els.canvas.classList.add('is-panning');
+    try { els.canvas.setPointerCapture(e.pointerId); } catch {}
+  });
+
+  els.canvas.addEventListener('pointermove', (e) => {
+    if (!activeCanvasPan || e.pointerId !== activeCanvasPan.pointerId) return;
+    e.preventDefault();
+    if (!activeCanvasPan.moved &&
+        (Math.abs(e.clientX - activeCanvasPan.startX) > 2 ||
+         Math.abs(e.clientY - activeCanvasPan.startY) > 2)) {
+      activeCanvasPan.moved = true;
+    }
+    els.canvas.scrollLeft = activeCanvasPan.scrollLeft - (e.clientX - activeCanvasPan.startX);
+    els.canvas.scrollTop = activeCanvasPan.scrollTop - (e.clientY - activeCanvasPan.startY);
+  });
+
+  function finishCanvasPan(e) {
+    if (!activeCanvasPan || e.pointerId !== activeCanvasPan.pointerId) return;
+    try { els.canvas.releasePointerCapture(e.pointerId); } catch {}
+    suppressNextCanvasClick = true;
+    activeCanvasPan = null;
+    els.canvas.classList.remove('is-panning');
+  }
+
+  els.canvas.addEventListener('pointerup', finishCanvasPan);
+  els.canvas.addEventListener('pointercancel', finishCanvasPan);
+  els.canvas.addEventListener('click', (e) => {
+    if (!suppressNextCanvasClick) return;
+    suppressNextCanvasClick = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
+  els.canvas.addEventListener('auxclick', (e) => {
+    if (e.button === 1) e.preventDefault();
   });
 
   function setSaveState(state) {
@@ -3050,6 +3222,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       // position math can read the node's offset dimensions.
       renderNodeDocs(n);
     });
+    updateCanvasStageSize();
   }
 
   function refreshNodeClass(n) {
@@ -3065,6 +3238,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   function setNodePosition(n) {
     const el = nodeEls.get(n.id);
     if (el) el.style.transform = `translate3d(${n.x}px, ${n.y}px, 0)`;
+    updateCanvasStageSize();
     // Keep the documents panel attached to the node visually.
     updateNodeDocsPosition(n);
   }
@@ -3254,10 +3428,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       if (e.target.classList && e.target.classList.contains('edge__waypoint')) return;
       e.preventDefault();
       e.stopPropagation();
-      const canvasRect = els.canvas.getBoundingClientRect();
-      const px = e.clientX - canvasRect.left;
-      const py = e.clientY - canvasRect.top;
-      addWaypointAt(edge.id, px, py);
+      const point = stagePointFromEvent(e);
+      addWaypointAt(edge.id, point.x, point.y);
     });
 
     // Hover → show data-flow tooltip near the edge midpoint.
@@ -3577,10 +3749,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   // EDGE LABELS
   // ------------------------------------------------------------
   // One <div class="edge-label"> per edge that has a non-empty label.
-  // Stored in edgeLabelEls keyed by edge id. Sibling of canvas (lives
-  // in the canvas overlay layer alongside other floating UI) so its
-  // position is just `transform: translate(x, y)` in canvas-relative
-  // pixels.
+  // Stored in edgeLabelEls keyed by edge id. Labels live in the scrollable
+  // stage so their transform uses the same coordinate space as edges.
   // ============================================================
   const edgeLabelEls = new Map();
 
@@ -3590,7 +3760,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       el = document.createElement('div');
       el.className = 'edge-label';
       el.dataset.edgeId = edge.id;
-      els.canvas.appendChild(el);
+      els.canvasStage.appendChild(el);
       edgeLabelEls.set(edge.id, el);
     }
     return el;
@@ -3709,6 +3879,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     handle.addEventListener('click', (e) => e.stopPropagation());
     handle.addEventListener('pointerdown', (e) => {
       if (isPresentationMode) return;
+      if (isSpaceKeyDown) return;
       e.stopPropagation();
       e.preventDefault();
 
@@ -3727,23 +3898,21 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       // if no movement actually happened.
       pushUndoSnapshot('waypoint-drag');
 
-      const canvasRect = els.canvas.getBoundingClientRect();
-      const startX = e.clientX - canvasRect.left;
-      const startY = e.clientY - canvasRect.top;
-      const offsetX = startX - wp.x;
-      const offsetY = startY - wp.y;
+      const start = stagePointFromEvent(e);
+      const offsetX = start.x - wp.x;
+      const offsetY = start.y - wp.y;
       let moved = false;
 
       handle.setPointerCapture(e.pointerId);
 
       function onMove(ev) {
-        const px = ev.clientX - canvasRect.left;
-        const py = ev.clientY - canvasRect.top;
-        const newX = px - offsetX;
-        const newY = py - offsetY;
+        const point = stagePointFromEvent(ev);
+        const newX = point.x - offsetX;
+        const newY = point.y - offsetY;
         if (!moved && (Math.abs(newX - wp.x) > 1 || Math.abs(newY - wp.y) > 1)) moved = true;
         wp.x = newX;
         wp.y = newY;
+        updateCanvasStageSize();
         updateEdgePath(edge);
       }
       function onUp(ev) {
@@ -3822,6 +3991,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     // Make sure this edge is the selected edge so the handles are visible.
     if (selectedEdgeId !== edgeId) selectEdge(edgeId);
 
+    updateCanvasStageSize();
     updateEdgePath(edge);
     touchBoard();
     scheduleSave('waypoint-add');
@@ -3836,6 +4006,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     pushUndoSnapshot('waypoint-delete');
     edge.waypoints.splice(selectedWaypoint.index, 1);
     selectedWaypoint = null;
+    updateCanvasStageSize();
     updateEdgePath(edge);
     touchBoard();
     scheduleSave('waypoint-delete');
@@ -3955,6 +4126,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
     handle.addEventListener('pointerdown', (e) => {
       if (isPresentationMode) return;
+      if (isSpaceKeyDown) return;
       if (e.target.closest('[contenteditable="true"]')) return;
       if (e.target.closest('[data-action="toggle-ai"]')) return;
       if (e.target.closest('[data-action="start-connection"]')) return;
@@ -3967,11 +4139,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       // off in onUp so we don't pollute history with no-ops.
       pushUndoSnapshot('drag');
 
-      const canvasRect = els.canvas.getBoundingClientRect();
-      const startX = e.clientX - canvasRect.left;
-      const startY = e.clientY - canvasRect.top;
-      const offsetX = startX - node.x;
-      const offsetY = startY - node.y;
+      const start = stagePointFromEvent(e);
+      const offsetX = start.x - node.x;
+      const offsetY = start.y - node.y;
       let moved = false;
 
       el.classList.add('is-dragging');
@@ -3979,10 +4149,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       handle.setPointerCapture(e.pointerId);
 
       function onMove(ev) {
-        const px = ev.clientX - canvasRect.left;
-        const py = ev.clientY - canvasRect.top;
-        node.x = Math.max(-40, Math.min(canvasRect.width  - 60, px - offsetX));
-        node.y = Math.max(-10, Math.min(canvasRect.height - 60, py - offsetY));
+        const point = stagePointFromEvent(ev);
+        const stage = currentStageSize();
+        node.x = Math.max(-40, Math.min(stage.width  - 60, point.x - offsetX));
+        node.y = Math.max(-10, Math.min(stage.height - 60, point.y - offsetY));
 
         // Horizontal snap: if the dragged node's vertical center is
         // close to another node's, lock onto that center and show a
@@ -4001,7 +4171,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
         setNodePosition(node);
         updateEdgesForNode(node.id);
-        if (!moved && (Math.abs(px - startX) > 2 || Math.abs(py - startY) > 2)) moved = true;
+        if (!moved && (Math.abs(point.x - start.x) > 2 || Math.abs(point.y - start.y) > 2)) moved = true;
       }
       function onUp(ev) {
         handle.releasePointerCapture(ev.pointerId);
@@ -4152,6 +4322,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     el.querySelectorAll('[data-action="start-connection"]').forEach(knob => {
       knob.addEventListener('pointerdown', (e) => {
         if (isPresentationMode) return;
+        if (isSpaceKeyDown) return;
         if (e.button !== 0) return;
         e.preventDefault();
         e.stopPropagation();
@@ -4213,9 +4384,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     const fromEl   = nodeEls.get(pendingConnection.fromNodeId);
     if (!fromNode || !fromEl) return;
 
-    const canvasRect = els.canvas.getBoundingClientRect();
-    const px = event.clientX - canvasRect.left;
-    const py = event.clientY - canvasRect.top;
+    const point = stagePointFromEvent(event);
+    const px = point.x;
+    const py = point.y;
 
     // Hit-test for a valid drop target. Prefer a connection handle if the
     // cursor is over one — that gives the user explicit control over the
@@ -4448,19 +4619,19 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     // doesn't cover the line. Clamp into the canvas so it stays usable
     // for edges near borders.
     const mid = getEdgeMidpoint(refs.line);
-    const canvasRect = els.canvas.getBoundingClientRect();
+    const viewportMid = mid ? viewportPointFromStage(mid) : null;
     const tipRect = tip.getBoundingClientRect();
     const tw = tipRect.width;
     const th = tipRect.height;
 
     let cx, cy;
-    if (mid) {
-      cx = mid.x;
-      cy = mid.y;
+    if (viewportMid) {
+      cx = viewportMid.x;
+      cy = viewportMid.y;
     } else {
-      // Fallback to canvas center if path measurement fails
-      cx = canvasRect.width / 2;
-      cy = canvasRect.height / 2;
+      // Fallback to visible canvas center if path measurement fails.
+      cx = els.canvas.clientWidth / 2;
+      cy = els.canvas.clientHeight / 2;
     }
 
     // Place above the edge midpoint by default; if it would clip the
@@ -4470,13 +4641,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     let top  = cy - th - GAP;
     if (top < 8) top = cy + GAP;
 
-    // Clamp horizontally to the canvas
-    const maxLeft = canvasRect.width - tw - 8;
+    // Clamp horizontally to the visible canvas viewport.
+    const maxLeft = els.canvas.clientWidth - tw - 8;
     if (left < 8)         left = 8;
     if (left > maxLeft)   left = Math.max(8, maxLeft);
 
-    tip.style.left = left + 'px';
-    tip.style.top  = top  + 'px';
+    // The tooltip is an absolute child of the scroll container, so add the
+    // scroll offset back after clamping in viewport coordinates.
+    tip.style.left = (left + els.canvas.scrollLeft) + 'px';
+    tip.style.top  = (top  + els.canvas.scrollTop)  + 'px';
 
     // Trigger fade-in on next frame so the transition runs from opacity 0
     requestAnimationFrame(() => tip.classList.add('is-visible'));
@@ -5508,16 +5681,17 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   function addNode(shape = 'process') {
     pushUndoSnapshot('add-node');
     const board = activeBoard();
-    const canvasRect = els.canvas.getBoundingClientRect();
     const id = 'n' + (Date.now().toString(36).slice(-5));
     const defaults = NODE_DEFAULTS[shape] || NODE_DEFAULTS.process;
     // Each shape has its own footprint width — center the spawn point accordingly.
     const halfW = shape === 'decision' ? 90 : 110;
     const halfH = shape === 'decision' ? 90 : 50;
+    const viewportCenterX = els.canvas.scrollLeft + els.canvas.clientWidth / 2;
+    const viewportCenterY = els.canvas.scrollTop + els.canvas.clientHeight / 2;
     const newNode = {
       id, type: 'manual', shape,
-      x: Math.round(canvasRect.width  / 2 - halfW + (Math.random() * 60 - 30)),
-      y: Math.round(canvasRect.height / 2 - halfH + (Math.random() * 60 - 30)),
+      x: Math.round(viewportCenterX - halfW + (Math.random() * 60 - 30)),
+      y: Math.round(viewportCenterY - halfH + (Math.random() * 60 - 30)),
       title: defaults.title,
       kind:  defaults.kind,
       sub:   defaults.sub,
@@ -5529,6 +5703,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     els.nodesLayer.appendChild(el);
     nodeEls.set(id, el);
     renderNodeDocs(newNode);
+    updateCanvasStageSize();
     touchBoard();
     renderBoardList();
     const labels = { process: 'Process step', decision: 'Decision', database: 'Database' };
@@ -5576,6 +5751,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     renderBoardHeader();
     renderAllNodes();
     requestAnimationFrame(() => {
+      updateCanvasStageSize();
       renderAllEdges();
       renderInspector();
       renderBoardList();
@@ -5589,7 +5765,9 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   window.addEventListener('resize', () => {
     if (resizeRaf) cancelAnimationFrame(resizeRaf);
     resizeRaf = requestAnimationFrame(() => {
+      updateCanvasStageSize();
       activeBoard().data.edges.forEach(updateEdgePath);
+      activeBoard().data.nodes.forEach(updateNodeDocsPosition);
     });
   });
 

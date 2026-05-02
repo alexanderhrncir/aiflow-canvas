@@ -373,10 +373,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow: 0 0 16px -8px rgba(68, 215, 245, 0.65);
 }
 .app.is-presenting .topbar__actions #addNodeGroup,
-.app.is-presenting .topbar__actions #downloadJsonBtn,
-.app.is-presenting .topbar__actions #reloadPublishedJsonBtn,
-.app.is-presenting .topbar__actions #downloadHtmlBtn,
-.app.is-presenting .topbar__actions #resetLocalViewBtn,
+.app.is-presenting .topbar__actions #workspaceMenuGroup,
 .app.is-presenting .topbar__actions #cloneVersionBtn {
   display: none;
 }
@@ -1700,8 +1697,36 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: transparent;
   text-align: left;
   transition: background 140ms ease;
+  width: 100%;
 }
-.tbtn-menu button:hover { background: var(--bg-elev-3); }
+.tbtn-menu button:hover:not(:disabled) { background: var(--bg-elev-3); }
+.tbtn-menu button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+.tbtn-menu .menu-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tbtn-menu .menu-label {
+  color: var(--text-primary);
+}
+.tbtn-menu .menu-helper {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  text-transform: none;
+  white-space: nowrap;
+}
+.tbtn-menu .menu-caret {
+  margin-left: auto;
+  color: var(--text-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+}
 .tbtn-menu button .glyph {
   width: 14px; height: 14px;
   border: 1.5px solid var(--text-secondary);
@@ -2185,13 +2210,38 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         </svg>
         Present
       </button>
-      <button class="tbtn" id="exportPngBtn" title="Export the current board as a PNG">
+      <div class="tbtn-group" id="exportMenuGroup">
+        <button class="tbtn" id="exportMenuBtn" title="Export board outputs" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+            <circle cx="8" cy="10" r="1.5"></circle>
+            <path d="M21 16l-5-5-4 4-2-2-5 5"></path>
+          </svg>
+          Export ▾
+        </button>
+        <div class="tbtn-menu" id="exportMenu" role="menu">
+          <button id="exportPngMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Export PNG</span>
+              <span class="menu-helper">Export current board as image</span>
+            </span>
+          </button>
+          <button id="exportPdfMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Export PDF</span>
+              <span class="menu-helper">Export current board as PDF</span>
+            </span>
+          </button>
+        </div>
+      </div>
+      <button class="tbtn" id="reloadPublishedJsonBtn" title="Force-load the latest workspace.json from GitHub Pages">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="5" width="18" height="14" rx="2"></rect>
-          <circle cx="8" cy="10" r="1.5"></circle>
-          <path d="M21 16l-5-5-4 4-2-2-5 5"></path>
+          <path d="M21 12a9 9 0 0 1-15.3 6.4"></path>
+          <path d="M3 12a9 9 0 0 1 15.3-6.4"></path>
+          <path d="M18 2v4h-4"></path>
+          <path d="M6 22v-4h4"></path>
         </svg>
-        Export PNG
+        Reload Published JSON
       </button>
       <div class="tbtn-group" id="addNodeGroup">
         <button class="tbtn" id="addNodeBtn" title="Add new node — click to choose shape">
@@ -2216,39 +2266,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           </button>
         </div>
       </div>
-      <button class="tbtn" id="downloadJsonBtn" title="Download current workspace as workspace.json">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 3v12"></path>
-          <path d="M7 10l5 5 5-5"></path>
-          <path d="M5 21h14"></path>
-          <path d="M7 19h10"></path>
-        </svg>
-        Download JSON
-      </button>
-      <button class="tbtn" id="reloadPublishedJsonBtn" title="Force-load the latest workspace.json from GitHub Pages">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12a9 9 0 0 1-15.3 6.4"></path>
-          <path d="M3 12a9 9 0 0 1 15.3-6.4"></path>
-          <path d="M18 2v4h-4"></path>
-          <path d="M6 22v-4h4"></path>
-        </svg>
-        Reload Published JSON
-      </button>
-      <button class="tbtn" id="downloadHtmlBtn" title="Download this app with the current workspace embedded">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 3v12"></path>
-          <path d="M7 10l5 5 5-5"></path>
-          <path d="M5 21h14"></path>
-        </svg>
-        Download HTML
-      </button>
-      <button class="tbtn" id="resetLocalViewBtn" title="Clear this browser's saved workspace and reload the published default">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 12a9 9 0 1 0 3-6.7"></path>
-          <path d="M3 4v5h5"></path>
-        </svg>
-        Reset Local View
-      </button>
       <button class="tbtn tbtn--accent" id="cloneVersionBtn" title="Clone as new version">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -2256,6 +2273,36 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         </svg>
         Clone Version
       </button>
+      <div class="tbtn-group" id="workspaceMenuGroup">
+        <button class="tbtn" id="workspaceMenuBtn" title="Workspace actions" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6h16"></path>
+            <path d="M4 12h16"></path>
+            <path d="M4 18h16"></path>
+          </svg>
+          Workspace ▾
+        </button>
+        <div class="tbtn-menu" id="workspaceMenu" role="menu">
+          <button id="downloadJsonMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Download JSON</span>
+              <span class="menu-helper">Save current workflow data</span>
+            </span>
+          </button>
+          <button id="resetLocalViewMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Reset Local View</span>
+              <span class="menu-helper">Clear this browser's local state</span>
+            </span>
+          </button>
+          <button id="downloadHtmlMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Download HTML</span>
+              <span class="menu-helper">Export standalone app file</span>
+            </span>
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -2592,12 +2639,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     inspectorContent: document.getElementById('inspectorContent'),
     addNodeBtn:    document.getElementById('addNodeBtn'),
     presentModeBtn: document.getElementById('presentModeBtn'),
-    exportPngBtn:  document.getElementById('exportPngBtn'),
+    exportMenuBtn: document.getElementById('exportMenuBtn'),
+    exportMenu:    document.getElementById('exportMenu'),
+    exportPngMenuItem: document.getElementById('exportPngMenuItem'),
+    exportPdfMenuItem: document.getElementById('exportPdfMenuItem'),
     presentationPill: document.getElementById('presentationPill'),
-    downloadJsonBtn: document.getElementById('downloadJsonBtn'),
     reloadPublishedJsonBtn: document.getElementById('reloadPublishedJsonBtn'),
-    downloadHtmlBtn: document.getElementById('downloadHtmlBtn'),
-    resetLocalViewBtn: document.getElementById('resetLocalViewBtn'),
+    workspaceMenuBtn: document.getElementById('workspaceMenuBtn'),
+    workspaceMenu: document.getElementById('workspaceMenu'),
+    downloadJsonMenuItem: document.getElementById('downloadJsonMenuItem'),
+    resetLocalViewMenuItem: document.getElementById('resetLocalViewMenuItem'),
+    downloadHtmlMenuItem: document.getElementById('downloadHtmlMenuItem'),
     cloneBtn:      document.getElementById('cloneVersionBtn'),
     boardsList:    document.getElementById('boardsList'),
     newBoardBtn:   document.getElementById('newBoardBtn'),
@@ -3120,6 +3172,10 @@ ${styleText}
     });
   }
 
+  function canvasToJpegDataUrl(canvas, quality = 0.92) {
+    return canvas.toDataURL('image/jpeg', quality);
+  }
+
   function triggerDownload(blob, filename) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -3131,7 +3187,7 @@ ${styleText}
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
-  async function renderSvgStringToPngBlob(svg, plan, diagnostics, label) {
+  async function renderSvgStringToCanvas(svg, plan, diagnostics, label) {
     diagnostics[`${label}SvgLength`] = svg.length;
     console.log(`[AIFlow PNG] ${label}: generated SVG string`, { length: svg.length });
     const svgBlob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
@@ -3156,6 +3212,11 @@ ${styleText}
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Could not create 2D canvas context.');
     ctx.drawImage(img, 0, 0, plan.width, plan.height);
+    return canvas;
+  }
+
+  async function renderSvgStringToPngBlob(svg, plan, diagnostics, label) {
+    const canvas = await renderSvgStringToCanvas(svg, plan, diagnostics, label);
     const pngBlob = await canvasToPngBlob(canvas);
     diagnostics[`${label}BlobSize`] = pngBlob.size;
     console.log(`[AIFlow PNG] ${label}: canvas.toBlob succeeded`, { bytes: pngBlob.size });
@@ -3440,75 +3501,226 @@ ${styleText}
 </svg>`;
   }
 
+  async function prepareBoardExport(diagnostics, logPrefix) {
+    if (!workspace) throw new Error('Workspace is not loaded yet.');
+    if (typeof setMenuOpen === 'function') setMenuOpen(false);
+    hideEdgeTooltip();
+    updateCanvasStageSize();
+
+    const board = activeBoard();
+    const stageSize = currentStageSize();
+    diagnostics.board = {
+      id: board?.id,
+      name: board?.name,
+      version: board?.version,
+      nodeCount: board?.data?.nodes?.length || 0,
+      edgeCount: board?.data?.edges?.length || 0,
+    };
+    diagnostics.stageSize = stageSize;
+    console.log(`[AIFlow ${logPrefix}] active board`, diagnostics.board);
+    console.log(`[AIFlow ${logPrefix}] stage size`, diagnostics.stageSize);
+
+    if (document.fonts?.ready) {
+      await document.fonts.ready;
+      diagnostics.fontsReady = true;
+      console.log(`[AIFlow ${logPrefix}] document.fonts.ready resolved`);
+    } else {
+      diagnostics.fontsReady = false;
+      console.log(`[AIFlow ${logPrefix}] document.fonts.ready unavailable`);
+    }
+    await new Promise(resolve => requestAnimationFrame(resolve));
+
+    const bounds = computePngExportBounds();
+    if (!bounds) return null;
+    diagnostics.bounds = bounds;
+    console.log(`[AIFlow ${logPrefix}] computed bounds`, bounds);
+
+    const plan = pngExportRenderPlan(bounds);
+    diagnostics.renderPlan = plan;
+    console.log(`[AIFlow ${logPrefix}] export dimensions`, plan);
+    return { board, bounds, plan };
+  }
+
+  async function renderBoardForExportCanvas(diagnostics, logPrefix = 'PNG') {
+    const prepared = await prepareBoardExport(diagnostics, logPrefix);
+    if (!prepared) return null;
+    const { bounds, plan } = prepared;
+    let usedFallback = false;
+    let canvas;
+
+    try {
+      const highFidelitySvg = buildPngExportSvg(bounds, plan);
+      canvas = await renderSvgStringToCanvas(highFidelitySvg, plan, diagnostics, 'highFidelity');
+    } catch (highFidelityError) {
+      diagnostics.highFidelityError = highFidelityError;
+      console.warn(`[AIFlow ${logPrefix}] high-fidelity export failed, trying simplified renderer`, highFidelityError);
+      const fallbackSvg = buildFallbackPngSvg(bounds, plan);
+      canvas = await renderSvgStringToCanvas(fallbackSvg, plan, diagnostics, 'fallback');
+      usedFallback = true;
+    }
+
+    return { ...prepared, canvas, usedFallback };
+  }
+
   async function exportBoardPng() {
     const diagnostics = {};
     try {
-      if (!workspace) throw new Error('Workspace is not loaded yet.');
-      if (typeof setMenuOpen === 'function') setMenuOpen(false);
-      hideEdgeTooltip();
-      updateCanvasStageSize();
-
-      const board = activeBoard();
-      const stageSize = currentStageSize();
-      diagnostics.board = {
-        id: board?.id,
-        name: board?.name,
-        version: board?.version,
-        nodeCount: board?.data?.nodes?.length || 0,
-        edgeCount: board?.data?.edges?.length || 0,
-      };
-      diagnostics.stageSize = stageSize;
       console.groupCollapsed('[AIFlow PNG] Export diagnostics');
-      console.log('[AIFlow PNG] active board', diagnostics.board);
-      console.log('[AIFlow PNG] stage size', diagnostics.stageSize);
-
-      if (document.fonts?.ready) {
-        await document.fonts.ready;
-        diagnostics.fontsReady = true;
-        console.log('[AIFlow PNG] document.fonts.ready resolved');
-      } else {
-        diagnostics.fontsReady = false;
-        console.log('[AIFlow PNG] document.fonts.ready unavailable');
-      }
-      await new Promise(resolve => requestAnimationFrame(resolve));
-
-      const bounds = computePngExportBounds();
-      if (!bounds) {
+      showToast('Preparing PNG export...');
+      const result = await renderBoardForExportCanvas(diagnostics, 'PNG');
+      if (!result) {
         showToast('Nothing to export on this board');
         console.log('[AIFlow PNG] no exportable bounds found');
         console.groupEnd();
         return;
       }
-      diagnostics.bounds = bounds;
-      console.log('[AIFlow PNG] computed bounds', bounds);
-
-      const plan = pngExportRenderPlan(bounds);
-      diagnostics.renderPlan = plan;
-      console.log('[AIFlow PNG] export dimensions', plan);
-      showToast('Preparing PNG export...');
-
-      let pngBlob;
-      let usedFallback = false;
-      try {
-        const highFidelitySvg = buildPngExportSvg(bounds, plan);
-        pngBlob = await renderSvgStringToPngBlob(highFidelitySvg, plan, diagnostics, 'highFidelity');
-      } catch (highFidelityError) {
-        diagnostics.highFidelityError = highFidelityError;
-        console.warn('[AIFlow PNG] high-fidelity export failed, trying simplified renderer', highFidelityError);
-        const fallbackSvg = buildFallbackPngSvg(bounds, plan);
-        pngBlob = await renderSvgStringToPngBlob(fallbackSvg, plan, diagnostics, 'fallback');
-        usedFallback = true;
-      }
-
+      const pngBlob = await canvasToPngBlob(result.canvas);
+      diagnostics.pngBlobSize = pngBlob.size;
+      console.log('[AIFlow PNG] canvas.toBlob succeeded', { bytes: pngBlob.size });
       triggerDownload(pngBlob, pngExportFilename(activeBoard()));
       console.log('[AIFlow PNG] export complete', diagnostics);
       console.groupEnd();
-      showToast(usedFallback ? 'PNG exported using simplified renderer' : 'Exported board PNG');
+      showToast(result.usedFallback ? 'PNG exported using simplified renderer' : 'Exported board PNG');
     } catch (err) {
       diagnostics.error = err;
       console.error('[AIFlow PNG export failed]', err, diagnostics);
       try { console.groupEnd(); } catch {}
       showToast('PNG export failed — see console');
+    }
+  }
+
+  function pdfExportFilename(board) {
+    const name = sanitizeFilenamePart(board?.name, 'board');
+    const version = sanitizeFilenamePart(board?.version, '1');
+    return `aiflow-${name}-v${version}-${timestampForFilename()}.pdf`;
+  }
+
+  function pdfEscapeText(value) {
+    return String(value ?? '')
+      .replace(/[^\x20-\x7e]/g, '?')
+      .replace(/\\/g, '\\\\')
+      .replace(/\(/g, '\\(')
+      .replace(/\)/g, '\\)')
+      .replace(/\r?\n/g, ' ');
+  }
+
+  function binaryStringToUint8Array(value) {
+    const bytes = new Uint8Array(value.length);
+    for (let i = 0; i < value.length; i++) bytes[i] = value.charCodeAt(i) & 0xff;
+    return bytes;
+  }
+
+  function dataUrlBinary(dataUrl) {
+    const comma = dataUrl.indexOf(',');
+    if (comma === -1) throw new Error('Invalid image data URL.');
+    return atob(dataUrl.slice(comma + 1));
+  }
+
+  function buildPdfDocument(objects) {
+    let pdf = '%PDF-1.4\n%\xff\xff\xff\xff\n';
+    const offsets = [0];
+    objects.forEach((content, idx) => {
+      offsets[idx + 1] = pdf.length;
+      pdf += `${idx + 1} 0 obj\n${content}\nendobj\n`;
+    });
+    const xrefOffset = pdf.length;
+    pdf += `xref\n0 ${objects.length + 1}\n`;
+    pdf += '0000000000 65535 f \n';
+    for (let i = 1; i <= objects.length; i++) {
+      pdf += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+    }
+    pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+    return new Blob([binaryStringToUint8Array(pdf)], { type: 'application/pdf' });
+  }
+
+  function createPdfFromBoardImage(canvas, board, imageDataUrl) {
+    const pageW = 1190.55; // A3 landscape, points
+    const pageH = 841.89;
+    const margin = 36;
+    const headerH = 64;
+    const imageBinary = dataUrlBinary(imageDataUrl);
+    const availableW = pageW - margin * 2;
+    const availableH = pageH - margin * 2 - headerH;
+    const aspect = canvas.width / canvas.height;
+    let drawW = availableW;
+    let drawH = drawW / aspect;
+    if (drawH > availableH) {
+      drawH = availableH;
+      drawW = drawH * aspect;
+    }
+    const drawX = margin + (availableW - drawW) / 2;
+    const drawY = margin + (availableH - drawH) / 2;
+    const exportedAt = new Date().toLocaleString(undefined, {
+      year: 'numeric', month: 'short', day: '2-digit',
+      hour: '2-digit', minute: '2-digit',
+    });
+    const title = board?.name || 'AIFlow Canvas';
+    const version = board?.version ? `v${board.version}` : 'v1.0';
+    const subtitle = `${version} - Exported ${exportedAt}`;
+
+    const content = [
+      `0.031 0.035 0.059 rg 0 0 ${pageW} ${pageH} re f`,
+      `0.922 0.925 0.949 rg BT /F1 18 Tf ${margin} ${pageH - margin - 6} Td (${pdfEscapeText(title)}) Tj ET`,
+      `0.588 0.604 0.671 rg BT /F1 10 Tf ${margin} ${pageH - margin - 24} Td (${pdfEscapeText(subtitle)}) Tj ET`,
+      `0.075 0.086 0.137 rg ${drawX - 4} ${drawY - 4} ${drawW + 8} ${drawH + 8} re f`,
+      `q ${drawW} 0 0 ${drawH} ${drawX} ${drawY} cm /Im1 Do Q`,
+    ].join('\n');
+
+    const objects = [];
+    objects.push('<< /Type /Catalog /Pages 2 0 R >>');
+    objects.push('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+    objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources << /Font << /F1 4 0 R >> /XObject << /Im1 5 0 R >> >> /Contents 6 0 R >>`);
+    objects.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+    objects.push(`<< /Type /XObject /Subtype /Image /Width ${canvas.width} /Height ${canvas.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${imageBinary.length} >>\nstream\n${imageBinary}\nendstream`);
+    objects.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+    return buildPdfDocument(objects);
+  }
+
+  async function renderFallbackBoardCanvas(bounds, plan, diagnostics) {
+    const fallbackSvg = buildFallbackPngSvg(bounds, plan);
+    return renderSvgStringToCanvas(fallbackSvg, plan, diagnostics, 'pdfFallback');
+  }
+
+  async function exportBoardPdf() {
+    const diagnostics = {};
+    try {
+      console.groupCollapsed('[AIFlow PDF] Export diagnostics');
+      showToast('Preparing PDF...');
+      const result = await renderBoardForExportCanvas(diagnostics, 'PDF');
+      if (!result) {
+        showToast('Nothing to export on this board');
+        console.log('[AIFlow PDF] no exportable bounds found');
+        console.groupEnd();
+        return;
+      }
+
+      let canvas = result.canvas;
+      let usedFallback = result.usedFallback;
+      let jpegDataUrl;
+      try {
+        jpegDataUrl = canvasToJpegDataUrl(canvas, 0.92);
+      } catch (jpegError) {
+        diagnostics.highFidelityJpegError = jpegError;
+        if (usedFallback) throw jpegError;
+        console.warn('[AIFlow PDF] high-fidelity canvas could not be encoded, retrying simplified renderer', jpegError);
+        canvas = await renderFallbackBoardCanvas(result.bounds, result.plan, diagnostics);
+        jpegDataUrl = canvasToJpegDataUrl(canvas, 0.92);
+        usedFallback = true;
+      }
+
+      diagnostics.jpegDataUrlLength = jpegDataUrl.length;
+      diagnostics.pdfCanvas = { width: canvas.width, height: canvas.height };
+      const pdfBlob = createPdfFromBoardImage(canvas, result.board, jpegDataUrl);
+      diagnostics.pdfBlobSize = pdfBlob.size;
+      triggerDownload(pdfBlob, pdfExportFilename(result.board));
+      console.log('[AIFlow PDF] export complete', diagnostics);
+      console.groupEnd();
+      showToast(usedFallback ? 'PDF exported using simplified renderer' : 'PDF exported');
+    } catch (err) {
+      diagnostics.error = err;
+      console.error('[AIFlow PDF export failed]', err, diagnostics);
+      try { console.groupEnd(); } catch {}
+      showToast('PDF export failed — see console');
     }
   }
 
@@ -6393,19 +6605,35 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     selectNode(id);
   }
 
-  // Add-Node split button: clicking opens a small menu with Process / Decision.
+  // Topbar dropdowns: Export, Add Node, and Workspace share one close/open
+  // path so only one menu can be open at a time.
   const addNodeMenu = document.getElementById('addNodeMenu');
-  function setMenuOpen(open) {
-    if (open) {
-      addNodeMenu.classList.add('is-open');
-    } else {
-      addNodeMenu.classList.remove('is-open');
-    }
+  const topbarMenus = [
+    { btn: els.exportMenuBtn, menu: els.exportMenu },
+    { btn: els.addNodeBtn, menu: addNodeMenu },
+    { btn: els.workspaceMenuBtn, menu: els.workspaceMenu },
+  ].filter(x => x.btn && x.menu);
+
+  function setMenuOpen(open, menuToOpen = null) {
+    topbarMenus.forEach(({ btn, menu }) => {
+      const shouldOpen = !!open && menu === menuToOpen;
+      menu.classList.toggle('is-open', shouldOpen);
+      btn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    });
   }
-  els.addNodeBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    setMenuOpen(!addNodeMenu.classList.contains('is-open'));
+
+  function toggleTopbarMenu(menu) {
+    setMenuOpen(!menu.classList.contains('is-open'), menu);
+  }
+
+  topbarMenus.forEach(({ btn, menu }) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleTopbarMenu(menu);
+    });
+    menu.addEventListener('click', (e) => e.stopPropagation());
   });
+
   addNodeMenu.querySelectorAll('button[data-shape]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -6413,15 +6641,46 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       addNode(btn.dataset.shape);
     });
   });
-  // Close menu on any outside click
+
+  if (els.exportPngMenuItem) {
+    els.exportPngMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      exportBoardPng();
+    });
+  }
+  if (els.exportPdfMenuItem) {
+    els.exportPdfMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      exportBoardPdf();
+    });
+  }
+  if (els.downloadJsonMenuItem) {
+    els.downloadJsonMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      downloadWorkspaceJson();
+    });
+  }
+  if (els.resetLocalViewMenuItem) {
+    els.resetLocalViewMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      resetLocalView();
+    });
+  }
+  if (els.downloadHtmlMenuItem) {
+    els.downloadHtmlMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      downloadUpdatedHtml();
+    });
+  }
+
+  // Close menus on any outside click or Escape.
   document.addEventListener('click', () => setMenuOpen(false));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setMenuOpen(false);
+  });
 
   if (els.presentModeBtn) els.presentModeBtn.addEventListener('click', () => setPresentationMode(!isPresentationMode));
-  if (els.exportPngBtn) els.exportPngBtn.addEventListener('click', exportBoardPng);
-  if (els.downloadJsonBtn) els.downloadJsonBtn.addEventListener('click', downloadWorkspaceJson);
   if (els.reloadPublishedJsonBtn) els.reloadPublishedJsonBtn.addEventListener('click', reloadPublishedWorkspaceJson);
-  if (els.downloadHtmlBtn) els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);
-  if (els.resetLocalViewBtn) els.resetLocalViewBtn.addEventListener('click', resetLocalView);
   els.cloneBtn.addEventListener('click', (e) => cloneVersion(e.shiftKey)); // shift = major bump
   els.newBoardBtn.addEventListener('click', newBoard);
 

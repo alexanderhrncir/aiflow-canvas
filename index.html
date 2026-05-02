@@ -484,8 +484,46 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   min-width: 100%;
   min-height: 100%;
 }
-.canvas__svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.nodes-layer { position: absolute; inset: 0; pointer-events: none; }
+.swimlane-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.canvas__svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 1; }
+.nodes-layer { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.swimlane {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  min-height: 40px;
+  border-top: 1px solid rgba(148, 163, 184, 0.10);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.07);
+  background: linear-gradient(90deg, rgba(167, 139, 250, 0.045), transparent 70%);
+}
+.swimlane__label {
+  position: sticky;
+  left: 24px;
+  top: 0;
+  display: inline-flex;
+  margin: 12px 0 0 24px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(8, 10, 18, 0.72);
+  border: 1px solid rgba(167, 139, 250, 0.18);
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.swimlane--purple { background: linear-gradient(90deg, rgba(167, 139, 250, 0.055), transparent 72%); }
+.swimlane--cyan { background: linear-gradient(90deg, rgba(34, 211, 238, 0.052), transparent 72%); }
+.swimlane--pink { background: linear-gradient(90deg, rgba(236, 72, 153, 0.048), transparent 72%); }
+.swimlane--green { background: linear-gradient(90deg, rgba(52, 211, 153, 0.048), transparent 72%); }
+.swimlane--amber { background: linear-gradient(90deg, rgba(251, 191, 36, 0.048), transparent 72%); }
+.swimlane--slate { background: linear-gradient(90deg, rgba(148, 163, 184, 0.042), transparent 72%); }
 
 .minimap {
   position: absolute;
@@ -2715,6 +2753,147 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: 11px;
   line-height: 1.35;
 }
+.swimlane-panel[hidden] { display: none !important; }
+.swimlane-panel {
+  margin-top: 10px;
+  padding: 11px;
+  border-radius: 14px;
+  border: 1px solid rgba(68, 215, 245, 0.18);
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(34, 211, 238, 0.10), transparent 58%),
+    linear-gradient(180deg, rgba(18, 22, 34, 0.86), rgba(8, 10, 18, 0.84));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.035) inset,
+    0 14px 32px rgba(0,0,0,0.28);
+}
+.swimlane-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.swimlane-panel__title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #d8faff;
+}
+.swimlane-panel__add {
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 8px;
+  border: 1px solid rgba(68, 215, 245, 0.28);
+  background: rgba(34, 211, 238, 0.07);
+  color: #d8faff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+.swimlane-panel__empty {
+  color: var(--text-muted);
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
+  padding: 5px 0 2px;
+}
+.swimlane-panel__list {
+  display: grid;
+  gap: 9px;
+  max-height: 330px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.swimlane-panel__list::-webkit-scrollbar { width: 6px; }
+.swimlane-panel__list::-webkit-scrollbar-thumb { background: var(--stroke-soft); border-radius: 999px; }
+.swimlane-editor {
+  padding: 9px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(255,255,255,0.026);
+}
+.swimlane-editor__top {
+  display: grid;
+  grid-template-columns: 1fr 28px;
+  gap: 7px;
+  margin-bottom: 7px;
+}
+.swimlane-editor__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+.swimlane-editor__field {
+  display: grid;
+  gap: 4px;
+}
+.swimlane-editor__field label {
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.swimlane-editor__input,
+.swimlane-editor__select {
+  width: 100%;
+  min-width: 0;
+  border-radius: 8px;
+  border: 1px solid var(--stroke-soft);
+  background: rgba(5, 7, 12, 0.68);
+  color: var(--text-secondary);
+  padding: 7px 8px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  outline: none;
+}
+.swimlane-editor__input:focus,
+.swimlane-editor__select:focus {
+  border-color: rgba(68, 215, 245, 0.42);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.10);
+}
+.swimlane-editor__delete {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(251, 113, 133, 0.22);
+  background: rgba(251, 113, 133, 0.06);
+  color: #fecdd3;
+  font-size: 16px;
+  line-height: 1;
+}
+.swimlane-editor__delete:hover {
+  border-color: rgba(251, 113, 133, 0.45);
+  background: rgba(251, 113, 133, 0.12);
+}
+.swimlane-tints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.swimlane-tint-chip {
+  width: 24px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(255,255,255,0.05);
+}
+.swimlane-tint-chip.is-active {
+  border-color: rgba(255,255,255,0.55);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.08), 0 0 12px rgba(34, 211, 238, 0.18);
+}
+.swimlane-tint-chip[data-tint="purple"] { background: rgba(167, 139, 250, 0.48); }
+.swimlane-tint-chip[data-tint="cyan"] { background: rgba(34, 211, 238, 0.48); }
+.swimlane-tint-chip[data-tint="pink"] { background: rgba(236, 72, 153, 0.48); }
+.swimlane-tint-chip[data-tint="green"] { background: rgba(52, 211, 153, 0.48); }
+.swimlane-tint-chip[data-tint="amber"] { background: rgba(251, 191, 36, 0.50); }
+.swimlane-tint-chip[data-tint="slate"] { background: rgba(148, 163, 184, 0.42); }
 
 .boards__list {
   flex: 1;
@@ -3408,6 +3587,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <!-- ===== CANVAS ===== -->
   <main class="canvas" id="canvas">
     <div class="canvas-stage" id="canvasStage">
+    <div class="swimlane-layer" id="swimlaneLayer" aria-hidden="true"></div>
     <svg class="canvas__svg" id="edgeSvg" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <!-- Base AI line gradient — the static stroke color that defines
@@ -3641,6 +3821,19 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         <textarea class="board-notes-panel__textarea" id="boardNotesTextarea" placeholder="Open questions, assumptions, next steps..."></textarea>
         <span class="board-notes-panel__helper">Notes for this board/version.</span>
       </div>
+      <button class="boards__newbtn boards__newbtn--secondary" id="swimlanesBtn" title="Manage swimlane background sections">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+        Swimlanes
+      </button>
+      <div class="swimlane-panel" id="swimlanePanel" hidden>
+        <div class="swimlane-panel__head">
+          <span class="swimlane-panel__title">Swimlanes</span>
+          <button class="swimlane-panel__add" id="addSwimlaneBtn" type="button">Add Swimlane</button>
+        </div>
+        <div class="swimlane-panel__list" id="swimlaneList"></div>
+      </div>
     </div>
     <div class="boards__list" id="boardsList"></div>
   </aside>
@@ -3701,9 +3894,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           <div class="help-card__title">Views & Tools</div>
           <div class="help-row"><span class="help-key">Present</span><span class="help-desc">Presentation Mode</span></div>
           <div class="help-row"><span class="help-key">Export</span><span class="help-desc">PNG/PDF export</span></div>
-          <div class="help-row"><span class="help-key">Compare Versions</span><span class="help-desc">Compare workflow versions</span></div>
-          <div class="help-row"><span class="help-key">Filter View</span><span class="help-desc">Dim nodes by status/type/shape</span></div>
-          <div class="help-row"><span class="help-key">Board Notes</span><span class="help-desc">Notes for this board/version</span></div>
+      <div class="help-row"><span class="help-key">Compare Versions</span><span class="help-desc">Compare workflow versions</span></div>
+      <div class="help-row"><span class="help-key">Filter View</span><span class="help-desc">Dim nodes by status/type/shape</span></div>
+      <div class="help-row"><span class="help-key">Board Notes</span><span class="help-desc">Notes for this board/version</span></div>
+      <div class="help-row"><span class="help-key">Swimlanes</span><span class="help-desc">Add horizontal board sections to group steps by phase, team, system, or responsibility</span></div>
         </section>
       </div>
       <div class="help-footer">Tip: Use Download HTML or Download JSON before publishing a new default version.</div>
@@ -3902,6 +4096,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     app:           document.getElementById('app'),
     canvas:        document.getElementById('canvas'),
     canvasStage:   document.getElementById('canvasStage'),
+    swimlaneLayer: document.getElementById('swimlaneLayer'),
     nodesLayer:    document.getElementById('nodesLayer'),
     edgesGroup:    document.getElementById('edgesGroup'),
     edgeSvg:       document.getElementById('edgeSvg'),
@@ -3946,6 +4141,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     boardNotesPanel: document.getElementById('boardNotesPanel'),
     boardNotesTextarea: document.getElementById('boardNotesTextarea'),
     boardNotesSaved: document.getElementById('boardNotesSaved'),
+    swimlanesBtn: document.getElementById('swimlanesBtn'),
+    swimlanePanel: document.getElementById('swimlanePanel'),
+    addSwimlaneBtn: document.getElementById('addSwimlaneBtn'),
+    swimlaneList: document.getElementById('swimlaneList'),
     boardsList:    document.getElementById('boardsList'),
     newBoardBtn:   document.getElementById('newBoardBtn'),
     boardTitle:    document.getElementById('boardTitle'),
@@ -4050,6 +4249,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         maxX = Math.max(maxX, point.x + STAGE_PADDING);
         maxY = Math.max(maxY, point.y + STAGE_PADDING);
       });
+    });
+    getBoardSwimlanes(board).forEach(lane => {
+      maxY = Math.max(maxY, lane.y + lane.height + STAGE_PADDING);
     });
 
     const width = Math.ceil(maxX);
@@ -4201,6 +4403,175 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     els.canvas.scrollLeft = Math.max(0, Math.min(maxLeft, targetX - els.canvas.clientWidth / 2));
     els.canvas.scrollTop = Math.max(0, Math.min(maxTop, targetY - els.canvas.clientHeight / 2));
     updateMinimapViewport();
+  }
+
+  // ============================================================
+  // SWIMLANE FOUNDATION
+  // ============================================================
+  const SWIMLANE_TINTS = new Set(['purple', 'cyan', 'pink', 'green', 'amber', 'slate']);
+
+  function makeSwimlaneId() {
+    return uid('lane');
+  }
+
+  function normalizeSwimlane(lane = {}) {
+    const y = Number(lane.y);
+    const height = Number(lane.height);
+    const tint = SWIMLANE_TINTS.has(lane.tint) ? lane.tint : 'purple';
+    return {
+      id: typeof lane.id === 'string' && lane.id.trim() ? lane.id : makeSwimlaneId(),
+      title: typeof lane.title === 'string' ? lane.title : '',
+      orientation: lane.orientation === 'vertical' ? 'vertical' : 'horizontal',
+      y: Number.isFinite(y) ? y : 0,
+      height: Number.isFinite(height) && height > 0 ? height : 220,
+      tint,
+      collapsed: lane.collapsed === true,
+    };
+  }
+
+  function getBoardSwimlanes(board) {
+    return Array.isArray(board?.data?.swimlanes) ? board.data.swimlanes : [];
+  }
+
+  function createSwimlaneDraft(overrides = {}) {
+    return normalizeSwimlane({
+      id: makeSwimlaneId(),
+      title: 'New Swimlane',
+      orientation: 'horizontal',
+      y: 0,
+      height: 220,
+      tint: 'cyan',
+      collapsed: false,
+      ...overrides,
+    });
+  }
+
+  function renderSwimlanes() {
+    if (!els.swimlaneLayer) return;
+    const board = activeBoard();
+    const lanes = getBoardSwimlanes(board).map(normalizeSwimlane)
+      .filter(lane => lane.orientation === 'horizontal' && !lane.collapsed);
+    if (!lanes.length) {
+      els.swimlaneLayer.innerHTML = '';
+      return;
+    }
+    els.swimlaneLayer.innerHTML = lanes.map(lane => `
+      <div class="swimlane swimlane--${escapeHtml(lane.tint)}" data-lane-id="${escapeHtml(lane.id)}"
+        style="top:${lane.y}px;height:${lane.height}px;">
+        <span class="swimlane__label">${escapeHtml(lane.title.trim() || 'Untitled Lane')}</span>
+      </div>
+    `).join('');
+  }
+
+  function ensureBoardSwimlanes(board = activeBoard()) {
+    if (!board) return [];
+    if (!board.data) board.data = { nodes: [], edges: [] };
+    if (!Array.isArray(board.data.swimlanes)) board.data.swimlanes = [];
+    return board.data.swimlanes;
+  }
+
+  function cleanupBoardSwimlanes(board = activeBoard()) {
+    if (board?.data && Array.isArray(board.data.swimlanes) && board.data.swimlanes.length === 0) {
+      delete board.data.swimlanes;
+    }
+  }
+
+  function swimlaneDefaultY(lanes) {
+    if (!lanes.length) return 0;
+    return Math.max(...lanes.map(lane => {
+      const normalized = normalizeSwimlane(lane);
+      return normalized.y + normalized.height;
+    }));
+  }
+
+  function nextSwimlaneTint(lanes) {
+    const tints = [...SWIMLANE_TINTS];
+    return tints[lanes.length % tints.length] || 'cyan';
+  }
+
+  function commitSwimlaneChange(reason = 'swimlanes', options = {}) {
+    const { rerenderPanel = true } = options;
+    cleanupBoardSwimlanes();
+    renderSwimlanes();
+    if (rerenderPanel) renderSwimlanePanel();
+    updateCanvasStageSize();
+    scheduleMinimapRender();
+    touchBoard();
+    renderBoardList();
+    renderComparePanel();
+    scheduleSave(reason);
+  }
+
+  function addSwimlane() {
+    const board = activeBoard();
+    if (!board) return;
+    pushUndoSnapshot('swimlane-add');
+    const lanes = ensureBoardSwimlanes(board);
+    lanes.push(createSwimlaneDraft({
+      y: swimlaneDefaultY(lanes),
+      height: 260,
+      tint: nextSwimlaneTint(lanes),
+    }));
+    commitSwimlaneChange('swimlane-add');
+    showToast('Swimlane added');
+  }
+
+  function updateSwimlane(laneId, patch, reason = 'swimlane-edit', options = {}) {
+    const board = activeBoard();
+    const lanes = ensureBoardSwimlanes(board);
+    const idx = lanes.findIndex(lane => lane.id === laneId);
+    if (idx === -1) return;
+    const current = normalizeSwimlane(lanes[idx]);
+    const next = normalizeSwimlane({ ...current, ...patch });
+    next.y = Math.max(0, next.y);
+    next.height = Math.max(40, next.height);
+    lanes[idx] = next;
+    commitSwimlaneChange(reason, options);
+  }
+
+  function deleteSwimlane(laneId) {
+    const board = activeBoard();
+    const lanes = ensureBoardSwimlanes(board);
+    const idx = lanes.findIndex(lane => lane.id === laneId);
+    if (idx === -1) return;
+    pushUndoSnapshot('swimlane-delete');
+    lanes.splice(idx, 1);
+    commitSwimlaneChange('swimlane-delete');
+    showToast('Swimlane deleted');
+  }
+
+  function renderSwimlanePanel() {
+    if (!els.swimlaneList || !workspace) return;
+    const lanes = getBoardSwimlanes(activeBoard()).map(normalizeSwimlane);
+    els.swimlanesBtn?.classList.toggle('is-active', lanes.length > 0);
+    if (!lanes.length) {
+      els.swimlaneList.innerHTML = '<div class="swimlane-panel__empty">No swimlanes yet. Add one to group this board into phases, teams, or systems.</div>';
+      return;
+    }
+    els.swimlaneList.innerHTML = lanes.map(lane => `
+      <div class="swimlane-editor" data-lane-id="${escapeHtml(lane.id)}">
+        <div class="swimlane-editor__top">
+          <input class="swimlane-editor__input" data-lane-field="title" type="text" value="${escapeHtml(lane.title)}" placeholder="Untitled Lane">
+          <button class="swimlane-editor__delete" data-action="delete-swimlane" type="button" title="Delete swimlane">×</button>
+        </div>
+        <div class="swimlane-editor__grid">
+          <div class="swimlane-editor__field">
+            <label>Y</label>
+            <input class="swimlane-editor__input" data-lane-field="y" type="number" min="0" step="10" value="${Math.round(lane.y)}">
+          </div>
+          <div class="swimlane-editor__field">
+            <label>Height</label>
+            <input class="swimlane-editor__input" data-lane-field="height" type="number" min="40" step="10" value="${Math.round(lane.height)}">
+          </div>
+        </div>
+        <div class="swimlane-editor__field">
+          <label>Tint</label>
+          <div class="swimlane-tints">
+            ${[...SWIMLANE_TINTS].map(tint => `<button class="swimlane-tint-chip${lane.tint === tint ? ' is-active' : ''}" data-tint="${tint}" type="button" title="${tint}"></button>`).join('')}
+          </div>
+        </div>
+      </div>
+    `).join('');
   }
 
   function aiCount(board) {
@@ -4408,6 +4779,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     edgeLabelEls.forEach(label => {
       bounds = mergeExportRect(bounds, stageRectFromDom(label));
     });
+
+    getBoardSwimlanes(board).map(normalizeSwimlane)
+      .filter(lane => lane.orientation === 'horizontal' && !lane.collapsed)
+      .forEach(lane => {
+        bounds = mergeExportRect(bounds, {
+          minX: 0,
+          minY: lane.y,
+          maxX: currentStageSize().width,
+          maxY: lane.y + lane.height,
+        });
+      });
 
     if (!bounds) return null;
     const minX = Math.floor(bounds.minX - PNG_EXPORT_PADDING);
@@ -4875,6 +5257,27 @@ ${styleText}
 </g>`;
   }
 
+  function fallbackSwimlaneSvg(lane) {
+    const stage = currentStageSize();
+    const colors = {
+      purple: ['#a78bfa', 0.07],
+      cyan: ['#22d3ee', 0.065],
+      pink: ['#ec4899', 0.06],
+      green: ['#34d399', 0.06],
+      amber: ['#fbbf24', 0.06],
+      slate: ['#94a3b8', 0.05],
+    }[lane.tint] || ['#a78bfa', 0.07];
+    const label = String(lane.title || 'Untitled Lane').toUpperCase();
+    return `
+<g opacity="0.96">
+  <rect x="0" y="${lane.y}" width="${stage.width}" height="${lane.height}" fill="${colors[0]}" opacity="${colors[1]}"/>
+  <line x1="0" y1="${lane.y}" x2="${stage.width}" y2="${lane.y}" stroke="#94a3b8" stroke-width="1" opacity="0.16"/>
+  <line x1="0" y1="${lane.y + lane.height}" x2="${stage.width}" y2="${lane.y + lane.height}" stroke="#94a3b8" stroke-width="1" opacity="0.10"/>
+  <rect x="24" y="${lane.y + 12}" width="${Math.max(88, Math.min(260, label.length * 7.2 + 24))}" height="24" rx="12" fill="#080a12" stroke="${colors[0]}" stroke-width="1" opacity="0.82"/>
+  <text x="36" y="${lane.y + 28}" font-family="Consolas, monospace" font-size="9" font-weight="700" letter-spacing="1.2" fill="#aeb2c1">${escapeHtml(label)}</text>
+</g>`;
+  }
+
   function fallbackAnchorPoint(node, side) {
     const { width: w, height: h } = fallbackNodeSize(node);
     switch (side) {
@@ -4932,6 +5335,10 @@ ${styleText}
     const board = activeBoard();
     const nodes = board?.data?.nodes || [];
     const edges = board?.data?.edges || [];
+    const swimlaneSvgs = getBoardSwimlanes(board).map(normalizeSwimlane)
+      .filter(lane => lane.orientation === 'horizontal' && !lane.collapsed)
+      .map(fallbackSwimlaneSvg)
+      .join('\n');
     const edgeSvgs = edges.map(edge => {
       const d = computeFallbackEdgePath(edge);
       if (!d) return '';
@@ -4977,6 +5384,7 @@ ${styleText}
   </defs>
   <rect x="${bounds.x}" y="${bounds.y}" width="${bounds.width}" height="${bounds.height}" fill="#08090f"/>
   <rect x="${bounds.x}" y="${bounds.y}" width="${bounds.width}" height="${bounds.height}" fill="url(#fbGrid)"/>
+  <g>${swimlaneSvgs}</g>
   <g>${edgeSvgs}</g>
   <g>${nodeSvgs}</g>
   <g>${docsSvgs}</g>
@@ -5988,6 +6396,15 @@ ${styleText}
         id: targetBoard.id,
         name: 'Board notes changed',
         details: ['notes changed'],
+      });
+    }
+    if (!valuesEqual(getBoardSwimlanes(baseBoard), getBoardSwimlanes(targetBoard))) {
+      diff.board.changed.push({
+        entity: 'board',
+        change: 'changed',
+        id: targetBoard.id,
+        name: 'Swimlanes changed',
+        details: ['swimlanes changed'],
       });
     }
 
@@ -9173,6 +9590,58 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       }, 450);
     });
   }
+  if (els.swimlanesBtn) {
+    els.swimlanesBtn.addEventListener('click', () => {
+      if (els.swimlanePanel) {
+        els.swimlanePanel.hidden = !els.swimlanePanel.hidden;
+        if (!els.swimlanePanel.hidden) renderSwimlanePanel();
+      }
+    });
+  }
+  if (els.addSwimlaneBtn) els.addSwimlaneBtn.addEventListener('click', addSwimlane);
+  if (els.swimlaneList) {
+    els.swimlaneList.addEventListener('click', (e) => {
+      const editor = e.target.closest('.swimlane-editor');
+      if (!editor) return;
+      const laneId = editor.dataset.laneId;
+      if (e.target.closest('[data-action="delete-swimlane"]')) {
+        deleteSwimlane(laneId);
+        return;
+      }
+      const tintBtn = e.target.closest('[data-tint]');
+      if (tintBtn) {
+        pushUndoSnapshot('swimlane-tint');
+        updateSwimlane(laneId, { tint: tintBtn.dataset.tint }, 'swimlane-tint');
+      }
+    });
+    els.swimlaneList.addEventListener('focusin', (e) => {
+      const input = e.target.closest('[data-lane-field]');
+      if (!input) return;
+      input.dataset.focusValue = input.value;
+      pushUndoSnapshot(`swimlane-${input.dataset.laneField}`);
+    });
+    els.swimlaneList.addEventListener('focusout', (e) => {
+      const input = e.target.closest('[data-lane-field]');
+      if (!input) return;
+      if (input.dataset.focusValue === input.value) discardLastSnapshot();
+      delete input.dataset.focusValue;
+    });
+    els.swimlaneList.addEventListener('input', (e) => {
+      const input = e.target.closest('[data-lane-field]');
+      if (!input) return;
+      const editor = input.closest('.swimlane-editor');
+      const laneId = editor?.dataset.laneId;
+      if (!laneId) return;
+      const field = input.dataset.laneField;
+      let value = input.value;
+      if (field === 'y' || field === 'height') {
+        const parsed = Number(value);
+        if (!Number.isFinite(parsed)) return;
+        value = field === 'height' ? Math.max(40, parsed) : Math.max(0, parsed);
+      }
+      updateSwimlane(laneId, { [field]: value }, `swimlane-${field}`, { rerenderPanel: false });
+    });
+  }
 
   // ============================================================
   // FULL RENDER (after board switch / load)
@@ -9182,10 +9651,12 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     renderAllNodes();
     requestAnimationFrame(() => {
       updateCanvasStageSize();
+      renderSwimlanes();
       renderAllEdges();
       renderInspector();
       renderBoardList();
       renderBoardNotesPanel();
+      renderSwimlanePanel();
     });
   }
 

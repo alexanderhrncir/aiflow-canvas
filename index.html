@@ -641,6 +641,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   z-index: 4;
 }
 .alignment-guide.is-visible { opacity: 1; }
+.alignment-guide--swimlane {
+  background: rgba(34, 211, 238, 0.55);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.35);
+}
 
 /* Loading veil */
 .canvas-loading {
@@ -2818,7 +2822,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .swimlane-editor__top {
   display: grid;
-  grid-template-columns: 1fr 28px;
+  grid-template-columns: 1fr auto 28px;
+  align-items: center;
   gap: 7px;
   margin-bottom: 7px;
 }
@@ -2871,6 +2876,30 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .swimlane-editor__delete:hover {
   border-color: rgba(251, 113, 133, 0.45);
   background: rgba(251, 113, 133, 0.12);
+}
+.swimlane-editor__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+.swimlane-editor__node {
+  height: 28px;
+  min-width: 62px;
+  padding: 0 9px;
+  border-radius: 8px;
+  border: 1px solid rgba(68, 215, 245, 0.30);
+  background: rgba(34, 211, 238, 0.075);
+  color: #d8faff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.swimlane-editor__node:hover {
+  border-color: rgba(68, 215, 245, 0.50);
+  box-shadow: 0 0 14px -8px rgba(34, 211, 238, 0.8);
 }
 .swimlane-tints {
   display: flex;
@@ -3886,6 +3915,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           <div class="help-card__title">Editing</div>
           <div class="help-row"><span class="help-key">Drag node</span><span class="help-desc">Move node</span></div>
           <div class="help-row"><span class="help-key">Drag side handle</span><span class="help-desc">Create edge</span></div>
+          <div class="help-row"><span class="help-key">+ Node in Swimlane</span><span class="help-desc">Create a new step on the swimlane centerline</span></div>
+          <div class="help-row"><span class="help-key">Drag near swimlane center</span><span class="help-desc">Snap node vertically to the lane center</span></div>
           <div class="help-row"><span class="help-key"><kbd>Delete</kbd> / <kbd>Entf</kbd></span><span class="help-desc">Delete selected node or edge</span></div>
           <div class="help-row"><span class="help-key"><kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Z</kbd></span><span class="help-desc">Undo</span></div>
           <div class="help-row"><span class="help-key"><kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd></span><span class="help-desc">Redo</span></div>
@@ -4552,6 +4583,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <div class="swimlane-editor" data-lane-id="${escapeHtml(lane.id)}">
         <div class="swimlane-editor__top">
           <input class="swimlane-editor__input" data-lane-field="title" type="text" value="${escapeHtml(lane.title)}" placeholder="Untitled Lane">
+          <button class="swimlane-editor__node" data-action="add-node-in-swimlane" type="button" title="Add node in this swimlane">+ Node</button>
           <button class="swimlane-editor__delete" data-action="delete-swimlane" type="button" title="Delete swimlane">×</button>
         </div>
         <div class="swimlane-editor__grid">
@@ -4572,6 +4604,81 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         </div>
       </div>
     `).join('');
+  }
+
+  function clampNumber(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function getApproxNodeHeight(node, nodeEl = nodeEls?.get(node.id)) {
+    return nodeEl?.offsetHeight || fallbackNodeSize(node).height;
+  }
+
+  function nodeVerticalCenter(node) {
+    return node.y + getApproxNodeHeight(node) / 2;
+  }
+
+  function laneNodes(lane, board = activeBoard()) {
+    return (board?.data?.nodes || []).filter(node => {
+      const cy = nodeVerticalCenter(node);
+      return cy >= lane.y && cy <= lane.y + lane.height;
+    });
+  }
+
+  function swimlaneNodePosition(lane, board = activeBoard()) {
+    const approxW = 240;
+    const approxH = 132;
+    const visibleLeft = els.canvas.scrollLeft;
+    const baseX = Math.max(80, visibleLeft + 80);
+    const inLane = laneNodes(lane, board);
+    const rightmostX = inLane.length ? Math.max(...inLane.map(node => Number(node.x) || 0)) : null;
+    const nextX = rightmostX == null ? baseX : Math.max(baseX, rightmostX + 280);
+    const stage = currentStageSize();
+    const minY = lane.y + 24;
+    const maxY = Math.max(minY, lane.y + lane.height - approxH - 24);
+    const preferredY = lane.y + lane.height / 2 - approxH / 2;
+    return {
+      x: Math.round(clampNumber(nextX, 0, Math.max(0, stage.width - approxW))),
+      y: Math.round(clampNumber(preferredY, minY, maxY)),
+    };
+  }
+
+  function addNodeInSwimlane(laneId) {
+    const board = activeBoard();
+    const lane = getBoardSwimlanes(board).map(normalizeSwimlane).find(item => item.id === laneId);
+    if (!board || !lane) return;
+    pushUndoSnapshot('add-node-in-swimlane');
+    const id = 'n' + (Date.now().toString(36).slice(-5));
+    const pos = swimlaneNodePosition(lane, board);
+    const newNode = {
+      id,
+      type: 'manual',
+      shape: 'process',
+      x: pos.x,
+      y: pos.y,
+      title: 'New Step',
+      kind: 'Step',
+      sub: 'Describe this workflow step.',
+      status: '',
+      statusNote: '',
+      impactNotes: '',
+      documents: [],
+      showDocuments: false,
+    };
+    board.data.nodes.push(newNode);
+    const el = buildNode(newNode);
+    els.nodesLayer.appendChild(el);
+    nodeEls.set(id, el);
+    renderNodeDocs(newNode);
+    updateCanvasStageSize();
+    touchBoard();
+    renderBoardList();
+    updateSearchResults();
+    scheduleMinimapRender();
+    scheduleSave('add-node-in-swimlane');
+    selectNode(id);
+    requestAnimationFrame(() => scrollToNodeId(id));
+    showToast('Node added to swimlane');
   }
 
   function aiCount(board) {
@@ -7730,9 +7837,10 @@ ${styleText}
   // uniformly even though they have different heights.
   // ============================================================
   const SNAP_Y_THRESHOLD = 8;
+  const SWIMLANE_SNAP_Y_THRESHOLD = 24;
 
   function getNodeCenterY(node, nodeEl) {
-    const h = (nodeEl && nodeEl.offsetHeight) || 90;
+    const h = getApproxNodeHeight(node, nodeEl);
     return node.y + h / 2;
   }
 
@@ -7743,14 +7851,14 @@ ${styleText}
    */
   function findHorizontalSnap(draggedNode) {
     const draggedEl = nodeEls.get(draggedNode.id);
-    const draggedHeight = (draggedEl && draggedEl.offsetHeight) || 90;
+    const draggedHeight = getApproxNodeHeight(draggedNode, draggedEl);
     const draggedCenterY = draggedNode.y + draggedHeight / 2;
     let best = null;
     activeBoard().data.nodes.forEach(other => {
       if (other.id === draggedNode.id) return;
       const otherEl = nodeEls.get(other.id);
       if (!otherEl) return;
-      const otherCenterY = other.y + (otherEl.offsetHeight || 90) / 2;
+      const otherCenterY = other.y + getApproxNodeHeight(other, otherEl) / 2;
       const delta = Math.abs(draggedCenterY - otherCenterY);
       if (delta <= SNAP_Y_THRESHOLD && (!best || delta < best.delta)) {
         best = { y: otherCenterY, delta };
@@ -7759,15 +7867,33 @@ ${styleText}
     return best;
   }
 
-  function showHorizontalGuide(y) {
+  function findSwimlaneCenterSnap(draggedNode, threshold = SWIMLANE_SNAP_Y_THRESHOLD) {
+    const draggedEl = nodeEls.get(draggedNode.id);
+    const draggedCenterY = draggedNode.y + getApproxNodeHeight(draggedNode, draggedEl) / 2;
+    let best = null;
+    getBoardSwimlanes(activeBoard()).forEach(lane => {
+      const normalized = normalizeSwimlane(lane);
+      const centerY = normalized.y + normalized.height / 2;
+      const delta = Math.abs(draggedCenterY - centerY);
+      if (delta <= threshold && (!best || delta < best.delta)) {
+        best = { y: centerY, delta, lane: normalized };
+      }
+    });
+    return best;
+  }
+
+  function showHorizontalGuide(y, variant = 'node') {
     const g = els.horizontalGuide;
     if (!g) return;
     g.style.top = y + 'px';
+    g.classList.toggle('alignment-guide--swimlane', variant === 'swimlane');
     g.classList.add('is-visible');
   }
 
   function hideHorizontalGuide() {
-    if (els.horizontalGuide) els.horizontalGuide.classList.remove('is-visible');
+    if (els.horizontalGuide) {
+      els.horizontalGuide.classList.remove('is-visible', 'alignment-guide--swimlane');
+    }
   }
 
   // ============================================================
@@ -7814,10 +7940,15 @@ ${styleText}
         // The snap math reads the dragged node's own offsetHeight via
         // findHorizontalSnap, so it's correct for any shape.
         const snap = findHorizontalSnap(node);
+        const swimlaneSnap = snap ? null : findSwimlaneCenterSnap(node);
         if (snap) {
-          const draggedHeight = (el.offsetHeight) || 90;
-          node.y = snap.y - draggedHeight / 2;
+          const draggedHeight = getApproxNodeHeight(node, el);
+          node.y = clampNumber(snap.y - draggedHeight / 2, -10, stage.height - 60);
           showHorizontalGuide(snap.y);
+        } else if (swimlaneSnap) {
+          const draggedHeight = getApproxNodeHeight(node, el);
+          node.y = clampNumber(swimlaneSnap.y - draggedHeight / 2, -10, stage.height - 60);
+          showHorizontalGuide(swimlaneSnap.y, 'swimlane');
         } else {
           hideHorizontalGuide();
         }
@@ -7839,6 +7970,7 @@ ${styleText}
         hideHorizontalGuide();
         if (moved) {
           touchBoard();
+          scheduleMinimapRender();
           scheduleSave('drag');
         } else {
           // Nothing moved — pop the snapshot we pushed at pointerdown
@@ -9606,6 +9738,10 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       const laneId = editor.dataset.laneId;
       if (e.target.closest('[data-action="delete-swimlane"]')) {
         deleteSwimlane(laneId);
+        return;
+      }
+      if (e.target.closest('[data-action="add-node-in-swimlane"]')) {
+        addNodeInSwimlane(laneId);
         return;
       }
       const tintBtn = e.target.closest('[data-tint]');

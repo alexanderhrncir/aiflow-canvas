@@ -5,7 +5,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.0",
       "createdAt": "2026-05-01T20:45:41.103Z",
-      "updatedAt": "2026-05-02T08:02:15.865Z",
+      "updatedAt": "2026-05-02T21:45:02.701Z",
       "parentBoardId": null,
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -219,8 +219,10 @@
               "GMI Contract",
               "IMBA Contract",
               "Flexietime Agreement",
-              "Home Office Agreement",
-              "etc."
+              "Home Office",
+              "Data Protection",
+              "Confirmation Letter",
+              "Invitation Letter"
             ],
             "showDocuments": true,
             "undefined": "GMI Contract\nIMBA Contract\nFlexietime Agreement\nHome Office Agreement\netc.",
@@ -1282,7 +1284,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.1",
       "createdAt": "2026-05-02T07:48:05.697Z",
-      "updatedAt": "2026-05-02T21:20:42.256Z",
+      "updatedAt": "2026-05-02T21:43:23.806Z",
       "parentBoardId": "b_nk2leksylr",
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -2472,7 +2474,9 @@
             },
             "dataItems": [
               "Name",
-              "Research Group / Department"
+              "Institute",
+              "Research Group / Department",
+              "Position Title"
             ],
             "kind": "data",
             "label": "",
@@ -2482,8 +2486,8 @@
                 "y": 639
               },
               {
-                "x": 1176,
-                "y": 1169
+                "x": 1181,
+                "y": 1143
               }
             ]
           },
@@ -2518,32 +2522,6 @@
               {
                 "x": 1657,
                 "y": 589
-              }
-            ]
-          },
-          {
-            "id": "e143ndirz",
-            "from": "generate_contract",
-            "to": "welcome_ppt",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "bottom",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [
-              "Position Title"
-            ],
-            "kind": "data",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 703,
-                "y": 1152
               }
             ]
           },
@@ -2670,6 +2648,6 @@
       "notes": ""
     }
   ],
-  "activeBoardId": "b_clgfhjqtq9",
+  "activeBoardId": "b_nk2leksylr",
   "seededConfluenceHrgi": true
 }

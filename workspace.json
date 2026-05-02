@@ -5,7 +5,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.0",
       "createdAt": "2026-05-01T20:45:41.103Z",
-      "updatedAt": "2026-05-02T09:39:16.978Z",
+      "updatedAt": "2026-05-02T08:02:15.865Z",
       "parentBoardId": null,
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -213,9 +213,9 @@
           {
             "id": "crush_upload",
             "type": "manual",
-            "shape": "database",
-            "x": 842,
-            "y": 622.5,
+            "shape": "process",
+            "x": 834,
+            "y": 630.5,
             "title": "Upload to Crush",
             "kind": "System · Integration",
             "sub": "Upload contract draft, Entry List + Personal Sheet to Infoniqa Crush. Data lands in LGV.",
@@ -254,7 +254,7 @@
             "y": 987,
             "title": "Candidate Signs & Returns",
             "kind": "Manual · Inbound",
-            "sub": "eceive the signed contract along with the Hosting Agreement, Data Protection, and Flexitime documents back from the candidate.",
+            "sub": "Receive the signed contract back from the candidate.",
             "documents": [],
             "showDocuments": false
           },
@@ -510,7 +510,7 @@
             "from": "clarify_candidate",
             "to": "eintrittsliste",
             "type": "manual",
-            "direction": "bidirectional",
+            "direction": "forward",
             "sourceAnchor": "left",
             "targetAnchor": "auto",
             "meta": {
@@ -1045,8 +1045,8 @@
                 "y": 639
               },
               {
-                "x": 1172,
-                "y": 1179
+                "x": 1176,
+                "y": 1169
               }
             ]
           },
@@ -1171,13 +1171,13 @@
             "waypoints": []
           },
           {
-            "id": "e5egrpktp",
+            "id": "e1io2dsmf",
             "from": "candidate_signs",
             "to": "n1igu2",
             "type": "manual",
             "direction": "forward",
             "sourceAnchor": "right",
-            "targetAnchor": "auto",
+            "targetAnchor": "left",
             "meta": {
               "protocol": "in-process",
               "payload": "—",
@@ -1197,7 +1197,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.1",
       "createdAt": "2026-05-02T07:48:05.697Z",
-      "updatedAt": "2026-05-02T12:54:31.694Z",
+      "updatedAt": "2026-05-02T13:11:14.068Z",
       "parentBoardId": "b_nk2leksylr",
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -1304,7 +1304,7 @@
             "type": "manual",
             "shape": "process",
             "x": 1157,
-            "y": 338,
+            "y": 369,
             "title": "Clarify with Candidate",
             "kind": "Manual · Loop",
             "sub": "Email loop with candidate until all personal data and contract-relevant info are complete.",
@@ -1382,7 +1382,7 @@
             "x": 87,
             "y": 797.5,
             "title": "Enter 6th-Week into Sage",
-            "kind": "System · Integration",
+            "kind": "Manual · Integration",
             "sub": "Jessica enters the start date for 6th-vacation-week eligibility into the HR system of record.",
             "documents": [],
             "showDocuments": false
@@ -1402,9 +1402,9 @@
           {
             "id": "crush_upload",
             "type": "manual",
-            "shape": "database",
-            "x": 842,
-            "y": 622.5,
+            "shape": "process",
+            "x": 834,
+            "y": 630.5,
             "title": "Upload to Crush",
             "kind": "System · Integration",
             "sub": "Upload contract draft, Entry List + Personal Sheet to Infoniqa Crush. Data lands in LGV.",
@@ -1443,7 +1443,7 @@
             "y": 987,
             "title": "Candidate Signs & Returns",
             "kind": "Manual · Inbound",
-            "sub": "eceive the signed contract along with the Hosting Agreement, Data Protection, and Flexitime documents back from the candidate.",
+            "sub": "Receive the signed contract back from the candidate.",
             "documents": [],
             "showDocuments": false
           },
@@ -1490,7 +1490,7 @@
             "x": 1704,
             "y": 1033.5,
             "title": "Welcome PowerPoint",
-            "kind": "Output · Powerpoint",
+            "kind": "Output · Document",
             "sub": "Slide listing new hires (group, position, name) — separate output, not part of the Welcome Folder.",
             "documents": [],
             "showDocuments": false
@@ -2148,7 +2148,7 @@
             "id": "e0aux7es4",
             "from": "crush_upload",
             "to": "crush_lgv",
-            "type": "automated",
+            "type": "manual",
             "direction": "forward",
             "sourceAnchor": "right",
             "targetAnchor": "auto",
@@ -2167,7 +2167,7 @@
             "id": "e0gt91qfa",
             "from": "crush_lgv",
             "to": "n0g4ip",
-            "type": "automated",
+            "type": "manual",
             "direction": "forward",
             "sourceAnchor": "right",
             "targetAnchor": "left",
@@ -2329,8 +2329,8 @@
             "label": "",
             "waypoints": [
               {
-                "x": 1180,
-                "y": 596
+                "x": 1225,
+                "y": 599
               },
               {
                 "x": 1457,
@@ -2414,6 +2414,25 @@
             "waypoints": []
           },
           {
+            "id": "e29kl4pha",
+            "from": "candidate_signs",
+            "to": "n1oysx",
+            "type": "manual",
+            "direction": "forward",
+            "sourceAnchor": "right",
+            "targetAnchor": "auto",
+            "meta": {
+              "protocol": "in-process",
+              "payload": "—",
+              "latency": 0,
+              "throughput": "—"
+            },
+            "dataItems": [],
+            "kind": "process",
+            "label": "",
+            "waypoints": []
+          },
+          {
             "id": "e2bsbpv5z",
             "from": "director_signs",
             "to": "welcome_folder",
@@ -2440,53 +2459,6 @@
                 "y": 789
               }
             ]
-          },
-          {
-            "id": "e2xssm1lv",
-            "from": "n1s050",
-            "to": "n1oysx",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "left",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": [
-              {
-                "x": 957,
-                "y": 1138
-              },
-              {
-                "x": 1354,
-                "y": 1117
-              }
-            ]
-          },
-          {
-            "id": "e5h18ouhu",
-            "from": "candidate_signs",
-            "to": "n1oysx",
-            "type": "manual",
-            "direction": "forward",
-            "sourceAnchor": "right",
-            "targetAnchor": "auto",
-            "meta": {
-              "protocol": "in-process",
-              "payload": "—",
-              "latency": 0,
-              "throughput": "—"
-            },
-            "dataItems": [],
-            "kind": "process",
-            "label": "",
-            "waypoints": []
           }
         ]
       }

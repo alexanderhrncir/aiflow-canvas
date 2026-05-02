@@ -93,6 +93,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   height: 100vh;
   width: 100vw;
 }
+.app.is-presenting {
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "topbar"
+    "canvas";
+}
+.app.is-presenting .inspector,
+.app.is-presenting .boards {
+  display: none;
+}
 
 /* ----- TOPBAR ----- */
 .topbar {
@@ -315,6 +325,25 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 
 .topbar__actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.presentation-pill {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(68, 215, 245, 0.35);
+  background: rgba(34, 211, 238, 0.08);
+  color: #d8faff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.app.is-presenting .presentation-pill {
+  display: inline-flex;
+}
 .tbtn {
   display: flex; align-items: center; gap: 7px;
   padding: 7px 11px;
@@ -337,6 +366,20 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .tbtn--accent:hover { box-shadow: 0 0 16px rgba(167, 139, 250, 0.25); border-color: rgba(167, 139, 250, 0.7); }
 .tbtn svg { width: 12px; height: 12px; flex-shrink: 0; }
+.tbtn.is-active {
+  color: #d8faff;
+  border-color: rgba(68, 215, 245, 0.45);
+  background: linear-gradient(90deg, rgba(34,211,238,0.16), rgba(56,189,248,0.12));
+  box-shadow: 0 0 16px -8px rgba(68, 215, 245, 0.65);
+}
+.app.is-presenting .topbar__actions #addNodeGroup,
+.app.is-presenting .topbar__actions #downloadJsonBtn,
+.app.is-presenting .topbar__actions #reloadPublishedJsonBtn,
+.app.is-presenting .topbar__actions #downloadHtmlBtn,
+.app.is-presenting .topbar__actions #resetLocalViewBtn,
+.app.is-presenting .topbar__actions #cloneVersionBtn {
+  display: none;
+}
 
 /* ============================================================
    CANVAS
@@ -524,6 +567,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .node--ai .node__toggle svg {
   filter: drop-shadow(0 0 4px rgba(236,72,153,0.6));
   animation: sparkleSpin 6s linear infinite;
+}
+.app.is-presenting .node__toggle {
+  display: none;
 }
 @keyframes sparkleSpin {
   0%   { transform: rotate(0deg)   scale(1);    }
@@ -1359,6 +1405,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .node.is-selected .node__conn,
 .node--connecting .node__conn,
 .node.is-drop-target .node__conn { opacity: 1; }
+.app.is-presenting .node__conn {
+  opacity: 0 !important;
+  pointer-events: none;
+}
 
 /* Side-specific positioning */
 .node__conn[data-side="right"]  { right:  -6px; top:    50%; transform: translateY(-50%); }
@@ -2030,6 +2080,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   opacity: 1;
   pointer-events: auto;
 }
+.app.is-presenting .edge__waypoint {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
 .edge__waypoint:hover {
   filter: drop-shadow(0 0 6px var(--accent-glow));
 }
@@ -2057,7 +2111,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 </head>
 
 <body>
-<div class="app">
+<div class="app" id="app">
 
   <!-- ===== TOPBAR ===== -->
   <header class="topbar">
@@ -2073,6 +2127,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         <span class="num">v1.0</span>
         <span class="ts" id="versionTs">—</span>
       </span>
+      <span class="presentation-pill" id="presentationPill">Presentation Mode</span>
       <span class="auto-stats" id="autoStats" title="Share of nodes + edges by AI, automated, and human work (database nodes excluded)">
         <span class="auto-stats__row auto-stats__row--labels">
           <span class="auto-stats__seg auto-stats__seg--ai">
@@ -2097,6 +2152,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     </div>
 
     <div class="topbar__actions">
+      <button class="tbtn" id="presentModeBtn" title="Toggle presentation mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="12" rx="2"></rect>
+          <path d="M8 21h8"></path>
+          <path d="M12 16v5"></path>
+        </svg>
+        Present
+      </button>
       <div class="tbtn-group" id="addNodeGroup">
         <button class="tbtn" id="addNodeBtn" title="Add new node — click to choose shape">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
@@ -2477,9 +2540,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   let selectedKind   = null;   // 'node' | 'edge' | null
   let selectedNodeId = null;
   let selectedEdgeId = null;
+  let isPresentationMode = false;
 
   // ===== DOM HOOKS ==============================================
   const els = {
+    app:           document.getElementById('app'),
     canvas:        document.getElementById('canvas'),
     nodesLayer:    document.getElementById('nodesLayer'),
     edgesGroup:    document.getElementById('edgesGroup'),
@@ -2487,6 +2552,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     inspectorEmpty:   document.getElementById('inspectorEmpty'),
     inspectorContent: document.getElementById('inspectorContent'),
     addNodeBtn:    document.getElementById('addNodeBtn'),
+    presentModeBtn: document.getElementById('presentModeBtn'),
+    presentationPill: document.getElementById('presentationPill'),
     downloadJsonBtn: document.getElementById('downloadJsonBtn'),
     reloadPublishedJsonBtn: document.getElementById('reloadPublishedJsonBtn'),
     downloadHtmlBtn: document.getElementById('downloadHtmlBtn'),
@@ -2827,15 +2894,56 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     return tag === 'input' || tag === 'textarea' || tag === 'select';
   }
 
+  function setInlineContentEditingEnabled(enabled) {
+    els.boardTitle.contentEditable = enabled ? 'true' : 'false';
+    els.nodesLayer.querySelectorAll('[contenteditable]').forEach(el => {
+      el.contentEditable = enabled ? 'true' : 'false';
+    });
+  }
+
+  function setPresentationMode(enabled) {
+    const next = !!enabled;
+    if (isPresentationMode === next) return;
+    isPresentationMode = next;
+
+    if (next) {
+      if (isEditableTarget(document.activeElement)) document.activeElement.blur();
+      if (pendingConnection) cancelConnectionDrag();
+      if (typeof setMenuOpen === 'function') setMenuOpen(false);
+      hideEdgeTooltip();
+      clearWaypointSelection();
+      clearSelection();
+    }
+
+    els.app.classList.toggle('is-presenting', isPresentationMode);
+    if (els.presentModeBtn) {
+      els.presentModeBtn.classList.toggle('is-active', isPresentationMode);
+      els.presentModeBtn.setAttribute('aria-pressed', isPresentationMode ? 'true' : 'false');
+    }
+    setInlineContentEditingEnabled(!isPresentationMode);
+    showToast(isPresentationMode ? 'Presentation mode on' : 'Presentation mode off');
+
+    requestAnimationFrame(() => {
+      activeBoard().data.edges.forEach(updateEdgePath);
+      activeBoard().data.nodes.forEach(updateNodeDocsPosition);
+    });
+  }
+
   // Document-level keyboard handler. Listening on document (not window)
   // so it fires even when the canvas itself doesn't have focus.
   document.addEventListener('keydown', (e) => {
     // Browser-native text undo wins inside any editable field.
     if (isEditableTarget(e.target)) return;
 
+    const k = e.key.toLowerCase();
+    if (!e.ctrlKey && !e.metaKey && !e.altKey && k === 'p') {
+      e.preventDefault();
+      setPresentationMode(!isPresentationMode);
+      return;
+    }
+
     const cmd = e.ctrlKey || e.metaKey;
     if (!cmd) return;
-    const k = e.key.toLowerCase();
 
     // Redo: Ctrl/Cmd+Y, or Ctrl/Cmd+Shift+Z
     if (k === 'y' || (k === 'z' && e.shiftKey)) {
@@ -2905,13 +3013,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     el.innerHTML = `
       <div class="node__inner node__drag">
         <div class="node__head">
-          <div class="node__kind"><span data-field="kind" contenteditable="true" spellcheck="false">${escapeHtml(n.kind)}</span></div>
+        <div class="node__kind"><span data-field="kind" contenteditable="${isPresentationMode ? 'false' : 'true'}" spellcheck="false">${escapeHtml(n.kind)}</span></div>
           <button class="node__toggle" title="Toggle AI mode" data-action="toggle-ai" aria-pressed="${n.type === 'ai'}">
             <svg aria-hidden="true"><use href="#icon-sparkle"/></svg>
           </button>
         </div>
-        <div class="node__title" data-field="title" contenteditable="true" spellcheck="false">${escapeHtml(n.title)}</div>
-        ${isDecision ? '' : `<div class="node__sub" data-field="sub" contenteditable="true" spellcheck="false">${escapeHtml(n.sub)}</div>`}
+        <div class="node__title" data-field="title" contenteditable="${isPresentationMode ? 'false' : 'true'}" spellcheck="false">${escapeHtml(n.title)}</div>
+        ${isDecision ? '' : `<div class="node__sub" data-field="sub" contenteditable="${isPresentationMode ? 'false' : 'true'}" spellcheck="false">${escapeHtml(n.sub)}</div>`}
       </div>
       <div class="node__conn" data-action="start-connection" data-side="right"  title="Drag to connect"></div>
       <div class="node__conn" data-action="start-connection" data-side="left"   title="Drag to connect"></div>
@@ -3600,6 +3708,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     // bubble would re-fire the edge's click selector for no benefit.
     handle.addEventListener('click', (e) => e.stopPropagation());
     handle.addEventListener('pointerdown', (e) => {
+      if (isPresentationMode) return;
       e.stopPropagation();
       e.preventDefault();
 
@@ -3845,6 +3954,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     if (!handle) return;
 
     handle.addEventListener('pointerdown', (e) => {
+      if (isPresentationMode) return;
       if (e.target.closest('[contenteditable="true"]')) return;
       if (e.target.closest('[data-action="toggle-ai"]')) return;
       if (e.target.closest('[data-action="start-connection"]')) return;
@@ -3925,6 +4035,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   function attachEditing(el, node) {
     el.querySelectorAll('[contenteditable="true"]').forEach(input => {
       input.addEventListener('keydown', (e) => {
+        if (isPresentationMode) return;
         if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
         e.stopPropagation();
       });
@@ -3935,6 +4046,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       // gives one history entry per "started editing → done editing"
       // gesture, regardless of how many keystrokes happened.
       input.addEventListener('focus', () => {
+        if (isPresentationMode) {
+          input.blur();
+          return;
+        }
         pushUndoSnapshot('edit-' + (input.dataset.field || 'inline'));
       });
       input.addEventListener('blur', () => {
@@ -3973,6 +4088,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     if (!btn) return;
     btn.addEventListener('pointerdown', (e) => e.stopPropagation());
     btn.addEventListener('click', (e) => {
+      if (isPresentationMode) return;
       e.stopPropagation();
       pushUndoSnapshot('toggle-node');
       node.type = node.type === 'ai' ? 'manual' : 'ai';
@@ -4005,6 +4121,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     // (not 'pointerdown') so a real drag never triggers selection — drags
     // never finish with a click event because of pointer capture handoff.
     el.addEventListener('click', (e) => {
+      if (isPresentationMode) return;
       // Don't hijack clicks landing on text fields, the toggle, or the connection handle.
       if (e.target.closest('[contenteditable="true"]')) return;
       if (e.target.closest('[data-action="toggle-ai"]')) return;
@@ -4034,6 +4151,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     // Wire every side handle. The side is read from data-side at drag start.
     el.querySelectorAll('[data-action="start-connection"]').forEach(knob => {
       knob.addEventListener('pointerdown', (e) => {
+        if (isPresentationMode) return;
         if (e.button !== 0) return;
         e.preventDefault();
         e.stopPropagation();
@@ -4044,6 +4162,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   }
 
   function startConnectionDrag(node, event, knob, sourceSide) {
+    if (isPresentationMode) return;
     if (pendingConnection) cancelConnectionDrag();
 
     const NS = 'http://www.w3.org/2000/svg';
@@ -4507,6 +4626,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   }
 
   function selectNode(id) {
+    if (isPresentationMode) return;
     // Clear any edge selection first
     if (selectedKind === 'edge' && selectedEdgeId) {
       const prevEdge = activeBoard().data.edges.find(e => e.id === selectedEdgeId);
@@ -4522,6 +4642,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   }
 
   function selectEdge(id) {
+    if (isPresentationMode) return;
     // Clear any node selection first
     if (selectedKind === 'node' && selectedNodeId) {
       const prevNodeId = selectedNodeId;
@@ -4561,6 +4682,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
   // Empty SVG canvas click → clear selection
   els.edgeSvg.addEventListener('click', (e) => {
+    if (isPresentationMode) return;
     if (e.target === els.edgeSvg) clearSelection();
   });
 
@@ -5439,6 +5561,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   // Close menu on any outside click
   document.addEventListener('click', () => setMenuOpen(false));
 
+  if (els.presentModeBtn) els.presentModeBtn.addEventListener('click', () => setPresentationMode(!isPresentationMode));
   if (els.downloadJsonBtn) els.downloadJsonBtn.addEventListener('click', downloadWorkspaceJson);
   if (els.reloadPublishedJsonBtn) els.reloadPublishedJsonBtn.addEventListener('click', reloadPublishedWorkspaceJson);
   if (els.downloadHtmlBtn) els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);

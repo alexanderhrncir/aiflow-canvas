@@ -35,6 +35,12 @@
   --manual-border:  #2c3142;
   --manual-stroke:  #4f546a;
 
+  --auto-1:         #22d3ee;
+  --auto-2:         #38bdf8;
+  --auto-stroke:    #44d7f5;
+  --auto-stroke-sel:#8cebff;
+  --auto-glow:      rgba(68, 215, 245, 0.38);
+
   --ai-1: #7c3aed;
   --ai-2: #c026d3;
   --ai-3: #ec4899;
@@ -171,27 +177,23 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ============================================================
    AUTOMATION-STATS PILL
-   A compact dashboard indicator showing the ratio of AI-driven vs
-   human steps in the workflow.
+   A compact dashboard indicator showing the ratio of AI, automated,
+   and human work in the workflow.
 
    Layout: a wide pill with two rows.
-     row 1 — labels: AI on the left (gradient text + glow),
-                     Human on the right (muted gray)
-     row 2 — split progress bar: AI fill on the left using the
-             existing purple→pink→cyan gradient, the rest is the
-             muted manual gray. Width-only animation, no flicker.
+     row 1 — labels: AI | Auto | Human
+     row 2 — segmented bar with matching fills
 
    The numbers come from renderAutomationStats() which writes into
-   #autoStatsAi / #autoStatsHuman. The bar fill width is set on
-   #autoStatsBar from the same function. Calculation logic is not
-   changed.
+   #autoStatsAi / #autoStatsAuto / #autoStatsHuman. The bar segment
+   widths are set on the matching fill spans from the same function.
    ============================================================ */
 .auto-stats {
   display: inline-flex;
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  width: 188px;
+  width: 252px;
   height: 34px;
   padding: 5px 12px 6px;
   border-radius: 999px;
@@ -211,18 +213,22 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* Row 1 — labels */
 .auto-stats__row--labels {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
   line-height: 1;
 }
 .auto-stats__seg {
   display: inline-flex;
   align-items: baseline;
+  justify-content: flex-start;
   gap: 6px;
   white-space: nowrap;
+  min-width: 0;
 }
+.auto-stats__seg--auto { justify-content: center; }
+.auto-stats__seg--human { justify-content: flex-end; }
 .auto-stats__lbl {
   text-transform: uppercase;
   font-size: 9.5px;
@@ -254,6 +260,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: #d8d2f0;
 }
 
+/* Automated label — crisp system cyan, distinct from AI shimmer */
+.auto-stats__seg--auto .auto-stats__lbl {
+  color: var(--auto-stroke);
+  opacity: 0.92;
+}
+.auto-stats__seg--auto .auto-stats__val {
+  color: #d8faff;
+}
+
 /* Human label — muted, calm, secondary */
 .auto-stats__seg--human .auto-stats__lbl {
   color: var(--text-muted);
@@ -266,17 +281,21 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* Row 2 — split progress bar */
 .auto-stats__bar {
-  position: relative;
+  display: flex;
   height: 3px;
   width: 100%;
   border-radius: 999px;
-  background: var(--manual-stroke);
+  background: rgba(79, 84, 106, 0.18);
   overflow: hidden;
 }
 .auto-stats__bar-fill {
-  position: absolute;
-  top: 0; left: 0; bottom: 0;
-  border-radius: 999px;
+  display: block;
+  flex: 0 0 auto;
+  height: 100%;
+  width: 0%;
+  transition: width 280ms cubic-bezier(.2,.8,.2,1);
+}
+.auto-stats__bar-fill--ai {
   background: linear-gradient(90deg,
     var(--ai-1) 0%,
     var(--ai-2) 35%,
@@ -285,9 +304,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow:
     0 0 8px rgba(167, 139, 250, 0.6),
     0 0 14px rgba(236, 72, 153, 0.35);
-  transition: width 280ms cubic-bezier(.2,.8,.2,1);
-  /* Edge cases: width=0 stays cleanly invisible (no fill drawn);
-     width=100 covers the full bar with the AI gradient. */
+}
+.auto-stats__bar-fill--automated {
+  background: linear-gradient(90deg, var(--auto-1), var(--auto-2));
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.32);
+}
+.auto-stats__bar-fill--human {
+  background: var(--manual-stroke);
 }
 
 .topbar__actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -855,6 +878,23 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .edge--manual:hover .edge__line { opacity: 1; }
 
+/* Automated edges — system-like cyan, deterministic, technical. */
+.edge--automated .edge__line {
+  stroke: var(--auto-stroke);
+  stroke-width: 1.65;
+  opacity: 0.92;
+  filter: drop-shadow(0 0 3px var(--auto-glow));
+}
+.edge--automated .edge__shimmer {
+  display: block;
+  stroke: rgba(140, 240, 255, 0.88);
+  stroke-width: 2.1;
+  stroke-dasharray: 10 10;
+  stroke-dashoffset: 0;
+  opacity: 0.52;
+  animation: edgeAutoDash 3.4s linear infinite;
+}
+
 /* AI edges — only marginally thicker than manual. The visual distinction
    comes from styling and animation, not weight. The base stroke uses
    the slowly-shifting aiFlowGradient; the rainbow flow effect comes
@@ -892,6 +932,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   stroke-width: 2.5;
   filter: drop-shadow(0 0 6px var(--accent-glow));
 }
+.edge.is-selected.edge--automated .edge__line {
+  stroke: var(--auto-stroke-sel);
+  stroke-width: 2.3;
+  filter: drop-shadow(0 0 8px rgba(68, 215, 245, 0.55));
+}
+.edge.is-selected.edge--automated .edge__shimmer {
+  stroke-width: 2.4;
+  opacity: 0.72;
+}
 .edge.is-selected.edge--ai .edge__line {
   stroke-width: 2.1;
   filter: drop-shadow(0 0 6px rgba(236, 72, 153, 0.7));
@@ -904,6 +953,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
    as strongly directional when the edge is symmetrical. */
 .edge--ai.edge--bidirectional .edge__shimmer {
   opacity: 0.7;
+}
+
+.edge--automated.edge--bidirectional .edge__shimmer {
+  opacity: 0.4;
+}
+
+@keyframes edgeAutoDash {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -40; }
 }
 
 /* ============================================================
@@ -1026,7 +1084,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   width: 6px; height: 6px; border-radius: 50%;
   background: var(--manual-stroke);
 }
+.edge-toggle.edge-toggle--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.edge-toggle button.is-automated-option .pip { background: var(--auto-stroke); }
 .edge-toggle button.is-ai-option .pip { background: var(--ai-3); }
+.edge-toggle button.is-active.is-automated-option {
+  background: linear-gradient(90deg, rgba(34,211,238,0.18), rgba(56,189,248,0.2));
+  border-color: rgba(68,215,245,0.38);
+  color: #d8faff;
+}
+.edge-toggle button.is-active.is-automated-option .pip { box-shadow: 0 0 6px var(--auto-stroke); }
 .edge-toggle button.is-active.is-ai-option {
   background: linear-gradient(90deg, rgba(124,58,237,0.22), rgba(236,72,153,0.22));
   border-color: rgba(167,139,250,0.45);
@@ -1056,6 +1124,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .conn__route.is-ai .arrow {
   background: linear-gradient(90deg, var(--ai-1), var(--ai-3), var(--ai-4));
   -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.conn__route.is-automated .arrow {
+  color: var(--auto-stroke-sel);
+  text-shadow: 0 0 8px rgba(68, 215, 245, 0.28);
 }
 
 .conn__field {
@@ -1727,6 +1799,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .legend .item { display: flex; align-items: center; gap: 7px; }
 .legend .swatch { width: 20px; height: 2px; border-radius: 1px; }
 .legend .swatch--manual { background: var(--manual-stroke); }
+.legend .swatch--automated { background: linear-gradient(90deg, var(--auto-1), var(--auto-2)); box-shadow: 0 0 6px rgba(68,215,245,0.35); }
 .legend .swatch--ai { background: linear-gradient(90deg, var(--ai-1), var(--ai-3), var(--ai-4)); box-shadow: 0 0 6px rgba(167,139,250,0.5); }
 
 .toast {
@@ -1873,6 +1946,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: var(--ai-3);
   box-shadow: 0 0 4px var(--ai-3);
 }
+.edge-tooltip.is-automated .edge-tooltip__items li::before {
+  background: var(--auto-stroke);
+  box-shadow: 0 0 4px rgba(68, 215, 245, 0.55);
+}
 
 /* ============================================================
    EDGE LABELS — small pill rendered ON the edge path.
@@ -1906,6 +1983,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     0 2px 8px rgba(0, 0, 0, 0.4),
     0 0 12px -4px rgba(167, 139, 250, 0.5);
   color: #ede9fe;
+}
+.edge-label.is-automated {
+  border-color: rgba(68, 215, 245, 0.34);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 0 12px -4px rgba(68, 215, 245, 0.42);
+  color: #d8faff;
 }
 
 /* ============================================================
@@ -1943,6 +2027,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .edge--ai.is-selected .edge__waypoint.is-selected {
   fill: var(--ai-3);
 }
+.edge--automated.is-selected .edge__waypoint {
+  stroke: var(--auto-stroke);
+}
+.edge--automated.is-selected .edge__waypoint.is-selected {
+  fill: var(--auto-stroke);
+}
 </style>
 </head>
 
@@ -1963,11 +2053,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         <span class="num">v1.0</span>
         <span class="ts" id="versionTs">—</span>
       </span>
-      <span class="auto-stats" id="autoStats" title="Share of nodes + edges that are AI-driven (database nodes excluded)">
+      <span class="auto-stats" id="autoStats" title="Share of nodes + edges by AI, automated, and human work (database nodes excluded)">
         <span class="auto-stats__row auto-stats__row--labels">
           <span class="auto-stats__seg auto-stats__seg--ai">
             <span class="auto-stats__lbl">AI</span>
             <span class="auto-stats__val" id="autoStatsAi">0%</span>
+          </span>
+          <span class="auto-stats__seg auto-stats__seg--auto">
+            <span class="auto-stats__lbl">Auto</span>
+            <span class="auto-stats__val" id="autoStatsAuto">0%</span>
           </span>
           <span class="auto-stats__seg auto-stats__seg--human">
             <span class="auto-stats__lbl">Human</span>
@@ -1975,7 +2069,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           </span>
         </span>
         <span class="auto-stats__bar">
-          <span class="auto-stats__bar-fill" id="autoStatsBar" style="width: 0%"></span>
+          <span class="auto-stats__bar-fill auto-stats__bar-fill--ai" id="autoStatsBarAi" style="width: 0%"></span>
+          <span class="auto-stats__bar-fill auto-stats__bar-fill--automated" id="autoStatsBarAuto" style="width: 0%"></span>
+          <span class="auto-stats__bar-fill auto-stats__bar-fill--human" id="autoStatsBarHuman" style="width: 0%"></span>
         </span>
       </span>
     </div>
@@ -2080,8 +2176,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
              path's start point. -->
         <marker id="arrowManualStart"    viewBox="0 0 10 10" refX="1"   refY="5" markerWidth="6"    markerHeight="6"    orient="auto"><path d="M 10 0 L 0 5 L 10 10 z" fill="#4f546a"/></marker>
         <marker id="arrowManualStartSel" viewBox="0 0 10 10" refX="1"   refY="5" markerWidth="7"    markerHeight="7"    orient="auto"><path d="M 10 0 L 0 5 L 10 10 z" fill="#a78bfa"/></marker>
+        <marker id="arrowAutomated"         viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#44d7f5"/></marker>
+        <marker id="arrowAutomatedSel"      viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8cebff"/></marker>
         <!-- AI start markers — mirrored chevron. Tip is at (1.5, 5), so refX=1.5.
              Box dimensions match the Manual start markers exactly. -->
+        <marker id="arrowAutomatedStart"    viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 10 0 L 0 5 L 10 10 z" fill="#44d7f5"/></marker>
+        <marker id="arrowAutomatedStartSel" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 10 0 L 0 5 L 10 10 z" fill="#8cebff"/></marker>
         <marker id="arrowAiStart"        viewBox="0 0 10 10" refX="1.5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 9 1.5 L 1.5 5 L 9 8.5 L 7.5 5 Z" fill="#c4b5fd"/></marker>
         <marker id="arrowAiStartSel"     viewBox="0 0 10 10" refX="1.5" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 9 1.5 L 1.5 5 L 9 8.5 L 7.5 5 Z" fill="#ddd6fe"/></marker>
       </defs>
@@ -2091,6 +2191,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
     <div class="legend">
       <div class="item"><span class="swatch swatch--manual"></span>Manual flow</div>
+      <div class="item"><span class="swatch swatch--automated"></span>Automated flow</div>
       <div class="item"><span class="swatch swatch--ai"></span>AI flow</div>
     </div>
 
@@ -2482,8 +2583,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     versionPill:   document.getElementById('versionPill'),
     versionTs:     document.getElementById('versionTs'),
     autoStatsAi:    document.getElementById('autoStatsAi'),
+    autoStatsAuto:  document.getElementById('autoStatsAuto'),
     autoStatsHuman: document.getElementById('autoStatsHuman'),
-    autoStatsBar:   document.getElementById('autoStatsBar'),
+    autoStatsBarAi: document.getElementById('autoStatsBarAi'),
+    autoStatsBarAuto: document.getElementById('autoStatsBarAuto'),
+    autoStatsBarHuman: document.getElementById('autoStatsBarHuman'),
     toast:         document.getElementById('toast'),
     saveIndicator: document.getElementById('saveIndicator'),
     canvasLoading: document.getElementById('canvasLoading'),
@@ -3042,10 +3146,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     // auto-start-reverse, because browsers handle refX inconsistently
     // for reflected markers, which caused the start arrowhead to render
     // in the wrong place (or appear missing) for some paths.
-    const aiSuffix  = edge.type === 'ai' ? 'Ai' : 'Manual';
+    const markerType = edge.type === 'ai'
+      ? 'Ai'
+      : edge.type === 'automated'
+        ? 'Automated'
+        : 'Manual';
     const selSuffix = isSelected ? 'Sel' : '';
-    const endMarker   = `arrow${aiSuffix}${selSuffix}`;            // e.g. arrowAiSel
-    const startMarker = `arrow${aiSuffix}Start${selSuffix}`;       // e.g. arrowAiStartSel
+    const endMarker   = `arrow${markerType}${selSuffix}`;
+    const startMarker = `arrow${markerType}Start${selSuffix}`;
 
     refs.line.setAttribute('marker-end', `url(#${endMarker})`);
     if (edge.direction === 'bidirectional') {
@@ -3373,6 +3481,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     const el = ensureEdgeLabel(edge);
     el.textContent = text;
     el.classList.toggle('is-ai', edge.type === 'ai');
+    el.classList.toggle('is-automated', edge.type === 'automated');
 
     // Position via getPointAtLength on the actual rendered path —
     // accurate for any geometry, including curves and waypoint chains.
@@ -4150,11 +4259,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     const from = board.data.nodes.find(n => n.id === edge.from);
     const to   = board.data.nodes.find(n => n.id === edge.to);
     const isAi = edge.type === 'ai';
+    const isAutomated = edge.type === 'automated';
     const isBidir = edge.direction === 'bidirectional';
     const isData  = edge.kind === 'data';
 
     const tip = els.edgeTooltip;
-    tip.className = 'edge-tooltip' + (isAi ? ' is-ai' : '');
+    tip.className = 'edge-tooltip' + (isAi ? ' is-ai' : '') + (isAutomated ? ' is-automated' : '');
     // Title swaps to reflect the connection kind. Subtle change — same
     // visual treatment, just sharper labeling so the user always knows
     // what they're looking at.
@@ -4710,19 +4820,30 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
     const from = board.data.nodes.find(n => n.id === edge.from);
     const to   = board.data.nodes.find(n => n.id === edge.to);
     const isAi = edge.type === 'ai';
+    const isAutomated = edge.type === 'automated';
     const isBidir = edge.direction === 'bidirectional';
     const isData  = edge.kind === 'data';
     const arrowGlyph = isBidir ? '↔' : '→';
+    const edgeTypeLabel = isAi ? 'AI Flow' : isAutomated ? 'Automated' : 'Manual';
+    const edgeTypeHelp = isAi
+      ? 'Model-mediated flow. Outputs can be AI-assisted, generated, or reasoned over by a model.'
+      : isAutomated
+        ? 'Deterministic system automation. Use this for integrations, scheduled syncs, API handoffs, uploads, and other non-AI automation.'
+        : 'Human work or a manual handoff between people, teams, or tools.';
+    const routeClass = isAi ? 'is-ai' : isAutomated ? 'is-automated' : '';
 
     els.inspectorContent.innerHTML = `
       <div class="conn">
 
-        <div class="edge-toggle" id="edgeToggle">
-          <button class="${!isAi ? 'is-active' : ''}" data-edge-type="manual">
+        <div class="edge-toggle edge-toggle--3" id="edgeToggle" title="Manual = human handoff. Automated = deterministic system automation without AI. AI = model-mediated flow.">
+          <button class="${!isAi && !isAutomated ? 'is-active' : ''}" data-edge-type="manual">
             <span class="pip"></span> Manual
           </button>
+          <button class="is-automated-option ${isAutomated ? 'is-active' : ''}" data-edge-type="automated">
+            <span class="pip"></span> Auto
+          </button>
           <button class="is-ai-option ${isAi ? 'is-active' : ''}" data-edge-type="ai">
-            <span class="pip"></span> AI Flow
+            <span class="pip"></span> AI
           </button>
         </div>
 
@@ -4744,7 +4865,7 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
           </button>
         </div>
 
-        <div class="conn__route ${isAi ? 'is-ai' : ''}">
+        <div class="conn__route ${routeClass}">
           <div class="endpoint">
             <span class="label">${isBidir ? 'A' : 'From'}</span>
             <span class="name">${escapeHtml(from?.title || '—')}</span>
@@ -4756,6 +4877,10 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
           </div>
         </div>
 
+        <div class="conn__field">
+          <span class="k">Type</span>
+          <span class="v">${edgeTypeLabel}</span>
+        </div>
         <div class="conn__field">
           <span class="k">Edge ID</span>
           <span class="v mono">${escapeHtml(edge.id)}</span>
@@ -4774,11 +4899,7 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
         </div>
         <div class="conn__field">
           <span class="k">Notes</span>
-          <span class="v">${
-            isAi
-              ? 'Mediated by a model. Outputs are non-deterministic; toggle to revert to a deterministic handoff.'
-              : 'Deterministic handoff. Payload passes unchanged. Toggle to mediate this edge through an AI model.'
-          }</span>
+          <span class="v">${edgeTypeHelp}</span>
         </div>
 
         <div class="np__field" style="padding-top:14px;border-top:1px solid var(--stroke-subtle);">
@@ -4834,7 +4955,8 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
         renderEdgeInspector();
         renderBoardList();
         touchBoard();
-        showToast(`Edge ${edge.id} → ${newType === 'ai' ? 'AI flow' : 'manual flow'}`);
+        const typeToast = newType === 'ai' ? 'AI flow' : newType === 'automated' ? 'automated flow' : 'manual flow';
+        showToast(`Edge ${edge.id} → ${typeToast}`);
         scheduleSave('toggle-edge');
       });
     });
@@ -4992,15 +5114,15 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   // ============================================================
 
   /**
-   * Compute AI/Human automation breakdown for a board.
+   * Compute AI / Automated / Human automation breakdown for a board.
    *
    * Counting rules (per spec):
-   *   - Database nodes are EXCLUDED entirely — they're storage, not work
-   *     done by either humans or AI, so they neither inflate the total
-   *     nor count toward "human".
-   *   - Every non-database node counts once. AI if node.type === 'ai'.
-   *   - Every edge counts once. AI if edge.type === 'ai'.
-   *   - When the board has no countable items, both percentages are 0.
+   *   - Database nodes are EXCLUDED entirely.
+   *   - Every non-database node counts once. AI if node.type === 'ai',
+   *     otherwise Human.
+   *   - Every edge counts once. AI if edge.type === 'ai', Automated if
+   *     edge.type === 'automated', otherwise Human.
+   *   - When the board has no countable items, all percentages are 0.
    */
   function getAutomationStats(board) {
     const nodes = (board?.data?.nodes || []).filter(n => (n.shape || 'process') !== 'database');
@@ -5008,18 +5130,22 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     const total = nodes.length + edges.length;
     const ai = nodes.filter(n => n.type === 'ai').length
              + edges.filter(e => e.type === 'ai').length;
-    const aiPercent    = total === 0 ? 0 : Math.round((ai / total) * 100);
-    const humanPercent = total === 0 ? 0 : 100 - aiPercent;
-    return { total, ai, human: total - ai, aiPercent, humanPercent };
+    const automated = edges.filter(e => e.type === 'automated').length;
+    const human = total - ai - automated;
+    const aiPercent        = total === 0 ? 0 : Math.round((ai / total) * 100);
+    const automatedPercent = total === 0 ? 0 : Math.round((automated / total) * 100);
+    const humanPercent     = total === 0 ? 0 : Math.max(0, 100 - aiPercent - automatedPercent);
+    return { total, ai, automated, human, aiPercent, automatedPercent, humanPercent };
   }
 
   function renderAutomationStats() {
     const stats = getAutomationStats(activeBoard());
-    if (els.autoStatsAi)    els.autoStatsAi.textContent    = stats.aiPercent    + '%';
-    if (els.autoStatsHuman) els.autoStatsHuman.textContent = stats.humanPercent + '%';
-    // Drive the visual progress bar from the same number — no extra state
-    // is stored, the bar is purely derived from the existing calculation.
-    if (els.autoStatsBar)   els.autoStatsBar.style.width   = stats.aiPercent + '%';
+    if (els.autoStatsAi)       els.autoStatsAi.textContent       = stats.aiPercent + '%';
+    if (els.autoStatsAuto)     els.autoStatsAuto.textContent     = stats.automatedPercent + '%';
+    if (els.autoStatsHuman)    els.autoStatsHuman.textContent    = stats.humanPercent + '%';
+    if (els.autoStatsBarAi)    els.autoStatsBarAi.style.width    = stats.aiPercent + '%';
+    if (els.autoStatsBarAuto)  els.autoStatsBarAuto.style.width  = stats.automatedPercent + '%';
+    if (els.autoStatsBarHuman) els.autoStatsBarHuman.style.width = stats.humanPercent + '%';
   }
 
   function renderBoardList() {
@@ -5326,7 +5452,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     return n;
   }
   function migrateEdge(e) {
-    if (typeof e.type !== 'string')         e.type = 'manual';
+    if (e.type !== 'manual' && e.type !== 'ai' && e.type !== 'automated') e.type = 'manual';
     if (typeof e.direction !== 'string')    e.direction = 'forward';
     if (typeof e.sourceAnchor !== 'string') e.sourceAnchor = 'auto';
     if (typeof e.targetAnchor !== 'string') e.targetAnchor = 'auto';

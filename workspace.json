@@ -22,7 +22,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "clarify_lead",
@@ -36,7 +37,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "data_complete",
@@ -50,7 +52,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "funding_check",
@@ -64,7 +67,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "funding_ok",
@@ -79,7 +83,8 @@
             "showDocuments": false,
             "undefined": "—",
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "eintrittsliste",
@@ -93,7 +98,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "welcome_mail",
@@ -107,7 +113,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "candidate_returns",
@@ -121,7 +128,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "clarify_candidate",
@@ -135,7 +143,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "kv_needed",
@@ -149,7 +158,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "onlyfy",
@@ -163,7 +173,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "gather_docs",
@@ -177,7 +188,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "kv_excel",
@@ -191,7 +203,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "generate_contract",
@@ -212,7 +225,8 @@
             "showDocuments": true,
             "undefined": "GMI Contract\nIMBA Contract\nFlexietime Agreement\nHome Office Agreement\netc.",
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "sage_entry",
@@ -226,7 +240,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "sage_dpw",
@@ -240,7 +255,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "crush_upload",
@@ -254,7 +270,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "crush_lgv",
@@ -268,7 +285,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "send_to_candidate",
@@ -282,7 +300,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "candidate_signs",
@@ -296,7 +315,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "print_contract",
@@ -310,7 +330,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "director_signs",
@@ -324,7 +345,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "welcome_folder",
@@ -338,7 +360,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "welcome_ppt",
@@ -352,7 +375,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "welcome_invite",
@@ -366,7 +390,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "nyhyib",
@@ -380,7 +405,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "n0g4ip",
@@ -394,7 +420,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "n1igu2",
@@ -408,7 +435,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           }
         ],
         "edges": [
@@ -1246,14 +1274,15 @@
             "waypoints": []
           }
         ]
-      }
+      },
+      "notes": ""
     },
     {
       "id": "b_clgfhjqtq9",
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.1",
       "createdAt": "2026-05-02T07:48:05.697Z",
-      "updatedAt": "2026-05-02T19:19:19.513Z",
+      "updatedAt": "2026-05-02T21:20:42.256Z",
       "parentBoardId": "b_nk2leksylr",
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -1270,21 +1299,23 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "idea"
+            "status": "idea",
+            "statusNote": "Potential automation via Jira integration: An AI agent monitors incoming tickets, performs follow-ups for missing info, and manages status clarifications autonomously— though this will be largely replaced by SAP SF in the foreseeable future."
           },
           {
             "id": "clarify_lead",
             "type": "manual",
             "shape": "process",
-            "x": 747,
-            "y": 150,
+            "x": 748,
+            "y": 151,
             "title": "Clarify with Group Leader",
             "kind": "Manual · Loop",
             "sub": "Email back-and-forth until salary, contract length, visa, and basics are complete.",
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "idea"
+            "status": "idea",
+            "statusNote": "Potential automation via Jira integration: An AI agent monitors incoming tickets, performs follow-ups for missing info, and manages status clarifications autonomously"
           },
           {
             "id": "data_complete",
@@ -1298,7 +1329,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "idea"
+            "status": "idea",
+            "statusNote": "Potential automation via Jira integration: An AI agent monitors incoming tickets, performs follow-ups for missing info, and manages status clarifications autonomously— though this will be largely replaced by SAP SF in the foreseeable future."
           },
           {
             "id": "funding_check",
@@ -1312,13 +1344,14 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "idea"
+            "status": "idea",
+            "statusNote": "Potential automation via Jira integration: An AI agent monitors incoming tickets, performs follow-ups for missing info, and manages status clarifications autonomously— though this will be largely replaced by SAP SF in the foreseeable future."
           },
           {
             "id": "funding_ok",
             "type": "manual",
             "shape": "decision",
-            "x": 1425,
+            "x": 1426,
             "y": 21.5,
             "title": "Funding OK?",
             "kind": "Decision · Branch",
@@ -1327,7 +1360,8 @@
             "showDocuments": false,
             "undefined": "—",
             "impactNotes": "",
-            "status": "idea"
+            "status": "idea",
+            "statusNote": "Potential automation via Jira integration: An AI agent monitors incoming tickets, performs follow-ups for missing info, and manages status clarifications autonomously— though this will be largely replaced by SAP SF in the foreseeable future."
           },
           {
             "id": "eintrittsliste",
@@ -1341,7 +1375,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "testing"
+            "status": "testing",
+            "statusNote": "Currently evaluating data schema sufficiency. Testing if remaining requirements can be addressed via downstream contract logic."
           },
           {
             "id": "welcome_mail",
@@ -1355,7 +1390,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "blocked"
+            "status": "blocked",
+            "statusNote": "No granular Outlook MCUP available. Current integration is limited to 'all-or-nothing' access, requiring full email write permissions."
           },
           {
             "id": "candidate_returns",
@@ -1369,7 +1405,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "blocked"
+            "status": "blocked",
+            "statusNote": "Outlook MCP lacks granularity. Activation would grant 'all-or-nothing' access (including write/send permissions), but only read-only access is desired for this step."
           },
           {
             "id": "clarify_candidate",
@@ -1383,7 +1420,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "blocked"
+            "status": "blocked",
+            "statusNote": "No granular Outlook MCUP available. Current integration is limited to 'all-or-nothing' access, requiring full email write permissions."
           },
           {
             "id": "kv_needed",
@@ -1397,7 +1435,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "planned"
+            "status": "planned",
+            "statusNote": "IMBA Skill: Near completion; rigorous QA required as legacy contract data was inconsistent. GMI Skill: Initial logic framework only."
           },
           {
             "id": "onlyfy",
@@ -1411,7 +1450,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "gather_docs",
@@ -1425,13 +1465,14 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "kv_excel",
             "type": "ai",
             "shape": "process",
-            "x": 87,
+            "x": 88,
             "y": 599,
             "title": "KV Calculation",
             "kind": "AI · Data",
@@ -1439,7 +1480,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "in_progress"
+            "status": "in_progress",
+            "statusNote": "Ronny is currently preparing this skill as a primary demonstration use case for the upcoming GMI Retreat."
           },
           {
             "id": "generate_contract",
@@ -1457,7 +1499,8 @@
             "showDocuments": true,
             "undefined": "GMI Contract\nIMBA Contract",
             "impactNotes": "",
-            "status": "in_progress"
+            "status": "in_progress",
+            "statusNote": "IMBA Skill: Near completion; rigorous QA required as legacy contract data was inconsistent. GMI Skill: Initial logic framework only"
           },
           {
             "id": "sage_entry",
@@ -1471,7 +1514,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "sage_dpw",
@@ -1485,7 +1529,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "crush_upload",
@@ -1499,7 +1544,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "crush_lgv",
@@ -1513,7 +1559,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "send_to_candidate",
@@ -1527,7 +1574,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "blocked"
+            "status": "blocked",
+            "statusNote": "No granular Outlook MCUP available. Current integration is limited to 'all-or-nothing' access, requiring full email write permissions."
           },
           {
             "id": "candidate_signs",
@@ -1541,7 +1589,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "blocked"
+            "status": "blocked",
+            "statusNote": "Outlook MCP lacks granularity. Activation would grant 'all-or-nothing' access (including write/send permissions), but only read-only access is desired for this step."
           },
           {
             "id": "print_contract",
@@ -1555,7 +1604,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "director_signs",
@@ -1569,7 +1619,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "welcome_folder",
@@ -1583,21 +1634,23 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "welcome_ppt",
             "type": "manual",
             "shape": "process",
-            "x": 1703,
-            "y": 1033.5,
+            "x": 1698,
+            "y": 1035.5,
             "title": "Welcome PowerPoint",
             "kind": "Output · Document",
             "sub": "Slide listing new hires (group, position, name) — separate output, not part of the Welcome Folder.",
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "blocked"
+            "status": "blocked",
+            "statusNote": "MCP currently lacks authorized write permissions on SharePoint, preventing automated file storage."
           },
           {
             "id": "welcome_invite",
@@ -1611,7 +1664,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "blocked"
+            "status": "blocked",
+            "statusNote": "No granular Outlook MCUP available. Current integration is limited to 'all-or-nothing' access, requiring full email write permissions."
           },
           {
             "id": "nyhyib",
@@ -1625,7 +1679,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "idea"
+            "status": "idea",
+            "statusNote": "Potential automation via Jira integration: An AI agent monitors incoming tickets, performs follow-ups for missing info, and manages status clarifications autonomously— though this will be largely replaced by SAP SF in the foreseeable future."
           },
           {
             "id": "n0g4ip",
@@ -1639,7 +1694,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "",
+            "statusNote": ""
           },
           {
             "id": "n0rujd",
@@ -1653,7 +1709,8 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": "testing"
+            "status": "testing",
+            "statusNote": ""
           },
           {
             "id": "n1oysx",
@@ -1667,13 +1724,14 @@
             "documents": [],
             "showDocuments": false,
             "impactNotes": "",
-            "status": ""
+            "status": "blocked",
+            "statusNote": "MCP currently lacks authorized write permissions on SharePoint, preventing automated file storage."
           },
           {
             "id": "n1s050",
             "type": "manual",
             "shape": "process",
-            "x": 334,
+            "x": 346,
             "y": 991.5,
             "title": "Prepare Additional Documents",
             "kind": "Manual · Documents",
@@ -1689,7 +1747,8 @@
             "showDocuments": true,
             "undefined": "Flexietime Agreement\nHome Office\nData Protection\nHosting Agreement\nConfirmation Letter\nInvitation Letter",
             "impactNotes": "",
-            "status": "planned"
+            "status": "planned",
+            "statusNote": "Phased integration: Additional document skills will be implemented sequentially once the primary contract generation is finalized."
           }
         ],
         "edges": [
@@ -2607,7 +2666,8 @@
             ]
           }
         ]
-      }
+      },
+      "notes": ""
     }
   ],
   "activeBoardId": "b_clgfhjqtq9",

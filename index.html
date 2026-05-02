@@ -2110,6 +2110,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         </svg>
         Download JSON
       </button>
+      <button class="tbtn" id="reloadPublishedJsonBtn" title="Force-load the latest workspace.json from GitHub Pages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 0 1-15.3 6.4"></path>
+          <path d="M3 12a9 9 0 0 1 15.3-6.4"></path>
+          <path d="M18 2v4h-4"></path>
+          <path d="M6 22v-4h4"></path>
+        </svg>
+        Reload Published JSON
+      </button>
       <button class="tbtn" id="downloadHtmlBtn" title="Download this app with the current workspace embedded">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 3v12"></path>
@@ -2412,16 +2421,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   }
 
   function isValidWorkspaceData(data) {
-    return !!data && Array.isArray(data.boards) && data.boards.length > 0;
+    return !!data && Array.isArray(data.boards) && data.boards.length > 0 && typeof data.activeBoardId === 'string';
   }
 
   async function loadPublishedWorkspaceJson() {
     try {
-      const res = await fetch(WORKSPACE_JSON_URL, { cache: 'no-cache' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (!isValidWorkspaceData(data)) throw new Error('workspace.json is not a valid AIFlow workspace');
-      return data;
+      return await fetchPublishedWorkspaceJson(false);
     } catch (err) {
       console.warn(
         '[AIFlow] Could not load workspace.json. Falling back to the embedded emergency workspace. ' +
@@ -2431,6 +2436,19 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       );
       return null;
     }
+  }
+
+  async function fetchPublishedWorkspaceJson(cacheBust = false) {
+    const url = cacheBust
+      ? `${WORKSPACE_JSON_URL}?v=${Date.now()}`
+      : WORKSPACE_JSON_URL;
+    const res = await fetch(url, { cache: 'no-cache' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!isValidWorkspaceData(data)) {
+      throw new Error('workspace.json must include a boards array and activeBoardId');
+    }
+    return data;
   }
 
   // ===== STATE ===================================================
@@ -2451,6 +2469,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     inspectorContent: document.getElementById('inspectorContent'),
     addNodeBtn:    document.getElementById('addNodeBtn'),
     downloadJsonBtn: document.getElementById('downloadJsonBtn'),
+    reloadPublishedJsonBtn: document.getElementById('reloadPublishedJsonBtn'),
     downloadHtmlBtn: document.getElementById('downloadHtmlBtn'),
     resetLocalViewBtn: document.getElementById('resetLocalViewBtn'),
     cloneBtn:      document.getElementById('cloneVersionBtn'),
@@ -2632,6 +2651,40 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     } catch (err) {
       console.error('[download-json]', err);
       showToast('Could not download JSON');
+    }
+  }
+
+  async function reloadPublishedWorkspaceJson() {
+    const ok = confirm(
+      "This will replace only this browser's local workspace with the latest published workspace.json. Continue?"
+    );
+    if (!ok) return;
+
+    try {
+      const nextWorkspace = await fetchPublishedWorkspaceJson(true);
+      workspace = cloneWorkspace(nextWorkspace);
+      migrateWorkspace(workspace);
+      if (!workspace.boards.find(b => b.id === workspace.activeBoardId)) {
+        workspace.activeBoardId = workspace.boards[0].id;
+      }
+      await persist.save(workspace);
+      fullRender();
+      showToast('Loaded published workspace.json');
+
+      const active = workspace.boards.find(b => b.id === workspace.activeBoardId);
+      const nodeCount = workspace.boards.reduce((sum, b) => sum + (b.data?.nodes?.length || 0), 0);
+      const edgeCount = workspace.boards.reduce((sum, b) => sum + (b.data?.edges?.length || 0), 0);
+      console.log('[AIFlow] reload published workspace:', {
+        source: 'workspace.json forced reload',
+        activeBoardId: workspace.activeBoardId,
+        activeBoardName: active ? active.name : null,
+        activeBoardVersion: active ? active.version : null,
+        nodeCount,
+        edgeCount,
+      });
+    } catch (err) {
+      console.error('[reload-published-json]', err);
+      showToast('Could not load workspace.json');
     }
   }
 
@@ -5370,6 +5423,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   document.addEventListener('click', () => setMenuOpen(false));
 
   if (els.downloadJsonBtn) els.downloadJsonBtn.addEventListener('click', downloadWorkspaceJson);
+  if (els.reloadPublishedJsonBtn) els.reloadPublishedJsonBtn.addEventListener('click', reloadPublishedWorkspaceJson);
   if (els.downloadHtmlBtn) els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);
   if (els.resetLocalViewBtn) els.resetLocalViewBtn.addEventListener('click', resetLocalView);
   els.cloneBtn.addEventListener('click', (e) => cloneVersion(e.shiftKey)); // shift = major bump

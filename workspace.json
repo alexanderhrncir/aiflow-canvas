@@ -1197,7 +1197,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.1",
       "createdAt": "2026-05-02T07:48:05.697Z",
-      "updatedAt": "2026-05-02T13:52:36.334Z",
+      "updatedAt": "2026-05-02T14:04:13.596Z",
       "parentBoardId": "b_nk2leksylr",
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -1549,9 +1549,9 @@
             "shape": "database",
             "x": 1437,
             "y": 992,
-            "title": "Personnel Record (SharePoint / Physical)",
+            "title": "Personnel Record (SharePoint)",
             "kind": "Data Store",
-            "sub": "Digital repository on SharePoint. Stores the returned signed contract and serves as the official employee record.",
+            "sub": "Digital copies are stored on SharePoint, while the original signed paper contracts are archived in physical filing cabinets",
             "documents": [],
             "showDocuments": false
           },
@@ -1569,11 +1569,10 @@
               "Home Office",
               "Data Protection",
               "Hosting Agreement",
-              "Confirmation Letter",
-              "Invitation Letter"
+              "Confirmation Letters"
             ],
             "showDocuments": true,
-            "undefined": "Flexietime Agreement\nHome Office\nData Protection\nHosting Agreement\nConfirmation Letter\nInvitation Letter"
+            "undefined": "Flexietime Agreement\nHome Office\nData Protection\nHosting Agreement\nConfirmation Letters"
           }
         ],
         "edges": [

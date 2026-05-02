@@ -1197,7 +1197,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.1",
       "createdAt": "2026-05-02T07:48:05.697Z",
-      "updatedAt": "2026-05-02T13:11:14.068Z",
+      "updatedAt": "2026-05-02T13:13:59.615Z",
       "parentBoardId": "b_nk2leksylr",
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -2457,6 +2457,32 @@
               {
                 "x": 1701,
                 "y": 789
+              }
+            ]
+          },
+          {
+            "id": "ed3wraqxg",
+            "from": "welcome_folder",
+            "to": "n1oysx",
+            "type": "manual",
+            "direction": "forward",
+            "sourceAnchor": "bottom",
+            "targetAnchor": "auto",
+            "meta": {
+              "protocol": "in-process",
+              "payload": "—",
+              "latency": 0,
+              "throughput": "—"
+            },
+            "dataItems": [
+              "Scan of the final contract version"
+            ],
+            "kind": "process",
+            "label": "",
+            "waypoints": [
+              {
+                "x": 1693,
+                "y": 1021
               }
             ]
           }

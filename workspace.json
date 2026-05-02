@@ -1197,7 +1197,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.1",
       "createdAt": "2026-05-02T07:48:05.697Z",
-      "updatedAt": "2026-05-02T13:18:46.449Z",
+      "updatedAt": "2026-05-02T13:41:19.320Z",
       "parentBoardId": "b_nk2leksylr",
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -1978,7 +1978,10 @@
               "latency": 0,
               "throughput": "—"
             },
-            "dataItems": [],
+            "dataItems": [
+              "Contract Details",
+              "Salary Details"
+            ],
             "kind": "data",
             "label": "",
             "waypoints": [

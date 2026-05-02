@@ -2101,6 +2101,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           </button>
         </div>
       </div>
+      <button class="tbtn" id="downloadJsonBtn" title="Download current workspace as workspace.json">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v12"></path>
+          <path d="M7 10l5 5 5-5"></path>
+          <path d="M5 21h14"></path>
+          <path d="M7 19h10"></path>
+        </svg>
+        Download JSON
+      </button>
       <button class="tbtn" id="downloadHtmlBtn" title="Download this app with the current workspace embedded">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 3v12"></path>
@@ -2109,7 +2118,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         </svg>
         Download HTML
       </button>
-      <button class="tbtn" id="resetLocalViewBtn" title="Clear this browser's saved workspace and reload the embedded default">
+      <button class="tbtn" id="resetLocalViewBtn" title="Clear this browser's saved workspace and reload the published default">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 12a9 9 0 1 0 3-6.7"></path>
           <path d="M3 4v5h5"></path>
@@ -2328,6 +2337,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   // (e.g. Safari private mode quotas, sandboxed iframes, file://
   // contexts where the browser disabled storage).
   const STORAGE_KEY = 'aiflow:workspace:v1';
+  const WORKSPACE_JSON_URL = './workspace.json';
 
   // Probe localStorage once. Even when localStorage exists as an object,
   // setItem can throw (Safari private browsing, disabled cookies, quota).
@@ -2387,12 +2397,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   // ============================================================
   // EMBEDDED DEFAULT WORKSPACE
   // ------------------------------------------------------------
-  // Shipped with index.html. Used for first-time visitors who have
-  // no localStorage, AND for visitors whose localStorage holds a
-  // stale default seed (Customer Support demo, or older HRGI seed)
-  // that pre-dates the current DEFAULT_WORKSPACE_REVISION.
-  //
-  // Genuine user edits are preserved — see boot() / looksLikeOldDefault.
+  // Emergency fallback shipped with index.html. The published default
+  // workflow now lives in workspace.json and is loaded before this data
+  // when there is no local browser workspace.
   // ============================================================
   const DEFAULT_WORKSPACE_REVISION = "export-2026-05-02T12:41:24.660Z";
   const REVISION_KEY = "aiflow:defaultRevision";
@@ -2402,6 +2409,28 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   function defaultWorkspace() {
     // Deep clone so the embedded constant is never mutated.
     return JSON.parse(JSON.stringify(EMBEDDED_DEFAULT_WORKSPACE));
+  }
+
+  function isValidWorkspaceData(data) {
+    return !!data && Array.isArray(data.boards) && data.boards.length > 0;
+  }
+
+  async function loadPublishedWorkspaceJson() {
+    try {
+      const res = await fetch(WORKSPACE_JSON_URL, { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!isValidWorkspaceData(data)) throw new Error('workspace.json is not a valid AIFlow workspace');
+      return data;
+    } catch (err) {
+      console.warn(
+        '[AIFlow] Could not load workspace.json. Falling back to the embedded emergency workspace. ' +
+        'When testing locally, fetch("./workspace.json") may fail from file://; serve the folder instead, ' +
+        'for example: python -m http.server 8000, then open http://localhost:8000',
+        err
+      );
+      return null;
+    }
   }
 
   // ===== STATE ===================================================
@@ -2421,6 +2450,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     inspectorEmpty:   document.getElementById('inspectorEmpty'),
     inspectorContent: document.getElementById('inspectorContent'),
     addNodeBtn:    document.getElementById('addNodeBtn'),
+    downloadJsonBtn: document.getElementById('downloadJsonBtn'),
     downloadHtmlBtn: document.getElementById('downloadHtmlBtn'),
     resetLocalViewBtn: document.getElementById('resetLocalViewBtn'),
     cloneBtn:      document.getElementById('cloneVersionBtn'),
@@ -2584,9 +2614,30 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     }
   }
 
+  function downloadWorkspaceJson() {
+    try {
+      if (!workspace) throw new Error('Workspace is not loaded yet.');
+      const exportedWorkspace = cloneWorkspace(workspace);
+      const json = JSON.stringify(exportedWorkspace, null, 2) + '\n';
+      const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'workspace.json';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+      showToast('Downloaded workspace.json');
+    } catch (err) {
+      console.error('[download-json]', err);
+      showToast('Could not download JSON');
+    }
+  }
+
   function resetLocalView() {
     const ok = confirm(
-      "This will clear only your browser's local AIFlow workspace and reload the embedded default from index.html. It will not affect GitHub or other users. Continue?"
+      "This will clear only your browser's local AIFlow workspace and reload the published default from workspace.json, or the embedded fallback if workspace.json cannot be loaded. It will not affect GitHub or other users. Continue?"
     );
     if (!ok) return;
 
@@ -5318,6 +5369,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   // Close menu on any outside click
   document.addEventListener('click', () => setMenuOpen(false));
 
+  if (els.downloadJsonBtn) els.downloadJsonBtn.addEventListener('click', downloadWorkspaceJson);
   if (els.downloadHtmlBtn) els.downloadHtmlBtn.addEventListener('click', downloadUpdatedHtml);
   if (els.resetLocalViewBtn) els.resetLocalViewBtn.addEventListener('click', resetLocalView);
   els.cloneBtn.addEventListener('click', (e) => cloneVersion(e.shiftKey)); // shift = major bump
@@ -5467,47 +5519,21 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   // ============================================================
   async function boot() {
     const saved = await persist.load();
-    let savedRevision = null;
-    try {
-      if (typeof localStorage !== 'undefined') {
-        savedRevision = localStorage.getItem(REVISION_KEY);
-      }
-    } catch (_) { /* ignore */ }
+    let source = 'localStorage';
 
-    let source = 'embedded-default';
-
-    if (saved && saved.boards && saved.boards.length) {
-      // We have a saved workspace. Decide whether to keep it or replace
-      // with the embedded default.
-      const revisionMatches = savedRevision === DEFAULT_WORKSPACE_REVISION;
-      const stale = looksLikeOldDefault(saved);
-
-      if (revisionMatches) {
-        // User is on the current revision — always preserve their state.
-        workspace = saved;
-        source = 'localStorage';
-      } else if (stale) {
-        // Old default seed (Customer Support demo or legacy HRGI). The
-        // user has not made meaningful edits; replace with the new
-        // embedded default and stamp the revision marker so we don't
-        // do this again on the next visit.
-        workspace = defaultWorkspace();
-        source = 'embedded-default (replaced stale ' +
-                 (saved.boards.find(b => /customer support/i.test(b.name)) ? 'CustomerSupport' :
-                  saved.boards.find(b => /HR Onboarding ·\s*HRGI/i.test(b.name)) ? 'legacyHRGI' :
-                  'unknown') + ')';
-      } else {
-        // Saved workspace exists, doesn't match the current default
-        // revision, but doesn't look like a stale default either —
-        // i.e. the user has genuinely edited their workspace. Preserve
-        // it. Stamp the revision so we don't re-evaluate every load.
-        workspace = saved;
-        source = 'localStorage (user-edited, kept across revision change)';
-      }
+    if (isValidWorkspaceData(saved)) {
+      // Local edits always win. Reset Local View clears this key when you
+      // want to test the published default from workspace.json.
+      workspace = saved;
     } else {
-      // Nothing saved — pristine first-time visit.
-      workspace = defaultWorkspace();
-      source = 'embedded-default (no saved state)';
+      const published = await loadPublishedWorkspaceJson();
+      if (isValidWorkspaceData(published)) {
+        workspace = published;
+        source = 'workspace.json';
+      } else {
+        workspace = defaultWorkspace();
+        source = 'embedded-default fallback';
+      }
     }
 
     migrateWorkspace(workspace);
@@ -5525,10 +5551,9 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       }
     } catch (_) { /* ignore */ }
 
-    // Persist immediately if we just installed (or replaced with) the
-    // embedded default, so a refresh stays consistent without waiting
-    // for any user action.
-    if (source.indexOf('embedded-default') === 0) {
+    // Persist immediately when installing the published/default workspace,
+    // so normal editing can continue through the same localStorage path.
+    if (source !== 'localStorage') {
       persist.save(workspace);
     }
 
@@ -5538,6 +5563,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       console.log('[AIFlow] boot:', {
         source,
         defaultRevision: DEFAULT_WORKSPACE_REVISION,
+        workspaceJsonUrl: WORKSPACE_JSON_URL,
         activeBoardId: workspace.activeBoardId,
         activeBoardName: active ? active.name : null,
         activeBoardVersion: active ? active.version : null,

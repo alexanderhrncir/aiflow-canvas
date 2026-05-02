@@ -5,7 +5,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.0",
       "createdAt": "2026-05-01T20:45:41.103Z",
-      "updatedAt": "2026-05-02T14:11:09.416Z",
+      "updatedAt": "2026-05-02T08:02:15.865Z",
       "parentBoardId": null,
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -928,7 +928,7 @@
             "id": "e0aux7es4",
             "from": "crush_upload",
             "to": "crush_lgv",
-            "type": "automated",
+            "type": "manual",
             "direction": "forward",
             "sourceAnchor": "right",
             "targetAnchor": "auto",
@@ -947,7 +947,7 @@
             "id": "e0gt91qfa",
             "from": "crush_lgv",
             "to": "n0g4ip",
-            "type": "automated",
+            "type": "manual",
             "direction": "forward",
             "sourceAnchor": "right",
             "targetAnchor": "left",
@@ -1197,7 +1197,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.1",
       "createdAt": "2026-05-02T07:48:05.697Z",
-      "updatedAt": "2026-05-02T14:06:17.728Z",
+      "updatedAt": "2026-05-02T14:24:33.446Z",
       "parentBoardId": "b_nk2leksylr",
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -1271,7 +1271,7 @@
             "y": 389.5,
             "title": "AI-ready Entry List",
             "kind": "Data Store",
-            "sub": "Central Excel master list. Feeds Welcome Meeting invite, presentation, and several downstream steps.",
+            "sub": "Central web app with structured database (Next.js + PostgreSQL).",
             "documents": [],
             "showDocuments": false
           },
@@ -1551,7 +1551,7 @@
             "y": 992,
             "title": "Personnel Record (SharePoint / Physical)",
             "kind": "Data Store",
-            "sub": "Digital copies are stored on SharePoint, while the original signed paper contracts are archived in physical filing cabinets",
+            "sub": "Digital repository on SharePoint. Stores the returned signed contract and serves as the official employee record.",
             "documents": [],
             "showDocuments": false
           },
@@ -2494,6 +2494,6 @@
       }
     }
   ],
-  "activeBoardId": "b_nk2leksylr",
+  "activeBoardId": "b_clgfhjqtq9",
   "seededConfluenceHrgi": true
 }

@@ -330,8 +330,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   align-items: center;
   gap: 6px;
   height: 32px;
-  min-width: 196px;
-  max-width: 240px;
+  min-width: 145px;
+  max-width: 180px;
   padding: 0 7px 0 10px;
   border-radius: 999px;
   border: 1px solid rgba(167, 139, 250, 0.20);
@@ -364,7 +364,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .topbar-search__input::placeholder { color: var(--text-faint); }
 .topbar-search__count {
   flex-shrink: 0;
-  min-width: 38px;
+  min-width: 24px;
   text-align: right;
   color: var(--text-muted);
   font-family: 'JetBrains Mono', monospace;
@@ -444,8 +444,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow: 0 0 16px -8px rgba(68, 215, 245, 0.65);
 }
 .app.is-presenting .topbar__actions #addNodeGroup,
-.app.is-presenting .topbar__actions #workspaceMenuGroup,
-.app.is-presenting .topbar__actions #cloneVersionBtn {
+.app.is-presenting .topbar__actions #workspaceMenuGroup {
   display: none;
 }
 
@@ -2132,6 +2131,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow: 0 0 16px rgba(167,139,250,0.25);
 }
 .boards__newbtn svg { width: 12px; height: 12px; }
+.boards__newbtn--secondary {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.035);
+  border-color: var(--stroke-soft);
+}
+.boards__newbtn--secondary:hover {
+  color: #d8faff;
+  border-color: rgba(68, 215, 245, 0.38);
+  box-shadow: 0 0 14px -6px rgba(68, 215, 245, 0.55);
+}
 
 .boards__list {
   flex: 1;
@@ -2229,31 +2239,50 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .board-card__del svg { width: 12px; height: 12px; }
 
 /* ============================================================
-   LEGEND + TOAST + STORAGE BANNER
+   LEGEND MENU + TOAST + STORAGE BANNER
    ============================================================ */
-.legend {
-  position: absolute;
-  left: 20px; bottom: 18px;
-  display: flex; gap: 16px;
-  padding: 9px 13px;
-  background: var(--bg-glass);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid var(--stroke-subtle);
-  border-radius: var(--radius-md);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9.5px; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--text-secondary);
-  z-index: 5;
+.legend-menu {
+  min-width: 238px;
+  padding: 8px;
 }
-.legend .item { display: flex; align-items: center; gap: 7px; }
-.legend .swatch { width: 20px; height: 2px; border-radius: 1px; }
-.legend .swatch--manual { background: var(--manual-stroke); }
-.legend .swatch--automated { background: linear-gradient(90deg, var(--auto-1), var(--auto-2)); box-shadow: 0 0 6px rgba(68,215,245,0.35); }
-.legend .swatch--ai { background: linear-gradient(90deg, var(--ai-1), var(--ai-3), var(--ai-4)); box-shadow: 0 0 6px rgba(167,139,250,0.5); }
-.legend .hint {
+.legend-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.legend-menu__swatch {
+  width: 34px;
+  height: 3px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.legend-menu__swatch--manual { background: var(--manual-stroke); }
+.legend-menu__swatch--automated {
+  background: linear-gradient(90deg, var(--auto-1), var(--auto-2));
+  box-shadow: 0 0 8px rgba(68,215,245,0.42);
+}
+.legend-menu__swatch--ai {
+  background: linear-gradient(90deg, var(--ai-1), var(--ai-3), var(--ai-4));
+  box-shadow: 0 0 9px rgba(167,139,250,0.55);
+}
+.legend-menu__hint {
+  margin: 4px 4px 2px;
+  padding: 9px 10px 2px;
+  border-top: 1px solid var(--stroke-subtle);
   color: var(--text-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .toast {
@@ -2579,6 +2608,31 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           </button>
         </div>
       </div>
+      <div class="tbtn-group" id="legendMenuGroup">
+        <button class="tbtn" id="legendMenuBtn" title="Flow legend" aria-haspopup="true" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7h16"></path>
+            <path d="M4 12h16"></path>
+            <path d="M4 17h16"></path>
+          </svg>
+          Legend ▾
+        </button>
+        <div class="tbtn-menu legend-menu" id="legendMenu" role="menu">
+          <div class="legend-menu__item" role="menuitem">
+            <span class="legend-menu__swatch legend-menu__swatch--manual"></span>
+            Manual flow
+          </div>
+          <div class="legend-menu__item" role="menuitem">
+            <span class="legend-menu__swatch legend-menu__swatch--automated"></span>
+            Automated flow
+          </div>
+          <div class="legend-menu__item" role="menuitem">
+            <span class="legend-menu__swatch legend-menu__swatch--ai"></span>
+            AI flow
+          </div>
+          <div class="legend-menu__hint">Scroll / Space+drag to pan</div>
+        </div>
+      </div>
       <button class="tbtn" id="reloadPublishedJsonBtn" title="Force-load the latest workspace.json from GitHub Pages">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 12a9 9 0 0 1-15.3 6.4"></path>
@@ -2611,13 +2665,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
           </button>
         </div>
       </div>
-      <button class="tbtn tbtn--accent" id="cloneVersionBtn" title="Clone as new version">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-        </svg>
-        Clone Version
-      </button>
       <div class="tbtn-group" id="workspaceMenuGroup">
         <button class="tbtn" id="workspaceMenuBtn" title="Workspace actions" aria-haspopup="true" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
@@ -2733,13 +2780,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     <div class="alignment-guide" id="horizontalGuide" aria-hidden="true"></div>
     </div>
 
-    <div class="legend">
-      <div class="item"><span class="swatch swatch--manual"></span>Manual flow</div>
-      <div class="item"><span class="swatch swatch--automated"></span>Automated flow</div>
-      <div class="item"><span class="swatch swatch--ai"></span>AI flow</div>
-      <div class="item hint">Scroll / Space+drag to pan</div>
-    </div>
-
     <div class="save-indicator" id="saveIndicator">
       <span class="dot"></span>
       <span class="txt">Synced</span>
@@ -2784,6 +2824,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <button class="boards__newbtn" id="newBoardBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
         Create new board
+      </button>
+      <button class="boards__newbtn boards__newbtn--secondary" id="cloneVersionBtn" title="Clone current board as a new version">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        Create new version
       </button>
     </div>
     <div class="boards__list" id="boardsList"></div>
@@ -3018,6 +3065,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     canvasLoading: document.getElementById('canvasLoading'),
     edgeTooltip:   document.getElementById('edgeTooltip'),
     horizontalGuide: document.getElementById('horizontalGuide'),
+    legendMenuBtn: document.getElementById('legendMenuBtn'),
+    legendMenu:    document.getElementById('legendMenu'),
   };
   const NS = 'http://www.w3.org/2000/svg';
 
@@ -4321,6 +4370,24 @@ ${styleText}
       e.preventDefault();
       clearBoardSearch();
       return;
+    }
+
+    if (
+      e.key === 'Delete' &&
+      !isPresentationMode &&
+      !e.ctrlKey && !e.metaKey && !e.altKey &&
+      !document.querySelector('.tbtn-menu.is-open')
+    ) {
+      if (selectedKind === 'node' && selectedNodeId) {
+        e.preventDefault();
+        deleteSelectedNode();
+        return;
+      }
+      if (selectedKind === 'edge' && selectedEdgeId) {
+        e.preventDefault();
+        deleteSelectedEdge();
+        return;
+      }
     }
 
     if (e.code === 'Space' && !e.ctrlKey && !e.metaKey && !e.altKey) {
@@ -7256,6 +7323,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   const addNodeMenu = document.getElementById('addNodeMenu');
   const topbarMenus = [
     { btn: els.exportMenuBtn, menu: els.exportMenu },
+    { btn: els.legendMenuBtn, menu: els.legendMenu },
     { btn: els.addNodeBtn, menu: addNodeMenu },
     { btn: els.workspaceMenuBtn, menu: els.workspaceMenu },
   ].filter(x => x.btn && x.menu);

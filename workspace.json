@@ -1197,7 +1197,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.1",
       "createdAt": "2026-05-02T07:48:05.697Z",
-      "updatedAt": "2026-05-02T14:04:13.596Z",
+      "updatedAt": "2026-05-02T14:05:08.620Z",
       "parentBoardId": "b_nk2leksylr",
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -1549,7 +1549,7 @@
             "shape": "database",
             "x": 1437,
             "y": 992,
-            "title": "Personnel Record (SharePoint)",
+            "title": "Personnel Record (SharePoint / Physical)",
             "kind": "Data Store",
             "sub": "Digital copies are stored on SharePoint, while the original signed paper contracts are archived in physical filing cabinets",
             "documents": [],

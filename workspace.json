@@ -5,7 +5,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.0",
       "createdAt": "2026-05-01T20:45:41.103Z",
-      "updatedAt": "2026-05-02T08:02:15.865Z",
+      "updatedAt": "2026-05-02T14:11:09.416Z",
       "parentBoardId": null,
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -928,7 +928,7 @@
             "id": "e0aux7es4",
             "from": "crush_upload",
             "to": "crush_lgv",
-            "type": "manual",
+            "type": "automated",
             "direction": "forward",
             "sourceAnchor": "right",
             "targetAnchor": "auto",
@@ -947,7 +947,7 @@
             "id": "e0gt91qfa",
             "from": "crush_lgv",
             "to": "n0g4ip",
-            "type": "manual",
+            "type": "automated",
             "direction": "forward",
             "sourceAnchor": "right",
             "targetAnchor": "left",
@@ -2494,6 +2494,6 @@
       }
     }
   ],
-  "activeBoardId": "b_clgfhjqtq9",
+  "activeBoardId": "b_nk2leksylr",
   "seededConfluenceHrgi": true
 }

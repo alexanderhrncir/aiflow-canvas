@@ -2824,6 +2824,151 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   letter-spacing: 0.04em;
   line-height: 1.35;
 }
+.quality-panel[hidden] { display: none !important; }
+.quality-panel {
+  margin-top: 10px;
+  padding: 11px;
+  border-radius: 14px;
+  border: 1px solid rgba(251, 191, 36, 0.20);
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(251, 191, 36, 0.10), transparent 58%),
+    linear-gradient(180deg, rgba(18, 22, 34, 0.88), rgba(8, 10, 18, 0.86));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.035) inset,
+    0 14px 32px rgba(0,0,0,0.30);
+}
+.quality-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.quality-panel__title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fef3c7;
+}
+.quality-panel__summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-bottom: 9px;
+}
+.quality-panel__count {
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.quality-panel__count--warning { color: #fef3c7; border-color: rgba(251, 191, 36, 0.24); }
+.quality-panel__count--info { color: #d8faff; border-color: rgba(68, 215, 245, 0.22); }
+.quality-panel__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-bottom: 9px;
+}
+.quality-panel__action {
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--stroke-soft);
+  background: rgba(255,255,255,0.035);
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+.quality-panel__action:hover {
+  color: #d8faff;
+  border-color: rgba(68, 215, 245, 0.42);
+  box-shadow: 0 0 14px -8px rgba(68, 215, 245, 0.75);
+}
+.quality-list {
+  max-height: 300px;
+  overflow-y: auto;
+  display: grid;
+  gap: 7px;
+  padding-right: 2px;
+}
+.quality-list::-webkit-scrollbar { width: 6px; }
+.quality-list::-webkit-scrollbar-thumb { background: var(--stroke-soft); border-radius: 999px; }
+.quality-section {
+  display: grid;
+  gap: 6px;
+}
+.quality-section__title {
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.quality-issue {
+  width: 100%;
+  text-align: left;
+  padding: 8px 9px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.13);
+  background: rgba(255,255,255,0.025);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.quality-issue:hover {
+  border-color: rgba(251, 191, 36, 0.28);
+  background: rgba(251, 191, 36, 0.055);
+}
+.quality-issue__main {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  line-height: 1.25;
+}
+.quality-issue__mark {
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 900;
+}
+.quality-issue--warning .quality-issue__mark { color: #fbbf24; }
+.quality-issue--info .quality-issue__mark { color: #44d7f5; }
+.quality-issue__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+.quality-issue__meta,
+.quality-issue__hint {
+  margin-top: 5px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.8px;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+}
+.quality-panel__empty {
+  color: var(--text-muted);
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px;
+  line-height: 1.35;
+}
 .filter-panel[hidden] { display: none !important; }
 .filter-panel {
   margin-top: 10px;
@@ -4097,6 +4242,29 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         </div>
         <div class="swimlane-panel__list" id="swimlaneList"></div>
       </div>
+      <button class="boards__newbtn boards__newbtn--secondary" id="qualityCheckBtn" title="Validate board completeness and consistency">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 12l2 2 4-5"></path>
+          <path d="M21 12a9 9 0 1 1-9-9"></path>
+        </svg>
+        Quality Check
+      </button>
+      <div class="quality-panel" id="qualityPanel" hidden>
+        <div class="quality-panel__head">
+          <span class="quality-panel__title">Quality Check</span>
+        </div>
+        <div class="quality-panel__summary" id="qualitySummary">
+          <div class="quality-panel__count quality-panel__count--warning">0 warnings</div>
+          <div class="quality-panel__count quality-panel__count--info">0 info</div>
+        </div>
+        <div class="quality-panel__actions">
+          <button class="quality-panel__action" id="qualityRunBtn" type="button">Run Check</button>
+          <button class="quality-panel__action" id="qualityClearBtn" type="button">Clear</button>
+        </div>
+        <div class="quality-list" id="qualityList">
+          <div class="quality-panel__empty">Run a check to find incomplete labels, isolated nodes, and document status gaps.</div>
+        </div>
+      </div>
     </div>
     <div class="boards__list" id="boardsList"></div>
   </aside>
@@ -4179,6 +4347,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <div class="help-row"><span class="help-key">Filter View</span><span class="help-desc">Dim nodes by status/type/shape</span></div>
       <div class="help-row"><span class="help-key">Board Notes</span><span class="help-desc">Notes for this board/version</span></div>
       <div class="help-row"><span class="help-key">Swimlanes</span><span class="help-desc">Add horizontal board sections to group steps by phase, team, system, or responsibility</span></div>
+      <div class="help-row"><span class="help-key">Quality Check</span><span class="help-desc">Find missing labels, disconnected nodes, incomplete statuses, and document issues</span></div>
         </section>
       </div>
       <div class="help-footer">Tip: Use Download HTML or Download JSON before publishing a new default version.</div>
@@ -4369,6 +4538,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   let diffHighlightsActive = false;
   const diffNodeHighlights = new Map();
   const diffEdgeHighlights = new Map();
+  let qualityIssues = [];
   const filterState = {
     status: new Set(),
     type: new Set(),
@@ -4431,6 +4601,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     swimlanePanel: document.getElementById('swimlanePanel'),
     addSwimlaneBtn: document.getElementById('addSwimlaneBtn'),
     swimlaneList: document.getElementById('swimlaneList'),
+    qualityCheckBtn: document.getElementById('qualityCheckBtn'),
+    qualityPanel: document.getElementById('qualityPanel'),
+    qualitySummary: document.getElementById('qualitySummary'),
+    qualityRunBtn: document.getElementById('qualityRunBtn'),
+    qualityClearBtn: document.getElementById('qualityClearBtn'),
+    qualityList: document.getElementById('qualityList'),
     boardsList:    document.getElementById('boardsList'),
     newBoardBtn:   document.getElementById('newBoardBtn'),
     boardTitle:    document.getElementById('boardTitle'),
@@ -7215,6 +7391,175 @@ ${styleText}
       requestAnimationFrame(() => requestAnimationFrame(run));
     } else {
       run();
+    }
+  }
+
+  // ============================================================
+  // BOARD QUALITY CHECK
+  // ============================================================
+  function normalizeDecisionLabel(label) {
+    return String(label || '').trim().toLowerCase();
+  }
+
+  function edgeTouchesDecision(edge, board) {
+    const nodes = board?.data?.nodes || [];
+    return nodes.some(node =>
+      (node.id === edge.from || node.id === edge.to) &&
+      (node.shape || 'process') === 'decision'
+    );
+  }
+
+  function nodeLooksLikeOutput(node) {
+    const text = normalizeSearchText([node.title, node.kind].join(' '));
+    return !!node.showDocuments ||
+      /\boutput\b/.test(text) ||
+      /\bdocument\b/.test(text) ||
+      /\bdocuments\b/.test(text) ||
+      /\bemail\b/.test(text) ||
+      /\bmail\b/.test(text);
+  }
+
+  function validateBoard(board) {
+    const nodes = board?.data?.nodes || [];
+    const edges = board?.data?.edges || [];
+    const nodeById = new Map(nodes.map(node => [node.id, node]));
+    const issues = [];
+    let seq = 0;
+    const addIssue = (issue) => issues.push({ id: `q${++seq}`, ...issue });
+
+    nodes.forEach(node => {
+      const docs = (Array.isArray(node.documents) ? node.documents : []).map(normalizeDocumentEntry).filter(Boolean);
+      const incoming = edges.filter(edge => edge.to === node.id);
+      const outgoing = edges.filter(edge => edge.from === node.id);
+      const nodeLabel = nodeDisplayName(node);
+
+      if (!String(node.title || '').trim()) {
+        addIssue({ severity: 'warning', type: 'node', message: 'Node has no title', nodeId: node.id, targetLabel: nodeLabel });
+      }
+      if (!String(node.sub || '').trim()) {
+        addIssue({ severity: 'info', type: 'node', message: 'Node has no description', nodeId: node.id, targetLabel: nodeLabel });
+      }
+      if (incoming.length === 0 && outgoing.length === 0) {
+        addIssue({ severity: 'warning', type: 'node', message: 'Node is not connected', nodeId: node.id, targetLabel: nodeLabel });
+      }
+      if ((node.shape || 'process') === 'decision') {
+        if (outgoing.length === 0) {
+          addIssue({ severity: 'warning', type: 'node', message: 'Decision has no outgoing paths', nodeId: node.id, targetLabel: nodeLabel });
+        } else {
+          const labels = outgoing.map(edge => normalizeDecisionLabel(edge.label));
+          const hasYes = labels.some(label => label === 'yes' || label === 'ja');
+          const hasNo = labels.some(label => label === 'no' || label === 'nein');
+          if (!hasYes || !hasNo) {
+            addIssue({
+              severity: 'info',
+              type: 'node',
+              message: 'Decision does not have both Yes and No paths',
+              nodeId: node.id,
+              targetLabel: nodeLabel,
+              hint: 'Use yes/no or ja/nein labels on outgoing paths.',
+            });
+          }
+        }
+        outgoing.forEach(edge => {
+          if (!String(edge.label || '').trim()) {
+            addIssue({
+              severity: 'warning',
+              type: 'edge',
+              message: 'Decision path has no label',
+              edgeId: edge.id,
+              nodeId: node.id,
+              targetLabel: edgeDisplayName(edge, board, board),
+            });
+          }
+        });
+      }
+      if (normalizeNodeStatus(node.status) === 'blocked' && !String(node.statusNote || '').trim()) {
+        addIssue({ severity: 'warning', type: 'node', message: 'Blocked node has no status note', nodeId: node.id, targetLabel: nodeLabel });
+      }
+      if (nodeLooksLikeOutput(node) && docs.length === 0) {
+        addIssue({ severity: 'warning', type: 'node', message: 'Output node has no documents', nodeId: node.id, targetLabel: nodeLabel });
+      }
+      docs.forEach((entry, index) => {
+        if (!normalizeDocumentStatus(entry.status)) {
+          addIssue({
+            severity: 'info',
+            type: 'document',
+            message: 'Document has no status',
+            nodeId: node.id,
+            documentIndex: index,
+            targetLabel: entry.name,
+            hint: nodeLabel,
+          });
+        }
+      });
+    });
+
+    edges.forEach(edge => {
+      const from = nodeById.get(edge.from);
+      const to = nodeById.get(edge.to);
+      if (!String(edge.label || '').trim() && (edge.kind === 'data' || edgeTouchesDecision(edge, board))) {
+        addIssue({
+          severity: 'info',
+          type: 'edge',
+          message: 'Edge has no label',
+          edgeId: edge.id,
+          targetLabel: edgeDisplayName(edge, board, board),
+          hint: from && to ? `${nodeDisplayName(from)} -> ${nodeDisplayName(to)}` : '',
+        });
+      }
+    });
+
+    return issues;
+  }
+
+  function renderQualityPanel() {
+    if (!els.qualityPanel || !els.qualitySummary || !els.qualityList) return;
+    const warnings = qualityIssues.filter(issue => issue.severity === 'warning');
+    const infos = qualityIssues.filter(issue => issue.severity === 'info');
+    els.qualitySummary.innerHTML = `
+      <div class="quality-panel__count quality-panel__count--warning">${warnings.length} warning${warnings.length === 1 ? '' : 's'}</div>
+      <div class="quality-panel__count quality-panel__count--info">${infos.length} info</div>
+    `;
+    const sectionHtml = (title, items) => items.length ? `
+      <div class="quality-section">
+        <div class="quality-section__title">${title}</div>
+        ${items.map(issue => `
+          <button class="quality-issue quality-issue--${issue.severity}" type="button" data-issue-id="${issue.id}">
+            <div class="quality-issue__main">
+              <span class="quality-issue__mark">${issue.severity === 'warning' ? '!' : 'i'}</span>
+              <span class="quality-issue__name">${escapeHtml(issue.message)}</span>
+            </div>
+            <div class="quality-issue__meta">${escapeHtml(issue.type.toUpperCase())} · ${escapeHtml(issue.targetLabel || 'Unknown target')}</div>
+            ${issue.hint ? `<div class="quality-issue__hint">${escapeHtml(issue.hint)}</div>` : ''}
+          </button>
+        `).join('')}
+      </div>` : '';
+    els.qualityList.innerHTML = qualityIssues.length
+      ? `${sectionHtml('Warnings', warnings)}${sectionHtml('Info', infos)}`
+      : '<div class="quality-panel__empty">No quality issues found. Tiny confetti, but in a professional font.</div>';
+    els.qualityCheckBtn?.classList.toggle('is-active', !els.qualityPanel.hidden);
+  }
+
+  function runQualityCheck() {
+    qualityIssues = validateBoard(activeBoard());
+    renderQualityPanel();
+  }
+
+  function clearQualityCheck() {
+    qualityIssues = [];
+    renderQualityPanel();
+  }
+
+  function focusQualityIssue(issue) {
+    if (!issue) return;
+    if (issue.type === 'edge' && issue.edgeId) {
+      selectEdge(issue.edgeId);
+      requestAnimationFrame(() => scrollToEdgeId(issue.edgeId));
+      return;
+    }
+    if ((issue.type === 'node' || issue.type === 'document') && issue.nodeId) {
+      selectNode(issue.nodeId);
+      requestAnimationFrame(() => scrollToNodeId(issue.nodeId));
     }
   }
 
@@ -10368,6 +10713,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     workspace.activeBoardId = id;
     _resetSelectionState();
     fullRender();
+    if (els.qualityPanel && !els.qualityPanel.hidden) runQualityCheck();
     showToast(`Switched to ${activeBoard().name} v${activeBoard().version}`);
     scheduleSave('switch-board');
   }
@@ -10778,6 +11124,23 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
         els.swimlanePanel.hidden = !els.swimlanePanel.hidden;
         if (!els.swimlanePanel.hidden) renderSwimlanePanel();
       }
+    });
+  }
+  if (els.qualityCheckBtn) {
+    els.qualityCheckBtn.addEventListener('click', () => {
+      if (!els.qualityPanel) return;
+      els.qualityPanel.hidden = !els.qualityPanel.hidden;
+      if (!els.qualityPanel.hidden) runQualityCheck();
+      else els.qualityCheckBtn.classList.remove('is-active');
+    });
+  }
+  if (els.qualityRunBtn) els.qualityRunBtn.addEventListener('click', runQualityCheck);
+  if (els.qualityClearBtn) els.qualityClearBtn.addEventListener('click', clearQualityCheck);
+  if (els.qualityList) {
+    els.qualityList.addEventListener('click', (e) => {
+      const item = e.target.closest('.quality-issue');
+      if (!item) return;
+      focusQualityIssue(qualityIssues.find(issue => issue.id === item.dataset.issueId));
     });
   }
   if (els.addSwimlaneBtn) els.addSwimlaneBtn.addEventListener('click', addSwimlane);

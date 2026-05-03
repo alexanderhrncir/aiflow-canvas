@@ -645,6 +645,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: rgba(34, 211, 238, 0.55);
   box-shadow: 0 0 10px rgba(34, 211, 238, 0.35);
 }
+.selection-box {
+  position: absolute;
+  border: 1px solid rgba(34, 211, 238, 0.72);
+  background: rgba(34, 211, 238, 0.08);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04) inset,
+    0 0 18px rgba(34, 211, 238, 0.18);
+  pointer-events: none;
+  z-index: 5;
+}
+.selection-box[hidden] { display: none !important; }
 
 /* Loading veil */
 .canvas-loading {
@@ -849,9 +860,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .node__status--idea .node__status-note { border-color: rgba(167, 139, 250, 0.34); }
 .node__status--planned .node__status-note { border-color: rgba(96, 165, 250, 0.34); }
-.node__status--in_progress .node__status-note,
-.node__status--testing .node__status-note { border-color: rgba(251, 146, 60, 0.36); }
-.node__status--live .node__status-note { border-color: rgba(52, 211, 153, 0.34); }
+.node__status--in_progress .node__status-note { border-color: rgba(251, 146, 60, 0.36); }
+.node__status--testing .node__status-note { border-color: rgba(199, 233, 90, 0.36); }
+.node__status--live .node__status-note { border-color: rgba(34, 197, 94, 0.38); }
 .node__status--blocked .node__status-note { border-color: rgba(251, 113, 133, 0.36); }
 .node__status--idea {
   border-color: rgba(167, 139, 250, 0.58);
@@ -876,17 +887,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   text-shadow: 0 0 8px rgba(96, 165, 250, 0.42);
 }
 .node__status--in_progress {
-  border-color: rgba(251, 191, 36, 0.62);
-  background:
-    linear-gradient(180deg, rgba(92, 58, 10, 0.97), rgba(42, 27, 8, 0.96));
-  color: #fef3c7;
-  box-shadow:
-    0 0 0 1px rgba(251, 191, 36, 0.08) inset,
-    0 4px 12px rgba(0, 0, 0, 0.46),
-    0 0 14px rgba(251, 191, 36, 0.22);
-  text-shadow: 0 0 8px rgba(251, 191, 36, 0.42);
-}
-.node__status--testing {
   border-color: rgba(251, 146, 60, 0.66);
   background:
     linear-gradient(180deg, rgba(92, 42, 12, 0.98), rgba(42, 18, 8, 0.96));
@@ -897,16 +897,27 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     0 0 14px rgba(251, 146, 60, 0.26);
   text-shadow: 0 0 8px rgba(251, 146, 60, 0.48);
 }
-.node__status--live {
-  border-color: rgba(52, 211, 153, 0.66);
+.node__status--testing {
+  border-color: rgba(199, 233, 90, 0.66);
   background:
-    linear-gradient(180deg, rgba(8, 74, 48, 0.98), rgba(4, 36, 28, 0.96));
-  color: #d1fae5;
+    linear-gradient(180deg, rgba(68, 84, 18, 0.97), rgba(27, 36, 10, 0.96));
+  color: #f1f8b5;
   box-shadow:
-    0 0 0 1px rgba(52, 211, 153, 0.10) inset,
+    0 0 0 1px rgba(199, 233, 90, 0.11) inset,
     0 4px 12px rgba(0, 0, 0, 0.48),
-    0 0 14px rgba(52, 211, 153, 0.26);
-  text-shadow: 0 0 8px rgba(52, 211, 153, 0.48);
+    0 0 14px rgba(199, 233, 90, 0.25);
+  text-shadow: 0 0 8px rgba(199, 233, 90, 0.45);
+}
+.node__status--live {
+  border-color: rgba(34, 197, 94, 0.70);
+  background:
+    linear-gradient(180deg, rgba(8, 78, 38, 0.98), rgba(4, 38, 22, 0.96));
+  color: #dcfce7;
+  box-shadow:
+    0 0 0 1px rgba(34, 197, 94, 0.12) inset,
+    0 4px 12px rgba(0, 0, 0, 0.48),
+    0 0 14px rgba(34, 197, 94, 0.30);
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.52);
 }
 .node__status--blocked {
   border-color: rgba(251, 113, 133, 0.66);
@@ -1106,6 +1117,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   filter: drop-shadow(0 0 4px rgba(236,72,153,0.6));
   animation: sparkleSpin 6s linear infinite;
 }
+.node--decision .node__toggle {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+}
 .app.is-presenting .node__toggle {
   display: none;
 }
@@ -1179,9 +1196,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: 13.5px;
   margin-bottom: 0;
 }
-/* Hide kind text + reposition the AI toggle to a corner for decision nodes —
-   the kind label is editable in the inspector instead. Keeping the toggle
-   reachable matters most for parity with process nodes. */
+/* Decision nodes keep the AI toggle centered below the top diamond point,
+   outside the compact kind/title text band. */
 .node--decision .node__kind {
   font-size: 9px;
   letter-spacing: 0.12em;
@@ -1879,6 +1895,63 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: 11.5px;
   letter-spacing: 0.04em;
 }
+.doc-editor {
+  display: grid;
+  gap: 8px;
+}
+.doc-editor__empty {
+  padding: 10px 11px;
+  border: 1px dashed var(--stroke-soft);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+.doc-editor__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 108px 28px;
+  gap: 6px;
+  align-items: center;
+}
+.doc-editor__row .np__input,
+.doc-editor__row .np__select {
+  min-height: 30px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  font-size: 11.5px;
+}
+.doc-editor__delete,
+.doc-editor__add {
+  border: 1px solid var(--stroke-soft);
+  background: rgba(255,255,255,0.035);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+.doc-editor__delete {
+  width: 28px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+.doc-editor__add {
+  padding: 8px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.doc-editor__delete:hover,
+.doc-editor__add:hover {
+  color: #d8faff;
+  border-color: rgba(68, 215, 245, 0.38);
+  box-shadow: 0 0 14px -8px rgba(68, 215, 245, 0.70);
+}
 
 /* Reusable segmented control (used for type + shape) */
 .np__seg {
@@ -1974,6 +2047,87 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-size: 10px;
   color: var(--text-faint);
   letter-spacing: 0.08em;
+}
+
+/* ============================================================
+   INSPECTOR ACTIONS — non-destructive selected-node utilities.
+   ============================================================ */
+.np__action-zone {
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--stroke-soft);
+  display: grid;
+  gap: 8px;
+}
+.np__action-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--stroke-soft);
+  transition: all 160ms ease;
+}
+.np__action-btn:hover {
+  color: #d8faff;
+  border-color: rgba(68, 215, 245, 0.38);
+  box-shadow: 0 0 14px -8px rgba(68, 215, 245, 0.70);
+}
+.np__action-btn:active { transform: translateY(1px); }
+.np__action-btn svg { width: 12px; height: 12px; }
+.layout-tools {
+  display: grid;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--stroke-soft);
+}
+.layout-tools__section {
+  display: grid;
+  gap: 7px;
+}
+.layout-tools__title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.layout-tools__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.layout-tools__btn {
+  min-height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--stroke-soft);
+  background: rgba(255,255,255,0.035);
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.layout-tools__btn:hover:not(:disabled) {
+  color: #d8faff;
+  border-color: rgba(68, 215, 245, 0.38);
+  box-shadow: 0 0 14px -8px rgba(68, 215, 245, 0.70);
+}
+.layout-tools__btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
 }
 
 /* ============================================================
@@ -2175,7 +2329,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(150, 154, 171, 0.45) transparent;
-  padding-right: 2px;
+  padding-right: 9px;
 }
 .node-docs__list::-webkit-scrollbar {
   width: 5px;
@@ -2188,10 +2342,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border-radius: 999px;
 }
 .node-docs__item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 6px;
+  padding: 4px 18px 4px 6px;
   background: rgba(255, 255, 255, 0.025);
   border: 1px solid var(--stroke-subtle);
   border-radius: 5px;
@@ -2200,6 +2355,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: var(--text-primary);
   /* Long doc names truncate cleanly inside the fixed-width card. */
   white-space: nowrap;
+  overflow: visible;
+}
+.node-docs__label {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -2225,6 +2384,49 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   width: 30%; height: 30%;
   background: var(--bg-elev-2);
   clip-path: polygon(0 0, 100% 100%, 0 100%);
+}
+.node-docs__status-dot {
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(148, 163, 184, 0.45);
+  box-shadow: 0 0 8px rgba(255,255,255,0.16);
+  pointer-events: auto;
+}
+.node-docs__status-dot--planned {
+  background: #60a5fa;
+  border-color: rgba(191, 219, 254, 0.55);
+  box-shadow: 0 0 9px rgba(96, 165, 250, 0.45);
+}
+.node-docs__status-dot--in-progress {
+  background: #fb923c;
+  border-color: rgba(255, 237, 213, 0.50);
+  box-shadow: 0 0 9px rgba(251, 146, 60, 0.42);
+}
+.node-docs__status-dot--testing {
+  background: #c7e95a;
+  border-color: rgba(236, 252, 203, 0.52);
+  box-shadow: 0 0 9px rgba(199, 233, 90, 0.42);
+}
+.node-docs__status-dot--blocked {
+  background: #fb7185;
+  border-color: rgba(255, 228, 230, 0.52);
+  box-shadow: 0 0 9px rgba(251, 113, 133, 0.46);
+}
+.node-docs__status-dot--live {
+  background: #22c55e;
+  border-color: rgba(209, 250, 229, 0.52);
+  box-shadow: 0 0 9px rgba(34, 197, 94, 0.50);
+}
+.node-docs__status-dot--impact {
+  background: #22d3ee;
+  border-color: rgba(207, 250, 254, 0.54);
+  box-shadow: 0 0 9px rgba(34, 211, 238, 0.48);
 }
 
 /* Variant accents tied to the node's category — the panel borrows the
@@ -2353,6 +2555,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border-radius: 50% / 35%;
   border-color: var(--db-stroke);
 }
+.tbtn-menu button .glyph--automated { border-color: #44d7f5; box-shadow: 0 0 10px rgba(34, 211, 238, 0.22); }
+.tbtn-menu button .glyph--ai { border-color: #ec4899; box-shadow: 0 0 12px rgba(236, 72, 153, 0.25); }
+.tbtn-menu button .glyph--manual { border-color: #aeb2c1; }
 .tbtn-menu button .lbl-sub {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
@@ -2361,6 +2566,20 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: var(--text-faint);
   margin-left: auto;
 }
+.template-menu {
+  position: fixed;
+  right: auto;
+  min-width: 226px;
+  max-width: 260px;
+  max-height: min(430px, calc(100vh - 24px));
+  overflow-y: auto;
+}
+.template-menu .menu-helper {
+  white-space: normal;
+  line-height: 1.25;
+}
+.template-menu::-webkit-scrollbar { width: 6px; }
+.template-menu::-webkit-scrollbar-thumb { background: var(--stroke-soft); border-radius: 999px; }
 
 /* ============================================================
    BOARD SIDEBAR
@@ -3370,7 +3589,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
    EDGE LABELS — small pill rendered ON the edge path.
    One DOM element per edge that has a non-empty label, positioned via
    inline transform from JS using getPointAtLength on the SVG path.
-   pointer-events: none so it never blocks edge selection or hover.
+   Clickable so selecting the label selects the underlying edge.
    ============================================================ */
 .edge-label {
   position: absolute;
@@ -3388,9 +3607,23 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   text-transform: uppercase;
   color: var(--text-primary);
   white-space: nowrap;
-  pointer-events: none;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  pointer-events: auto;
   transform-origin: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.edge-label:hover {
+  border-color: rgba(236, 72, 153, 0.46);
+  color: #fff;
+}
+.edge-label.is-selected {
+  border-color: rgba(236, 72, 153, 0.72);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(236, 72, 153, 0.30);
 }
 .edge-label.is-ai {
   border-color: rgba(167, 139, 250, 0.4);
@@ -3405,6 +3638,22 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     0 2px 8px rgba(0, 0, 0, 0.4),
     0 0 12px -4px rgba(68, 215, 245, 0.42);
   color: #d8faff;
+}
+.edge-label--positive {
+  background: rgba(7, 44, 31, 0.88);
+  border-color: rgba(52, 211, 153, 0.48);
+  color: #d1fae5;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 0 12px -5px rgba(52, 211, 153, 0.48);
+}
+.edge-label--negative {
+  background: rgba(58, 18, 29, 0.88);
+  border-color: rgba(251, 113, 133, 0.50);
+  color: #ffe4e6;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 0 12px -5px rgba(251, 113, 133, 0.50);
 }
 
 /* ============================================================
@@ -3558,27 +3807,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         Reload Published JSON
       </button>
       <div class="tbtn-group" id="addNodeGroup">
-        <button class="tbtn" id="addNodeBtn" title="Add new node — click to choose shape">
+        <button class="tbtn" id="addNodeBtn" title="Add new node — choose a preset template">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
           Add Node
         </button>
-        <div class="tbtn-menu" id="addNodeMenu" role="menu">
-          <button data-shape="process" type="button">
-            <span class="glyph glyph--process"></span>
-            Process Step
-            <span class="lbl-sub">Rect</span>
-          </button>
-          <button data-shape="decision" type="button">
-            <span class="glyph glyph--decision"></span>
-            Decision
-            <span class="lbl-sub">Diamond</span>
-          </button>
-          <button data-shape="database" type="button">
-            <span class="glyph glyph--database"></span>
-            Database
-            <span class="lbl-sub">Cylinder</span>
-          </button>
-        </div>
+        <div class="tbtn-menu" id="addNodeMenu" role="menu"></div>
       </div>
       <div class="tbtn-group" id="workspaceMenuGroup">
         <button class="tbtn" id="workspaceMenuBtn" title="Workspace actions" aria-haspopup="true" aria-expanded="false">
@@ -3692,8 +3925,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       </defs>
       <g id="edgesGroup"></g>
     </svg>
-    <div class="nodes-layer" id="nodesLayer"></div>
-    <div class="alignment-guide" id="horizontalGuide" aria-hidden="true"></div>
+      <div class="nodes-layer" id="nodesLayer"></div>
+      <div class="alignment-guide" id="horizontalGuide" aria-hidden="true"></div>
+      <div class="selection-box" id="selectionBox" hidden aria-hidden="true"></div>
     </div>
 
     <div class="minimap" id="minimap" aria-label="Board minimap">
@@ -3914,12 +4148,28 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
         <section class="help-card">
           <div class="help-card__title">Editing</div>
           <div class="help-row"><span class="help-key">Drag node</span><span class="help-desc">Move node</span></div>
+          <div class="help-row"><span class="help-key">Drag empty canvas</span><span class="help-desc">Select multiple nodes</span></div>
+          <div class="help-row"><span class="help-key"><kbd>Shift</kbd> + click node</span><span class="help-desc">Add/remove node from selection</span></div>
+          <div class="help-row"><span class="help-key">Drag selected node</span><span class="help-desc">Move selected nodes together</span></div>
+          <div class="help-row"><span class="help-key">Align selected nodes</span><span class="help-desc">Use multi-selection inspector layout tools</span></div>
+          <div class="help-row"><span class="help-key">Distribute selected nodes</span><span class="help-desc">Evenly space 3+ selected nodes horizontally or vertically</span></div>
           <div class="help-row"><span class="help-key">Drag side handle</span><span class="help-desc">Create edge</span></div>
-          <div class="help-row"><span class="help-key">+ Node in Swimlane</span><span class="help-desc">Create a new step on the swimlane centerline</span></div>
+          <div class="help-row"><span class="help-key">Add Node</span><span class="help-desc">Create a node from a preset template</span></div>
+          <div class="help-row"><span class="help-key">+ Node in Swimlane</span><span class="help-desc">Create a preset node directly inside a swimlane</span></div>
           <div class="help-row"><span class="help-key">Drag near swimlane center</span><span class="help-desc">Snap node vertically to the lane center</span></div>
-          <div class="help-row"><span class="help-key"><kbd>Delete</kbd> / <kbd>Entf</kbd></span><span class="help-desc">Delete selected node or edge</span></div>
+          <div class="help-row"><span class="help-key"><kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>C</kbd></span><span class="help-desc">Copy selected node(s)</span></div>
+          <div class="help-row"><span class="help-key"><kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>V</kbd></span><span class="help-desc">Paste copied node(s)</span></div>
+          <div class="help-row"><span class="help-key"><kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>D</kbd></span><span class="help-desc">Duplicate selected node</span></div>
+          <div class="help-row"><span class="help-key">Copy Node</span><span class="help-desc">Copy selected node from the inspector</span></div>
+          <div class="help-row"><span class="help-key">Duplicate Node</span><span class="help-desc">Duplicate selected node from the inspector</span></div>
+          <div class="help-row"><span class="help-key"><kbd>Delete</kbd> / <kbd>Entf</kbd></span><span class="help-desc">Delete selected node(s) or edge</span></div>
           <div class="help-row"><span class="help-key"><kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Z</kbd></span><span class="help-desc">Undo</span></div>
           <div class="help-row"><span class="help-key"><kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd></span><span class="help-desc">Redo</span></div>
+        </section>
+        <section class="help-card">
+          <div class="help-card__title">Connections</div>
+          <div class="help-row"><span class="help-key">Edge label</span><span class="help-desc">Select an edge and add a short label in the inspector</span></div>
+          <div class="help-row"><span class="help-key">Decision branches</span><span class="help-desc">Use labels like yes/no, approved/rejected, or data handoff names</span></div>
         </section>
         <section class="help-card">
           <div class="help-card__title">Views & Tools</div>
@@ -4099,12 +4349,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   let workspace = null;
   // Unified selection. Only one of (node, edge) can be selected at a time.
   // `selectedEdgeId` is kept for backwards-compatibility with existing edge code paths.
-  let selectedKind   = null;   // 'node' | 'edge' | null
+  let selectedKind   = null;   // 'node' | 'nodes' | 'edge' | null
   let selectedNodeId = null;
   let selectedEdgeId = null;
+  let selectedNodeIds = new Set();
+  let appClipboard = null;
   let isPresentationMode = false;
   let isSpaceKeyDown = false;
   let activeCanvasPan = null;
+  let activeSelectionRect = null;
+  let suppressNextNodeClick = false;
   let suppressNextCanvasClick = false;
   let searchQuery = '';
   let searchMatches = [];
@@ -4129,6 +4383,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     canvasStage:   document.getElementById('canvasStage'),
     swimlaneLayer: document.getElementById('swimlaneLayer'),
     nodesLayer:    document.getElementById('nodesLayer'),
+    selectionBox:  document.getElementById('selectionBox'),
     edgesGroup:    document.getElementById('edgesGroup'),
     edgeSvg:       document.getElementById('edgeSvg'),
     inspectorEmpty:   document.getElementById('inspectorEmpty'),
@@ -4257,6 +4512,47 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       width: els.canvasStage.clientWidth || STAGE_MIN_WIDTH,
       height: els.canvasStage.clientHeight || STAGE_MIN_HEIGHT,
     };
+  }
+
+  function normalizedRect(a, b) {
+    const x = Math.min(a.x, b.x);
+    const y = Math.min(a.y, b.y);
+    return {
+      x,
+      y,
+      width: Math.abs(a.x - b.x),
+      height: Math.abs(a.y - b.y),
+    };
+  }
+
+  function rectsIntersect(a, b) {
+    return a.x <= b.x + b.width &&
+      a.x + a.width >= b.x &&
+      a.y <= b.y + b.height &&
+      a.y + a.height >= b.y;
+  }
+
+  function getNodeBounds(node) {
+    const el = nodeEls.get(node.id);
+    const size = fallbackNodeSize(node);
+    return {
+      x: Number(node.x) || 0,
+      y: Number(node.y) || 0,
+      width: el?.offsetWidth || size.width,
+      height: el?.offsetHeight || size.height,
+    };
+  }
+
+  function getSelectionBounds(nodes) {
+    return nodes.reduce((acc, node) => {
+      const box = getNodeBounds(node);
+      return {
+        minX: Math.min(acc.minX, box.x),
+        minY: Math.min(acc.minY, box.y),
+        maxX: Math.max(acc.maxX, box.x + box.width),
+        maxY: Math.max(acc.maxY, box.y + box.height),
+      };
+    }, { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity });
   }
 
   function updateCanvasStageSize() {
@@ -4625,9 +4921,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     });
   }
 
-  function swimlaneNodePosition(lane, board = activeBoard()) {
-    const approxW = 240;
-    const approxH = 132;
+  function swimlaneNodePosition(lane, board = activeBoard(), templateId = 'manual-step') {
+    const template = NODE_TEMPLATE_BY_ID.get(templateId) || NODE_TEMPLATES[0];
+    const draft = { id: '__draft__', ...cloneTemplateData(template) };
+    const draftSize = fallbackNodeSize(draft);
+    const approxW = draftSize.width;
+    const approxH = draftSize.height;
     const visibleLeft = els.canvas.scrollLeft;
     const baseX = Math.max(80, visibleLeft + 80);
     const inLane = laneNodes(lane, board);
@@ -4643,42 +4942,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     };
   }
 
-  function addNodeInSwimlane(laneId) {
+  function addNodeInSwimlane(laneId, templateId = 'manual-step') {
     const board = activeBoard();
     const lane = getBoardSwimlanes(board).map(normalizeSwimlane).find(item => item.id === laneId);
     if (!board || !lane) return;
-    pushUndoSnapshot('add-node-in-swimlane');
-    const id = 'n' + (Date.now().toString(36).slice(-5));
-    const pos = swimlaneNodePosition(lane, board);
-    const newNode = {
-      id,
-      type: 'manual',
-      shape: 'process',
-      x: pos.x,
-      y: pos.y,
-      title: 'New Step',
-      kind: 'Step',
-      sub: 'Describe this workflow step.',
-      status: '',
-      statusNote: '',
-      impactNotes: '',
-      documents: [],
-      showDocuments: false,
-    };
-    board.data.nodes.push(newNode);
-    const el = buildNode(newNode);
-    els.nodesLayer.appendChild(el);
-    nodeEls.set(id, el);
-    renderNodeDocs(newNode);
-    updateCanvasStageSize();
-    touchBoard();
-    renderBoardList();
-    updateSearchResults();
+    const pos = swimlaneNodePosition(lane, board, templateId);
+    createNodeFromTemplate(templateId, pos, {
+      historyLabel: 'add-node-in-swimlane',
+      toast: 'Node added to swimlane',
+      scrollIntoView: true,
+    });
     scheduleMinimapRender();
-    scheduleSave('add-node-in-swimlane');
-    selectNode(id);
-    requestAnimationFrame(() => scrollToNodeId(id));
-    showToast('Node added to swimlane');
   }
 
   function aiCount(board) {
@@ -5009,7 +5283,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       .forEach(el => el.classList.remove('is-selected', 'is-drop-target', 'node--connecting', 'is-dragging', 'is-search-match', 'is-search-current', 'is-diff-added', 'is-diff-changed', 'is-filter-match', 'is-filter-dimmed'));
     stageClone.querySelectorAll('[contenteditable]')
       .forEach(el => el.setAttribute('contenteditable', 'false'));
-    stageClone.querySelectorAll('.node__toggle, .node__conn, .edge__hit, .edge-preview, .edge__waypoints, .alignment-guide, .canvas-loading, .edge-tooltip, .tbtn-menu')
+    stageClone.querySelectorAll('.node__toggle, .node__conn, .edge__hit, .edge-preview, .edge__waypoints, .alignment-guide, .selection-box, .canvas-loading, .edge-tooltip, .tbtn-menu')
       .forEach(el => el.remove());
     resetCloneEdgeMarkers(stageClone);
 
@@ -5045,7 +5319,8 @@ ${styleText}
 .png-export-root .edge__waypoints,
 .png-export-root .edge__hit,
 .png-export-root .edge-preview,
-.png-export-root .alignment-guide {
+.png-export-root .alignment-guide,
+.png-export-root .selection-box {
   display: none !important;
   opacity: 0 !important;
   pointer-events: none !important;
@@ -5274,9 +5549,9 @@ ${styleText}
     const colors = {
       idea:        { stroke: '#a78bfa', fill: '#211734', text: '#c4b5fd' },
       planned:     { stroke: '#60a5fa', fill: '#10213a', text: '#bfdbfe' },
-      in_progress: { stroke: '#f59e0b', fill: '#2c1d07', text: '#fde68a' },
-      testing:      { stroke: '#fb923c', fill: '#2a1208', text: '#ffedd5' },
-      live:        { stroke: '#4ade80', fill: '#0e2818', text: '#bbf7d0' },
+      in_progress: { stroke: '#fb923c', fill: '#2a1208', text: '#ffedd5' },
+      testing:      { stroke: '#c7e95a', fill: '#1b240a', text: '#f1f8b5' },
+      live:        { stroke: '#22c55e', fill: '#052616', text: '#dcfce7' },
       blocked:     { stroke: '#fb7185', fill: '#2b1118', text: '#fecdd3' },
     }[status];
     const pillW = Math.min(116, Math.max(48, label.length * 6 + 18));
@@ -5348,13 +5623,26 @@ ${styleText}
     const y = rect.minY;
     const w = rect.maxX - rect.minX;
     const h = rect.maxY - rect.minY;
-    const docs = (node.documents || []).filter(Boolean);
+    const docs = (node.documents || []).map(normalizeDocumentEntry).filter(Boolean);
     const maxItems = Math.max(1, Math.floor((h - 38) / 17));
     const items = docs.slice(0, maxItems);
     const more = docs.length > items.length ? `+${docs.length - items.length} more` : '';
-    const itemSvg = items.map((doc, i) =>
-      fallbackText(x + 20, y + 43 + i * 17, [String(doc).slice(0, 26)], { size: 11, fill: '#d8dbe8', weight: 400 })
-    ).join('');
+    const docStatusColors = {
+      planned: '#60a5fa',
+      in_progress: '#fb923c',
+      testing: '#c7e95a',
+      blocked: '#fb7185',
+      live: '#22c55e',
+      impact: '#22d3ee',
+    };
+    const itemSvg = items.map((doc, i) => {
+      const cy = y + 43 + i * 17;
+      const status = normalizeDocumentStatus(doc.status);
+      const dot = status
+        ? `<circle cx="${x + w - 8}" cy="${cy - 3}" r="4.5" fill="${docStatusColors[status]}" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>`
+        : '';
+      return `${fallbackText(x + 20, cy, [doc.name.slice(0, 26)], { size: 11, fill: '#d8dbe8', weight: 400 })}${dot}`;
+    }).join('');
     return `
 <g>
   <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="13" fill="#10131d" stroke="${node.type === 'ai' ? '#a78bfa' : node.shape === 'database' ? '#22d3ee' : '#3b4053'}" stroke-width="1" opacity="0.96"/>
@@ -5966,6 +6254,11 @@ ${styleText}
       !e.ctrlKey && !e.metaKey && !e.altKey &&
       !document.querySelector('.tbtn-menu.is-open')
     ) {
+      if (selectedKind === 'nodes' && selectedNodeIds.size > 1) {
+        e.preventDefault();
+        deleteSelectedNodes();
+        return;
+      }
       if (selectedKind === 'node' && selectedNodeId) {
         e.preventDefault();
         deleteSelectedNode();
@@ -5993,6 +6286,45 @@ ${styleText}
     }
 
     if (!cmd) return;
+
+    if (
+      k === 'c' &&
+      !e.shiftKey &&
+      !e.altKey &&
+      !isPresentationMode &&
+      selectedNodeIds.size > 0 &&
+      !document.querySelector('.tbtn-menu.is-open')
+    ) {
+      e.preventDefault();
+      copySelectedNode();
+      return;
+    }
+
+    if (
+      k === 'v' &&
+      !e.shiftKey &&
+      !e.altKey &&
+      !isPresentationMode &&
+      (appClipboard?.type === 'node' || appClipboard?.type === 'nodes') &&
+      !document.querySelector('.tbtn-menu.is-open')
+    ) {
+      e.preventDefault();
+      pasteCopiedNode();
+      return;
+    }
+
+    if (
+      k === 'd' &&
+      !e.shiftKey &&
+      !e.altKey &&
+      !isPresentationMode &&
+      selectedNodeIds.size === 1 &&
+      !document.querySelector('.tbtn-menu.is-open')
+    ) {
+      e.preventDefault();
+      duplicateSelectedNode();
+      return;
+    }
 
     // Redo: Ctrl/Cmd+Y, or Ctrl/Cmd+Shift+Z
     if (k === 'y' || (k === 'z' && e.shiftKey)) {
@@ -6095,22 +6427,29 @@ ${styleText}
 
   els.canvas.addEventListener('pointerdown', (e) => {
     const shouldPan = (isSpaceKeyDown && e.button === 0) || e.button === 1;
-    if (!shouldPan || isEditableTarget(e.target)) return;
-    e.preventDefault();
-    e.stopPropagation();
-    activeCanvasPan = {
-      pointerId: e.pointerId,
-      startX: e.clientX,
-      startY: e.clientY,
-      scrollLeft: els.canvas.scrollLeft,
-      scrollTop: els.canvas.scrollTop,
-      moved: false,
-    };
-    els.canvas.classList.add('is-panning');
-    try { els.canvas.setPointerCapture(e.pointerId); } catch {}
+    if (shouldPan && !isEditableTarget(e.target)) {
+      e.preventDefault();
+      e.stopPropagation();
+      activeCanvasPan = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+        scrollLeft: els.canvas.scrollLeft,
+        scrollTop: els.canvas.scrollTop,
+        moved: false,
+      };
+      els.canvas.classList.add('is-panning');
+      try { els.canvas.setPointerCapture(e.pointerId); } catch {}
+      return;
+    }
+    if (canStartSelectionRect(e)) beginSelectionRect(e);
   });
 
   els.canvas.addEventListener('pointermove', (e) => {
+    if (activeSelectionRect && e.pointerId === activeSelectionRect.pointerId) {
+      updateSelectionRect(e);
+      return;
+    }
     if (!activeCanvasPan || e.pointerId !== activeCanvasPan.pointerId) return;
     e.preventDefault();
     if (!activeCanvasPan.moved &&
@@ -6132,6 +6471,8 @@ ${styleText}
 
   els.canvas.addEventListener('pointerup', finishCanvasPan);
   els.canvas.addEventListener('pointercancel', finishCanvasPan);
+  els.canvas.addEventListener('pointerup', finishSelectionRect);
+  els.canvas.addEventListener('pointercancel', finishSelectionRect);
   els.canvas.addEventListener('click', (e) => {
     if (!suppressNextCanvasClick) return;
     suppressNextCanvasClick = false;
@@ -6141,6 +6482,67 @@ ${styleText}
   els.canvas.addEventListener('auxclick', (e) => {
     if (e.button === 1) e.preventDefault();
   });
+
+  function canStartSelectionRect(e) {
+    if (isPresentationMode || e.button !== 0 || isSpaceKeyDown || isEditableTarget(e.target)) return false;
+    if (e.target.closest('.node, .edge, .edge-label, .node-docs, .minimap, .edge__waypoint, .node__conn, .tbtn-menu')) return false;
+    return !!e.target.closest('.canvas-stage, .canvas__svg, .nodes-layer, .swimlane-layer');
+  }
+
+  function updateSelectionBoxRect(rect) {
+    if (!els.selectionBox) return;
+    els.selectionBox.style.left = `${rect.x}px`;
+    els.selectionBox.style.top = `${rect.y}px`;
+    els.selectionBox.style.width = `${rect.width}px`;
+    els.selectionBox.style.height = `${rect.height}px`;
+  }
+
+  function beginSelectionRect(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const start = stagePointFromEvent(e);
+    activeSelectionRect = {
+      pointerId: e.pointerId,
+      start,
+      current: start,
+      moved: false,
+    };
+    if (els.selectionBox) {
+      els.selectionBox.hidden = false;
+      updateSelectionBoxRect({ x: start.x, y: start.y, width: 0, height: 0 });
+    }
+    try { els.canvas.setPointerCapture(e.pointerId); } catch {}
+  }
+
+  function updateSelectionRect(e) {
+    if (!activeSelectionRect || e.pointerId !== activeSelectionRect.pointerId) return;
+    e.preventDefault();
+    const point = stagePointFromEvent(e);
+    activeSelectionRect.current = point;
+    const rect = normalizedRect(activeSelectionRect.start, point);
+    activeSelectionRect.moved = rect.width > 4 || rect.height > 4;
+    updateSelectionBoxRect(rect);
+  }
+
+  function finishSelectionRect(e) {
+    if (!activeSelectionRect || e.pointerId !== activeSelectionRect.pointerId) return;
+    try { els.canvas.releasePointerCapture(e.pointerId); } catch {}
+    const rect = normalizedRect(activeSelectionRect.start, activeSelectionRect.current);
+    const didSelect = activeSelectionRect.moved && (rect.width > 4 || rect.height > 4);
+    activeSelectionRect = null;
+    if (els.selectionBox) els.selectionBox.hidden = true;
+    suppressNextCanvasClick = true;
+    e.preventDefault();
+    e.stopPropagation();
+    if (!didSelect) {
+      clearSelection();
+      return;
+    }
+    const ids = activeBoard().data.nodes
+      .filter(node => rectsIntersect(rect, getNodeBounds(node)))
+      .map(node => node.id);
+    setMultiNodeSelection(ids);
+  }
 
   function setSaveState(state) {
     els.saveIndicator.classList.remove('is-saving', 'is-saved');
@@ -6211,6 +6613,40 @@ ${styleText}
     ].join('');
   }
 
+  const DOCUMENT_STATUS_OPTIONS = [
+    { value: 'planned', label: 'Planned' },
+    { value: 'in_progress', label: 'In Progress' },
+    { value: 'testing', label: 'Testing' },
+    { value: 'blocked', label: 'Blocked' },
+    { value: 'live', label: 'Live' },
+    { value: 'impact', label: 'Impact' },
+  ];
+  const DOCUMENT_STATUS_LABELS = Object.fromEntries(DOCUMENT_STATUS_OPTIONS.map(opt => [opt.value, opt.label]));
+  const DOCUMENT_STATUS_VALUES = new Set(DOCUMENT_STATUS_OPTIONS.map(opt => opt.value));
+
+  function normalizeDocumentStatus(value) {
+    return DOCUMENT_STATUS_VALUES.has(value) ? value : '';
+  }
+
+  function documentStatusLabel(value) {
+    return DOCUMENT_STATUS_LABELS[normalizeDocumentStatus(value)] || '';
+  }
+
+  function documentStatusClass(value) {
+    const status = normalizeDocumentStatus(value);
+    return status ? `node-docs__status-dot--${status.replace(/_/g, '-')}` : '';
+  }
+
+  function documentStatusOptionsHtml(currentStatus) {
+    const current = normalizeDocumentStatus(currentStatus);
+    return [
+      `<option value="" ${current === '' ? 'selected' : ''}>None</option>`,
+      ...DOCUMENT_STATUS_OPTIONS.map(opt =>
+        `<option value="${opt.value}" ${current === opt.value ? 'selected' : ''}>${opt.label}</option>`
+      ),
+    ].join('');
+  }
+
   function normalizeSearchText(value) {
     return String(value || '')
       .toLowerCase()
@@ -6229,7 +6665,7 @@ ${styleText}
       node.title,
       node.kind,
       node.sub,
-      Array.isArray(node.documents) ? node.documents.join(' ') : '',
+      Array.isArray(node.documents) ? node.documents.map(documentSearchText).join(' ') : '',
       node.impactNotes,
       node.statusNote,
       status,
@@ -6894,7 +7330,7 @@ ${styleText}
     const el = document.createElement('div');
     // Node carries: type (manual/ai), shape (process/decision/database), and transient is-selected
     el.className = `node node--${n.type} node--${n.shape || 'process'}`;
-    if (selectedKind === 'node' && selectedNodeId === n.id) el.classList.add('is-selected');
+    if (isNodeSelected(n.id)) el.classList.add('is-selected');
     applySearchClasses(el, n.id);
     applyNodeDiffClasses(el, n.id);
     applyNodeFilterClasses(el, n);
@@ -6981,7 +7417,7 @@ ${styleText}
     const el = nodeEls.get(n.id);
     if (!el) return;
     const shape = n.shape || 'process';
-    const sel = (selectedKind === 'node' && selectedNodeId === n.id) ? ' is-selected' : '';
+    const sel = isNodeSelected(n.id) ? ' is-selected' : '';
     el.className = `node node--${n.type} node--${shape}${sel}`;
     applySearchClasses(el, n.id);
     applyNodeDiffClasses(el, n.id);
@@ -6996,6 +7432,72 @@ ${styleText}
     updateCanvasStageSize();
     // Keep the documents panel attached to the node visually.
     updateNodeDocsPosition(n);
+  }
+
+  function applySelectedNodeLayout(label, mutator) {
+    const nodes = getSelectedNodes();
+    if (nodes.length < 2) return;
+    pushUndoSnapshot(label);
+    const stage = currentStageSize();
+    mutator(nodes);
+    nodes.forEach(node => {
+      const box = getNodeBounds(node);
+      node.x = Math.round(clampNumber(Number(node.x) || 0, 40, Math.max(40, stage.width - box.width - 40)));
+      node.y = Math.round(clampNumber(Number(node.y) || 0, 40, Math.max(40, stage.height - box.height - 40)));
+      setNodePosition(node);
+      updateEdgesForNode(node.id);
+    });
+    touchBoard();
+    renderBoardList();
+    updateSearchResults();
+    scheduleMinimapRender();
+    scheduleSave(label);
+  }
+
+  function alignSelectedNodes(mode) {
+    const nodes = getSelectedNodes();
+    if (nodes.length < 2) return;
+    const bounds = getSelectionBounds(nodes);
+    const centerX = (bounds.minX + bounds.maxX) / 2;
+    const centerY = (bounds.minY + bounds.maxY) / 2;
+    applySelectedNodeLayout('align-nodes', selected => {
+      selected.forEach(node => {
+        const box = getNodeBounds(node);
+        if (mode === 'left') node.x = bounds.minX;
+        if (mode === 'center') node.x = centerX - box.width / 2;
+        if (mode === 'right') node.x = bounds.maxX - box.width;
+        if (mode === 'top') node.y = bounds.minY;
+        if (mode === 'middle') node.y = centerY - box.height / 2;
+        if (mode === 'bottom') node.y = bounds.maxY - box.height;
+      });
+    });
+    showToast('Nodes aligned');
+  }
+
+  function distributeSelectedNodes(axis) {
+    const nodes = getSelectedNodes();
+    if (nodes.length < 3) return;
+    applySelectedNodeLayout('distribute-nodes', selected => {
+      const sorted = [...selected].sort((a, b) => {
+        const aBox = getNodeBounds(a);
+        const bBox = getNodeBounds(b);
+        const aCenter = axis === 'x' ? aBox.x + aBox.width / 2 : aBox.y + aBox.height / 2;
+        const bCenter = axis === 'x' ? bBox.x + bBox.width / 2 : bBox.y + bBox.height / 2;
+        return aCenter - bCenter;
+      });
+      const firstBox = getNodeBounds(sorted[0]);
+      const lastBox = getNodeBounds(sorted[sorted.length - 1]);
+      const firstCenter = axis === 'x' ? firstBox.x + firstBox.width / 2 : firstBox.y + firstBox.height / 2;
+      const lastCenter = axis === 'x' ? lastBox.x + lastBox.width / 2 : lastBox.y + lastBox.height / 2;
+      const step = (lastCenter - firstCenter) / (sorted.length - 1);
+      sorted.forEach((node, index) => {
+        const box = getNodeBounds(node);
+        const center = firstCenter + step * index;
+        if (axis === 'x') node.x = center - box.width / 2;
+        else node.y = center - box.height / 2;
+      });
+    });
+    showToast('Nodes distributed');
   }
 
   // ============================================================
@@ -7015,24 +7517,38 @@ ${styleText}
   const NODE_DOCS_GAP = 14;     // gap between node's right edge and panel
   const NODE_DOCS_WIDTH = 152;  // matches CSS — used for off-screen check
 
-  /**
-   * Parse a textarea value into a normalized document-name array.
-   * Splits on newlines, trims, and drops empties.
-   */
-  function parseNodeDocuments(text) {
-    if (typeof text !== 'string') return [];
-    return text.split('\n').map(s => s.trim()).filter(Boolean);
+  function normalizeDocumentEntry(doc) {
+    if (typeof doc === 'string') {
+      const name = doc.trim();
+      return name ? { name, status: '' } : null;
+    }
+    if (doc && typeof doc === 'object') {
+      const name = String(doc.name ?? doc.title ?? doc.label ?? '').trim();
+      if (!name) return null;
+      return { name, status: normalizeDocumentStatus(doc.status) };
+    }
+    return null;
+  }
+
+  function documentName(doc) {
+    return normalizeDocumentEntry(doc)?.name || '';
+  }
+
+  function documentSearchText(doc) {
+    const entry = normalizeDocumentEntry(doc);
+    if (!entry) return '';
+    return [entry.name, entry.status, documentStatusLabel(entry.status)].filter(Boolean).join(' ');
   }
 
   /**
    * Idempotent normalization: clamp the documents list to the canonical
-   * shape (array of trimmed non-empty strings). Used after any mutation
-   * to guarantee invariants. Returns true if anything changed.
+   * shape (array of { name, status }). String-based legacy documents are
+   * upgraded safely without losing names. Returns true if anything changed.
    */
   function normalizeNodeDocuments(node) {
     const before = JSON.stringify(node.documents || []);
     const cleaned = (Array.isArray(node.documents) ? node.documents : [])
-      .map(s => typeof s === 'string' ? s.trim() : '')
+      .map(normalizeDocumentEntry)
       .filter(Boolean);
     node.documents = cleaned;
     if (typeof node.showDocuments !== 'boolean') node.showDocuments = false;
@@ -7113,11 +7629,20 @@ ${styleText}
     panel.innerHTML = `
       <div class="node-docs__title">Outputs <span class="node-docs__count">· ${docs.length}</span></div>
       <ul class="node-docs__list">
-        ${docs.map(d => `
-          <li class="node-docs__item" title="${escapeHtml(d)}">
+        ${docs.map(d => {
+          const doc = normalizeDocumentEntry(d);
+          if (!doc) return '';
+          const statusLabel = documentStatusLabel(doc.status);
+          const statusDot = statusLabel
+            ? `<span class="node-docs__status-dot ${documentStatusClass(doc.status)}" title="${escapeHtml(statusLabel)}" aria-label="${escapeHtml(statusLabel)}"></span>`
+            : '';
+          return `
+          <li class="node-docs__item" title="${escapeHtml(doc.name)}">
             <span class="node-docs__icon" aria-hidden="true"></span>
-            <span class="node-docs__label">${escapeHtml(d)}</span>
-          </li>`).join('')}
+            <span class="node-docs__label">${escapeHtml(doc.name)}</span>
+            ${statusDot}
+          </li>`;
+        }).join('')}
       </ul>
     `;
 
@@ -7240,6 +7765,7 @@ ${styleText}
       // when toggling back from bidirectional → forward.
       refs.line.removeAttribute('marker-start');
     }
+    renderEdgeLabel(edge);
   }
 
   /**
@@ -7519,6 +8045,19 @@ ${styleText}
       el = document.createElement('div');
       el.className = 'edge-label';
       el.dataset.edgeId = edge.id;
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        selectEdge(edge.id);
+      });
+      el.addEventListener('dblclick', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        selectEdge(edge.id);
+        requestAnimationFrame(() => {
+          els.inspectorContent.querySelector('[data-action="edit-edge-label"]')?.focus();
+        });
+      });
       els.canvasStage.appendChild(el);
       edgeLabelEls.set(edge.id, el);
     }
@@ -7554,9 +8093,15 @@ ${styleText}
     const refs = edgeEls.get(edge.id);
     if (!refs || !refs.line) return;
     const el = ensureEdgeLabel(edge);
-    el.textContent = text;
+    const displayText = text.length > 24 ? text.slice(0, 23) + '…' : text;
+    el.textContent = displayText;
+    el.title = text;
     el.classList.toggle('is-ai', edge.type === 'ai');
     el.classList.toggle('is-automated', edge.type === 'automated');
+    el.classList.toggle('is-selected', edge.id === selectedEdgeId);
+    const semanticLabel = text.toLowerCase();
+    el.classList.toggle('edge-label--positive', semanticLabel === 'yes' || semanticLabel === 'ja');
+    el.classList.toggle('edge-label--negative', semanticLabel === 'no' || semanticLabel === 'nein');
 
     // Position via getPointAtLength on the actual rendered path —
     // accurate for any geometry, including curves and waypoint chains.
@@ -7912,6 +8457,8 @@ ${styleText}
       if (e.button !== 0) return;
       e.preventDefault();
 
+      if (!isNodeSelected(node.id) && !e.shiftKey) selectNode(node.id);
+
       // Capture the pre-drag state ONCE here, not per pointermove. If
       // the drag ultimately produces no movement (a click that didn't
       // travel beyond the 2px threshold) we'll pop this snapshot back
@@ -7921,40 +8468,61 @@ ${styleText}
       const start = stagePointFromEvent(e);
       const offsetX = start.x - node.x;
       const offsetY = start.y - node.y;
+      const groupIds = isNodeSelected(node.id) && selectedNodeIds.size > 1
+        ? [...selectedNodeIds]
+        : [node.id];
+      const groupNodes = groupIds.map(id => activeBoard().data.nodes.find(n => n.id === id)).filter(Boolean);
+      const groupStarts = new Map(groupNodes.map(n => [n.id, { x: Number(n.x) || 0, y: Number(n.y) || 0 }]));
       let moved = false;
 
-      el.classList.add('is-dragging');
+      groupNodes.forEach(n => nodeEls.get(n.id)?.classList.add('is-dragging'));
       els.canvas.classList.add('is-dragging');
       handle.setPointerCapture(e.pointerId);
 
       function onMove(ev) {
         const point = stagePointFromEvent(ev);
         const stage = currentStageSize();
-        node.x = Math.max(-40, Math.min(stage.width  - 60, point.x - offsetX));
-        node.y = Math.max(-10, Math.min(stage.height - 60, point.y - offsetY));
 
-        // Horizontal snap: if the dragged node's vertical center is
-        // close to another node's, lock onto that center and show a
-        // guide line. We MUST adjust node.y here (before
-        // setNodePosition) so the rendered position and the snap match.
-        // The snap math reads the dragged node's own offsetHeight via
-        // findHorizontalSnap, so it's correct for any shape.
-        const snap = findHorizontalSnap(node);
-        const swimlaneSnap = snap ? null : findSwimlaneCenterSnap(node);
-        if (snap) {
-          const draggedHeight = getApproxNodeHeight(node, el);
-          node.y = clampNumber(snap.y - draggedHeight / 2, -10, stage.height - 60);
-          showHorizontalGuide(snap.y);
-        } else if (swimlaneSnap) {
-          const draggedHeight = getApproxNodeHeight(node, el);
-          node.y = clampNumber(swimlaneSnap.y - draggedHeight / 2, -10, stage.height - 60);
-          showHorizontalGuide(swimlaneSnap.y, 'swimlane');
-        } else {
+        if (groupNodes.length > 1) {
+          const dx = point.x - start.x;
+          const dy = point.y - start.y;
           hideHorizontalGuide();
+          groupNodes.forEach(n => {
+            const startPos = groupStarts.get(n.id);
+            if (!startPos) return;
+            n.x = clampNumber(startPos.x + dx, -40, stage.width - 60);
+            n.y = clampNumber(startPos.y + dy, -10, stage.height - 60);
+            setNodePosition(n);
+            updateEdgesForNode(n.id);
+          });
+        } else {
+          node.x = Math.max(-40, Math.min(stage.width  - 60, point.x - offsetX));
+          node.y = Math.max(-10, Math.min(stage.height - 60, point.y - offsetY));
+
+          // Horizontal snap: if the dragged node's vertical center is
+          // close to another node's, lock onto that center and show a
+          // guide line. We MUST adjust node.y here (before
+          // setNodePosition) so the rendered position and the snap match.
+          // The snap math reads the dragged node's own offsetHeight via
+          // findHorizontalSnap, so it's correct for any shape.
+          const snap = findHorizontalSnap(node);
+          const swimlaneSnap = snap ? null : findSwimlaneCenterSnap(node);
+          if (snap) {
+            const draggedHeight = getApproxNodeHeight(node, el);
+            node.y = clampNumber(snap.y - draggedHeight / 2, -10, stage.height - 60);
+            showHorizontalGuide(snap.y);
+          } else if (swimlaneSnap) {
+            const draggedHeight = getApproxNodeHeight(node, el);
+            node.y = clampNumber(swimlaneSnap.y - draggedHeight / 2, -10, stage.height - 60);
+            showHorizontalGuide(swimlaneSnap.y, 'swimlane');
+          } else {
+            hideHorizontalGuide();
+          }
+
+          setNodePosition(node);
+          updateEdgesForNode(node.id);
         }
 
-        setNodePosition(node);
-        updateEdgesForNode(node.id);
         if (!moved && (Math.abs(point.x - start.x) > 2 || Math.abs(point.y - start.y) > 2)) moved = true;
       }
       function onUp(ev) {
@@ -7962,13 +8530,15 @@ ${styleText}
         handle.removeEventListener('pointermove', onMove);
         handle.removeEventListener('pointerup', onUp);
         handle.removeEventListener('pointercancel', onUp);
-        el.classList.remove('is-dragging');
+        groupNodes.forEach(n => nodeEls.get(n.id)?.classList.remove('is-dragging'));
         els.canvas.classList.remove('is-dragging');
         // Always hide the guide on drag end — even if the pointer
         // released exactly while snapped, the guide is a transient
         // affordance, not a persistent canvas decoration.
         hideHorizontalGuide();
         if (moved) {
+          suppressNextNodeClick = true;
+          setTimeout(() => { suppressNextNodeClick = false; }, 0);
           touchBoard();
           scheduleMinimapRender();
           scheduleSave('drag');
@@ -8064,9 +8634,10 @@ ${styleText}
   // ============================================================
   // SELECTION + INSPECTOR
   //
-  // Single source of truth: selectedKind + (selectedNodeId | selectedEdgeId).
+  // Single source of truth: selectedKind + selectedNodeIds / selectedNodeId / selectedEdgeId.
   // Helper functions:
   //   selectNode(id)       — selects a node, clears any edge selection
+  //   setMultiNodeSelection(ids) — selects multiple nodes
   //   selectEdge(id)       — selects an edge, clears any node selection
   //   clearSelection()     — clears both, returns inspector to empty state
   //   renderInspector()    — routes to the right view based on selectedKind
@@ -8078,12 +8649,22 @@ ${styleText}
     // never finish with a click event because of pointer capture handoff.
     el.addEventListener('click', (e) => {
       if (isPresentationMode) return;
+      if (suppressNextNodeClick) {
+        suppressNextNodeClick = false;
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
       // Don't hijack clicks landing on text fields, the toggle, or the connection handle.
       if (e.target.closest('[contenteditable="true"]')) return;
       if (e.target.closest('[data-action="toggle-ai"]')) return;
       if (e.target.closest('[data-action="start-connection"]')) return;
       e.stopPropagation();
-      selectNode(node.id);
+      if (e.shiftKey) {
+        toggleNodeSelection(node.id);
+      } else {
+        selectNode(node.id);
+      }
     });
   }
 
@@ -8557,6 +9138,7 @@ ${styleText}
     updateCanvasStageSize();
     renderBoardList();
     touchBoard();
+    scheduleMinimapRender();
     showToast('Node deleted');
     scheduleSave('delete-node');
   }
@@ -8571,6 +9153,222 @@ ${styleText}
     }
   }
 
+  function deleteSelectedNodes() {
+    const ids = new Set(selectedNodeIds);
+    if (!ids.size) return;
+    if (ids.size === 1) {
+      selectedKind = 'node';
+      selectedNodeId = [...ids][0];
+      deleteSelectedNode();
+      return;
+    }
+    const board = activeBoard();
+    pushUndoSnapshot('delete-nodes');
+    hideEdgeTooltip();
+    clearWaypointSelection();
+
+    const doomedEdges = board.data.edges.filter(edge => ids.has(edge.from) || ids.has(edge.to));
+    doomedEdges.forEach(edge => {
+      const refs = edgeEls.get(edge.id);
+      if (refs && refs.g.parentNode) refs.g.parentNode.removeChild(refs.g);
+      edgeEls.delete(edge.id);
+      removeEdgeLabel(edge.id);
+    });
+    board.data.edges = board.data.edges.filter(edge => !ids.has(edge.from) && !ids.has(edge.to));
+
+    ids.forEach(nodeId => {
+      const nodeEl = nodeEls.get(nodeId);
+      if (nodeEl && nodeEl.parentNode) nodeEl.parentNode.removeChild(nodeEl);
+      nodeEls.delete(nodeId);
+      removeNodeDocs(nodeId);
+    });
+    board.data.nodes = board.data.nodes.filter(node => !ids.has(node.id));
+
+    _resetSelectionState();
+    renderInspector();
+    updateCanvasStageSize();
+    renderBoardList();
+    touchBoard();
+    scheduleMinimapRender();
+    showToast(`${ids.size} nodes deleted`);
+    scheduleSave('delete-nodes');
+  }
+
+  function duplicateSelectedNode() {
+    const singleId = getSingleSelectedNodeId();
+    if (isPresentationMode || !singleId) return;
+    const board = activeBoard();
+    const original = board.data.nodes.find(n => n.id === singleId);
+    if (!original) return;
+
+    pushUndoSnapshot('duplicate-node');
+
+    const clone = JSON.parse(JSON.stringify(original));
+    const stage = currentStageSize();
+    const originalSize = fallbackNodeSize(original);
+    const maxX = Math.max(0, stage.width - Math.max(originalSize.width, 260));
+    const maxY = Math.max(0, stage.height - Math.max(originalSize.height, 220));
+    let nextX = clampNumber(Number(original.x || 0) + 280, -40, maxX);
+    let nextY = clampNumber(Number(original.y || 0) + 40, -10, maxY);
+
+    if (Math.abs(nextX - Number(original.x || 0)) < 80 && Math.abs(nextY - Number(original.y || 0)) < 80) {
+      nextX = clampNumber(Number(original.x || 0) + 40, -40, maxX);
+      nextY = clampNumber(Number(original.y || 0) + 140, -10, maxY);
+    }
+
+    clone.id = uid('n');
+    clone.x = Math.round(nextX);
+    clone.y = Math.round(nextY);
+    const duplicate = migrateNode(clone);
+    board.data.nodes.push(duplicate);
+
+    const el = buildNode(duplicate);
+    els.nodesLayer.appendChild(el);
+    nodeEls.set(duplicate.id, el);
+    renderNodeDocs(duplicate);
+    updateCanvasStageSize();
+    touchBoard();
+    renderBoardList();
+    updateSearchResults();
+    scheduleMinimapRender();
+    scheduleSave('duplicate-node');
+    selectNode(duplicate.id);
+    requestAnimationFrame(() => scrollToNodeId(duplicate.id));
+    showToast('Node duplicated');
+  }
+
+  function copySelectedNode() {
+    if (isPresentationMode || selectedNodeIds.size === 0) return;
+    const board = activeBoard();
+    const nodes = board.data.nodes.filter(node => selectedNodeIds.has(node.id));
+    if (!nodes.length) return;
+    if (nodes.length > 1) {
+      const bounds = nodes.reduce((acc, node) => {
+        const box = getNodeBounds(node);
+        return {
+          minX: Math.min(acc.minX, box.x),
+          minY: Math.min(acc.minY, box.y),
+          maxX: Math.max(acc.maxX, box.x + box.width),
+          maxY: Math.max(acc.maxY, box.y + box.height),
+        };
+      }, { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity });
+      bounds.width = bounds.maxX - bounds.minX;
+      bounds.height = bounds.maxY - bounds.minY;
+      appClipboard = {
+        type: 'nodes',
+        data: {
+          nodes: JSON.parse(JSON.stringify(nodes)),
+          bounds,
+        },
+        pasteCount: 0,
+      };
+      showToast('Nodes copied');
+      return;
+    }
+    const node = nodes[0];
+    appClipboard = {
+      type: 'node',
+      data: JSON.parse(JSON.stringify(node)),
+      pasteCount: 0,
+    };
+    showToast('Node copied');
+  }
+
+  function pasteCopiedNode() {
+    if (isPresentationMode || !appClipboard?.data) return;
+    if (appClipboard.type === 'nodes') {
+      pasteCopiedNodes();
+      return;
+    }
+    if (appClipboard.type !== 'node') return;
+    const board = activeBoard();
+    if (!board) return;
+
+    pushUndoSnapshot('paste-node');
+
+    const clone = JSON.parse(JSON.stringify(appClipboard.data));
+    const draft = { ...clone, id: '__paste__' };
+    const size = fallbackNodeSize(draft);
+    const stage = currentStageSize();
+    const offset = 32 * Math.min(appClipboard.pasteCount || 0, 8);
+    const viewportCenterX = els.canvas.scrollLeft + els.canvas.clientWidth / 2;
+    const viewportCenterY = els.canvas.scrollTop + els.canvas.clientHeight / 2;
+    const maxX = Math.max(40, stage.width - size.width - 40);
+    const maxY = Math.max(40, stage.height - size.height - 40);
+
+    clone.id = uid('n');
+    clone.x = Math.round(clampNumber(viewportCenterX - size.width / 2 + offset, 40, maxX));
+    clone.y = Math.round(clampNumber(viewportCenterY - size.height / 2 + offset, 40, maxY));
+    delete clone.laneId;
+
+    const pasted = migrateNode(clone);
+    board.data.nodes.push(pasted);
+    appClipboard.pasteCount = (appClipboard.pasteCount || 0) + 1;
+
+    const el = buildNode(pasted);
+    els.nodesLayer.appendChild(el);
+    nodeEls.set(pasted.id, el);
+    renderNodeDocs(pasted);
+    updateCanvasStageSize();
+    touchBoard();
+    renderBoardList();
+    updateSearchResults();
+    scheduleMinimapRender();
+    scheduleSave('paste-node');
+    selectNode(pasted.id);
+    requestAnimationFrame(() => scrollToNodeId(pasted.id));
+    showToast('Node pasted');
+  }
+
+  function pasteCopiedNodes() {
+    if (isPresentationMode || appClipboard?.type !== 'nodes' || !appClipboard.data?.nodes?.length) return;
+    const board = activeBoard();
+    if (!board) return;
+    const copiedNodes = appClipboard.data.nodes;
+    const bounds = appClipboard.data.bounds || { minX: 0, minY: 0, width: 240, height: 132 };
+    const stage = currentStageSize();
+    const offset = 32 * Math.min(appClipboard.pasteCount || 0, 8);
+    const viewportCenterX = els.canvas.scrollLeft + els.canvas.clientWidth / 2;
+    const viewportCenterY = els.canvas.scrollTop + els.canvas.clientHeight / 2;
+    const maxTargetX = Math.max(40, stage.width - bounds.width - 40);
+    const maxTargetY = Math.max(40, stage.height - bounds.height - 40);
+    const targetMinX = clampNumber(viewportCenterX - bounds.width / 2 + offset, 40, maxTargetX);
+    const targetMinY = clampNumber(viewportCenterY - bounds.height / 2 + offset, 40, maxTargetY);
+    const idMap = new Map();
+
+    pushUndoSnapshot('paste-nodes');
+
+    const pastedNodes = copiedNodes.map(source => {
+      const clone = JSON.parse(JSON.stringify(source));
+      const oldId = clone.id;
+      clone.id = uid('n');
+      idMap.set(oldId, clone.id);
+      clone.x = Math.round(targetMinX + (Number(source.x || 0) - bounds.minX));
+      clone.y = Math.round(targetMinY + (Number(source.y || 0) - bounds.minY));
+      delete clone.laneId;
+      return migrateNode(clone);
+    });
+
+    pastedNodes.forEach(node => {
+      board.data.nodes.push(node);
+      const el = buildNode(node);
+      els.nodesLayer.appendChild(el);
+      nodeEls.set(node.id, el);
+      renderNodeDocs(node);
+    });
+
+    appClipboard.pasteCount = (appClipboard.pasteCount || 0) + 1;
+    updateCanvasStageSize();
+    touchBoard();
+    renderBoardList();
+    updateSearchResults();
+    scheduleMinimapRender();
+    scheduleSave('paste-nodes');
+    setMultiNodeSelection(pastedNodes.map(node => node.id));
+    requestAnimationFrame(() => scrollToNodeId(pastedNodes[0]?.id));
+    showToast('Nodes pasted');
+  }
+
   function _refreshNodeSelectionVisual(prevId, nextId) {
     [prevId, nextId].forEach(id => {
       if (!id) return;
@@ -8579,30 +9377,83 @@ ${styleText}
     });
   }
 
+  function refreshNodeSelectionVisuals(ids) {
+    new Set([...ids].filter(Boolean)).forEach(id => {
+      const n = activeBoard().data.nodes.find(x => x.id === id);
+      if (n) refreshNodeClass(n);
+    });
+  }
+
+  function isNodeSelected(id) {
+    return selectedNodeIds.has(id);
+  }
+
+  function getSelectedNodes() {
+    const ids = selectedNodeIds;
+    return activeBoard().data.nodes.filter(node => ids.has(node.id));
+  }
+
+  function getSingleSelectedNodeId() {
+    return selectedNodeIds.size === 1 ? [...selectedNodeIds][0] : null;
+  }
+
   function selectNode(id) {
     if (isPresentationMode) return;
+    const prevNodeIds = new Set(selectedNodeIds);
     // Clear any edge selection first
     if (selectedKind === 'edge' && selectedEdgeId) {
       const prevEdge = activeBoard().data.edges.find(e => e.id === selectedEdgeId);
       selectedEdgeId = null;
       if (prevEdge) refreshEdgeStyle(prevEdge);
     }
-    const prevNode = selectedNodeId;
     selectedKind   = 'node';
     selectedNodeId = id;
     selectedEdgeId = null;
-    _refreshNodeSelectionVisual(prevNode, id);
+    selectedNodeIds = new Set([id]);
+    refreshNodeSelectionVisuals(new Set([...prevNodeIds, id]));
     renderInspector();
+  }
+
+  function setMultiNodeSelection(ids) {
+    if (isPresentationMode) return;
+    const validIds = [...new Set(ids)].filter(id => activeBoard().data.nodes.some(node => node.id === id));
+    if (!validIds.length) {
+      clearSelection();
+      return;
+    }
+    if (validIds.length === 1) {
+      selectNode(validIds[0]);
+      return;
+    }
+    const prevNodeIds = new Set(selectedNodeIds);
+    if (selectedKind === 'edge' && selectedEdgeId) {
+      const prevEdge = activeBoard().data.edges.find(e => e.id === selectedEdgeId);
+      selectedEdgeId = null;
+      if (prevEdge) refreshEdgeStyle(prevEdge);
+    }
+    selectedKind = 'nodes';
+    selectedNodeId = null;
+    selectedEdgeId = null;
+    selectedNodeIds = new Set(validIds);
+    refreshNodeSelectionVisuals(new Set([...prevNodeIds, ...validIds]));
+    renderInspector();
+  }
+
+  function toggleNodeSelection(id) {
+    if (isPresentationMode) return;
+    const next = new Set(selectedNodeIds);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setMultiNodeSelection(next);
   }
 
   function selectEdge(id) {
     if (isPresentationMode) return;
     // Clear any node selection first
-    if (selectedKind === 'node' && selectedNodeId) {
-      const prevNodeId = selectedNodeId;
-      selectedNodeId = null;
-      _refreshNodeSelectionVisual(prevNodeId, null);
-    }
+    const prevNodeIds = new Set(selectedNodeIds);
+    selectedNodeIds.clear();
+    selectedNodeId = null;
+    refreshNodeSelectionVisuals(prevNodeIds);
     // Selecting a different edge invalidates any waypoint selection.
     if (selectedWaypoint && selectedWaypoint.edgeId !== id) clearWaypointSelection();
     const prev = selectedEdgeId;
@@ -8621,12 +9472,13 @@ ${styleText}
   function clearSelection() {
     if (!selectedKind) return;
     clearWaypointSelection();
-    const prevNodeId = selectedNodeId;
+    const prevNodeIds = new Set(selectedNodeIds);
     const prevEdgeId = selectedEdgeId;
     selectedKind   = null;
     selectedNodeId = null;
     selectedEdgeId = null;
-    if (prevNodeId) _refreshNodeSelectionVisual(prevNodeId, null);
+    selectedNodeIds.clear();
+    refreshNodeSelectionVisuals(prevNodeIds);
     if (prevEdgeId) {
       const edge = activeBoard().data.edges.find(e => e.id === prevEdgeId);
       if (edge) refreshEdgeStyle(edge);
@@ -8664,12 +9516,88 @@ ${styleText}
       return;
     }
 
+    if (selectedKind === 'nodes') {
+      eyebrow.textContent = 'Selection';
+      title.innerHTML = 'Multiple <em>nodes</em>';
+      renderMultiSelectionInspector();
+      return;
+    }
+
     if (selectedKind === 'edge') {
       eyebrow.textContent = 'Edge';
       title.innerHTML = 'Edit <em>connection</em>';
       renderEdgeInspector();
       return;
     }
+  }
+
+  function renderMultiSelectionInspector() {
+    const nodes = getSelectedNodes();
+    if (nodes.length <= 1) {
+      if (nodes.length === 1) selectNode(nodes[0].id);
+      else clearSelection();
+      return;
+    }
+    els.inspectorContent.innerHTML = `
+      <div class="np">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span class="np__type-pip">
+            <span class="pip"></span>${nodes.length} nodes selected
+          </span>
+        </div>
+        <div class="np__field">
+          <span class="k">Multi-Selection</span>
+          <div style="color:var(--text-secondary);font-size:12px;line-height:1.45;">
+            Drag any selected node to move the group. Delete removes selected nodes and their connected edges.
+          </div>
+        </div>
+        <div class="layout-tools">
+          <div class="layout-tools__section">
+            <div class="layout-tools__title">Align</div>
+            <div class="layout-tools__grid">
+              <button class="layout-tools__btn" data-layout-align="left" type="button">Left</button>
+              <button class="layout-tools__btn" data-layout-align="center" type="button">Center</button>
+              <button class="layout-tools__btn" data-layout-align="right" type="button">Right</button>
+              <button class="layout-tools__btn" data-layout-align="top" type="button">Top</button>
+              <button class="layout-tools__btn" data-layout-align="middle" type="button">Middle</button>
+              <button class="layout-tools__btn" data-layout-align="bottom" type="button">Bottom</button>
+            </div>
+          </div>
+          <div class="layout-tools__section">
+            <div class="layout-tools__title">Distribute</div>
+            <div class="layout-tools__grid">
+              <button class="layout-tools__btn" data-layout-distribute="x" type="button" ${nodes.length < 3 ? 'disabled' : ''}>Horizontal</button>
+              <button class="layout-tools__btn" data-layout-distribute="y" type="button" ${nodes.length < 3 ? 'disabled' : ''}>Vertical</button>
+            </div>
+          </div>
+        </div>
+        <div class="np__action-zone">
+          <button class="np__action-btn" data-action="copy-selected-nodes" type="button">
+            Copy Selected
+          </button>
+          <button class="np__action-btn" data-action="clear-multi-selection" type="button">
+            Clear Selection
+          </button>
+        </div>
+        <div class="np__danger">
+          <button class="np__danger-btn" data-action="delete-selected-nodes" type="button" title="Delete all selected steps and connected arrows">
+            <svg aria-hidden="true"><use href="#icon-trash"/></svg>
+            Delete Selected
+          </button>
+        </div>
+      </div>
+    `;
+    els.inspectorEmpty.hidden = true;
+    els.inspectorContent.hidden = false;
+    els.inspectorContent.querySelector('[data-action="delete-selected-nodes"]')?.addEventListener('click', deleteSelectedNodes);
+    els.inspectorContent.querySelector('[data-action="copy-selected-nodes"]')?.addEventListener('click', copySelectedNode);
+    els.inspectorContent.querySelector('[data-action="clear-multi-selection"]')?.addEventListener('click', clearSelection);
+    els.inspectorContent.querySelectorAll('[data-layout-align]').forEach(btn => {
+      btn.addEventListener('click', () => alignSelectedNodes(btn.dataset.layoutAlign));
+    });
+    els.inspectorContent.querySelectorAll('[data-layout-distribute]').forEach(btn => {
+      btn.addEventListener('click', () => distributeSelectedNodes(btn.dataset.layoutDistribute));
+    });
   }
 
   // ----- NODE inspector --------------------------------------------------
@@ -8680,6 +9608,18 @@ ${styleText}
 
     const isAi    = node.type === 'ai';
     const shape   = node.shape || 'process';
+    normalizeNodeDocuments(node);
+    const docs = node.documents || [];
+    const documentsEditorHtml = docs.length
+      ? docs.map((doc, index) => `
+        <div class="doc-editor__row" data-doc-index="${index}">
+          <input class="np__input" data-action="edit-document-name" data-doc-index="${index}" type="text" value="${escapeHtml(doc.name)}" placeholder="Document name" />
+          <select class="np__select" data-action="edit-document-status" data-doc-index="${index}" aria-label="Document status">
+            ${documentStatusOptionsHtml(doc.status)}
+          </select>
+          <button class="doc-editor__delete" data-action="delete-document" data-doc-index="${index}" type="button" title="Remove document" aria-label="Remove document">×</button>
+        </div>`).join('')
+      : `<div class="doc-editor__empty">No documents yet. Add one to show it in the output panel.</div>`;
 
     els.inspectorContent.innerHTML = `
       <div class="np">
@@ -8763,16 +9703,26 @@ ${styleText}
 
         <div class="np__field" style="padding-top:14px;border-top:1px solid var(--stroke-subtle);">
           <span class="k">Generated Documents</span>
-          <textarea class="np__textarea" data-action="edit-documents" rows="4"
-            placeholder="GMI Contracts
-IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
+          <div class="doc-editor" data-action="documents-editor">
+            ${documentsEditorHtml}
+            <button class="doc-editor__add" data-action="add-document" type="button">+ Add Document</button>
+          </div>
           <span class="k" style="opacity:0.7;letter-spacing:0.06em;text-transform:none;font-size:10px;">
-            One line = one document. Empty lines are ignored.
+            Each document can have its own optional status dot.
           </span>
-          <label class="np__check" data-action="toggle-show-documents" style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;font-size:11.5px;color:var(--text-secondary);${(node.documents || []).length === 0 ? 'opacity:0.45;pointer-events:none;' : ''}">
-            <input type="checkbox" ${node.showDocuments ? 'checked' : ''} ${(node.documents || []).length === 0 ? 'disabled' : ''} style="margin:0;cursor:pointer;" />
+          <label class="np__check" data-action="toggle-show-documents" style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;font-size:11.5px;color:var(--text-secondary);${docs.length === 0 ? 'opacity:0.45;pointer-events:none;' : ''}">
+            <input type="checkbox" ${node.showDocuments ? 'checked' : ''} ${docs.length === 0 ? 'disabled' : ''} style="margin:0;cursor:pointer;" />
             <span>Show documents on canvas</span>
           </label>
+        </div>
+
+        <div class="np__action-zone">
+          <button class="np__action-btn" data-action="duplicate-node" type="button" title="Duplicate this step without copying edges">
+            Duplicate Node
+          </button>
+          <button class="np__action-btn" data-action="copy-node" type="button" title="Copy this step to the AIFlow clipboard">
+            Copy Node
+          </button>
         </div>
 
         <div class="np__danger">
@@ -8790,6 +9740,10 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
     // Delete-step button
     const delBtn = els.inspectorContent.querySelector('[data-action="delete-node"]');
     if (delBtn) delBtn.addEventListener('click', deleteSelectedNode);
+    const duplicateBtn = els.inspectorContent.querySelector('[data-action="duplicate-node"]');
+    if (duplicateBtn) duplicateBtn.addEventListener('click', duplicateSelectedNode);
+    const copyBtn = els.inspectorContent.querySelector('[data-action="copy-node"]');
+    if (copyBtn) copyBtn.addEventListener('click', copySelectedNode);
 
     // Wire up text inputs — commit on input (live) so the user sees changes
     // reflected on the canvas immediately. Save is debounced so this stays cheap.
@@ -8901,61 +9855,74 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
       });
     });
 
-    // Generated Documents — textarea live-parses each non-empty line into
-    // node.documents. We re-render the canvas panel on every input so the
-    // user sees the panel update as they type.
-    const docsEl = els.inspectorContent.querySelector('[data-action="edit-documents"]');
-    if (docsEl) {
-      // History: one undo step per editing session, same pattern as
-      // the other inspector text fields.
-      let docsFocusValue = null;
-      docsEl.addEventListener('focus', () => {
-        docsFocusValue = docsEl.value;
-        pushUndoSnapshot('node-documents');
+    // Generated Documents — row editor with one optional status per document.
+    els.inspectorContent.querySelectorAll('[data-action="edit-document-name"]').forEach(input => {
+      const index = Number(input.dataset.docIndex);
+      let focusValue = null;
+      input.addEventListener('focus', () => {
+        focusValue = input.value;
+        pushUndoSnapshot('node-document-name');
       });
-      docsEl.addEventListener('blur', () => {
-        if (docsFocusValue !== null && docsEl.value === docsFocusValue) {
-          discardLastSnapshot();
-        }
-        docsFocusValue = null;
+      input.addEventListener('blur', () => {
+        const doc = node.documents?.[index];
+        if (!input.value.trim() && doc) input.value = doc.name || '';
+        if (focusValue !== null && input.value === focusValue) discardLastSnapshot();
+        focusValue = null;
       });
-      docsEl.addEventListener('input', () => {
-        const next = parseNodeDocuments(docsEl.value);
-        const prev = node.documents || [];
-        const same = prev.length === next.length && prev.every((v, i) => v === next[i]);
-        if (same) return;
-        node.documents = next;
-
-        // Auto-disable showDocuments if the list became empty — saves the
-        // user from having a pinned panel that secretly shows nothing.
-        if (next.length === 0 && node.showDocuments) node.showDocuments = false;
-
+      input.addEventListener('input', () => {
+        const doc = node.documents?.[index];
+        if (!doc) return;
+        const next = input.value.trim();
+        if (!next || doc.name === next) return;
+        doc.name = next;
         renderNodeDocs(node);
-
-        // Update the toggle's enabled/disabled state to reflect the new
-        // documents count without re-rendering the whole inspector
-        // (which would steal focus from the textarea).
-        const toggleLabel = els.inspectorContent.querySelector('[data-action="toggle-show-documents"]');
-        const toggleInput = toggleLabel && toggleLabel.querySelector('input[type="checkbox"]');
-        if (toggleLabel && toggleInput) {
-          if (next.length === 0) {
-            toggleLabel.style.opacity = '0.45';
-            toggleLabel.style.pointerEvents = 'none';
-            toggleInput.disabled = true;
-            toggleInput.checked = false;
-          } else {
-            toggleLabel.style.opacity = '';
-            toggleLabel.style.pointerEvents = '';
-            toggleInput.disabled = false;
-            toggleInput.checked = !!node.showDocuments;
-          }
-        }
-
         touchBoard();
         updateSearchResults();
-        scheduleSave('node-documents');
+        scheduleSave('node-document-name');
       });
-    }
+    });
+
+    els.inspectorContent.querySelectorAll('[data-action="edit-document-status"]').forEach(select => {
+      select.addEventListener('change', () => {
+        const index = Number(select.dataset.docIndex);
+        const doc = node.documents?.[index];
+        if (!doc) return;
+        const next = normalizeDocumentStatus(select.value);
+        if ((doc.status || '') === next) return;
+        pushUndoSnapshot('node-document-status');
+        doc.status = next;
+        renderNodeDocs(node);
+        touchBoard();
+        updateSearchResults();
+        scheduleSave('node-document-status');
+      });
+    });
+
+    els.inspectorContent.querySelectorAll('[data-action="delete-document"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const index = Number(btn.dataset.docIndex);
+        if (!Array.isArray(node.documents) || !node.documents[index]) return;
+        pushUndoSnapshot('node-document-delete');
+        node.documents.splice(index, 1);
+        if (node.documents.length === 0) node.showDocuments = false;
+        renderNodeDocs(node);
+        touchBoard();
+        updateSearchResults();
+        scheduleSave('node-document-delete');
+        renderNodeInspector();
+      });
+    });
+
+    els.inspectorContent.querySelector('[data-action="add-document"]')?.addEventListener('click', () => {
+      pushUndoSnapshot('node-document-add');
+      normalizeNodeDocuments(node);
+      node.documents.push({ name: 'Document', status: '' });
+      renderNodeDocs(node);
+      touchBoard();
+      updateSearchResults();
+      scheduleSave('node-document-add');
+      renderNodeInspector();
+    });
 
     // Show-on-canvas toggle — flips node.showDocuments and re-renders
     // the panel so it switches between pinned and hover-preview modes.
@@ -9064,10 +10031,10 @@ IMBA Contracts">${escapeHtml((node.documents || []).join('\n'))}</textarea>
 
         <div class="np__field" style="padding-top:14px;border-top:1px solid var(--stroke-subtle);">
           <span class="k">Label</span>
-          <input class="np__input" data-action="edit-edge-label" type="text" maxlength="20"
-            placeholder="YES, NO, JA, NEIN…" value="${escapeHtml(edge.label || '')}" />
+          <input class="np__input" data-action="edit-edge-label" type="text" maxlength="80"
+            placeholder="e.g. yes, no, approved…" value="${escapeHtml(edge.label || '')}" />
           <span class="k" style="opacity:0.7;letter-spacing:0.06em;text-transform:none;font-size:10px;">
-            Short tag rendered on the edge. Useful for decision branches.
+            Short tag rendered on the edge. Useful for decision branches and data handoffs.
           </span>
         </div>
 
@@ -9390,6 +10357,9 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     selectedKind   = null;
     selectedNodeId = null;
     selectedEdgeId = null;
+    selectedNodeIds.clear();
+    activeSelectionRect = null;
+    if (els.selectionBox) els.selectionBox.hidden = true;
   }
 
   function switchToBoard(id) {
@@ -9489,67 +10459,146 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     scheduleSave('delete-board');
   }
 
-  // Default content for new nodes, keyed by shape.
-  const NODE_DEFAULTS = {
-    process: {
-      title: 'New Step',
-      kind:  'Custom · Action',
-      sub:   'Describe what this step does.',
-    },
-    decision: {
-      title: 'Decision?',
-      kind:  'Decision · Branch',
-      sub:   'Describe the condition or question.',
-    },
-    database: {
-      title: 'Database',
-      kind:  'Data Store',
-      sub:   'Persistent storage for workflow data.',
-    },
-  };
+  const NODE_TEMPLATES = [
+    { id: 'manual-step', label: 'Manual Step', helper: 'Human task', data: { type: 'manual', shape: 'process', title: 'Manual Step', kind: 'MANUAL · TASK', sub: 'Describe the manual workflow step.', documents: [], showDocuments: false, impactNotes: '', status: '', statusNote: '' } },
+    { id: 'automated-step', label: 'Automated Step', helper: 'Rule-based system automation', data: { type: 'automated', shape: 'process', title: 'Automated Step', kind: 'AUTOMATED · TASK', sub: 'Describe the automated workflow step.', documents: [], showDocuments: false, impactNotes: '', status: '', statusNote: '' } },
+    { id: 'ai-step', label: 'AI Step', helper: 'AI-supported workflow step', data: { type: 'ai', shape: 'process', title: 'AI Step', kind: 'AI · TASK', sub: 'Describe the AI-supported workflow step.', documents: [], showDocuments: false, impactNotes: 'AI supports this step by reducing manual effort or improving consistency.', status: '', statusNote: '' } },
+    { id: 'decision', label: 'Decision', helper: 'Branching condition', data: { type: 'manual', shape: 'decision', title: 'Decision?', kind: 'DECISION · BRANCH', sub: '', documents: [], showDocuments: false, impactNotes: '', status: '', statusNote: '' } },
+    { id: 'data-store', label: 'Data Store', helper: 'Repository or system of record', data: { type: 'manual', shape: 'database', title: 'Data Store', kind: 'DATA STORE', sub: 'System or repository where workflow data is stored.', documents: [], showDocuments: false, impactNotes: '', status: '', statusNote: '' } },
+    { id: 'system-integration', label: 'System Integration', helper: 'Automated handoff or sync', data: { type: 'automated', shape: 'process', title: 'System Integration', kind: 'SYSTEM · INTEGRATION', sub: 'Automated handoff or sync between systems.', documents: [], showDocuments: false, impactNotes: '', status: '', statusNote: '' } },
+    { id: 'output-email', label: 'Output Email', helper: 'Message sent to a stakeholder', data: { type: 'manual', shape: 'process', title: 'Send Email', kind: 'OUTPUT · EMAIL', sub: 'Email sent to stakeholder or candidate.', documents: [], showDocuments: false, impactNotes: '', status: '', statusNote: '' } },
+    { id: 'output-document', label: 'Output Document', helper: 'Prepared or generated document', data: { type: 'manual', shape: 'process', title: 'Create Document', kind: 'OUTPUT · DOCUMENT', sub: 'Document generated, prepared, or sent as output.', documents: [{ name: 'Document', status: '' }], showDocuments: true, impactNotes: '', status: '', statusNote: '' } },
+  ];
+  const NODE_TEMPLATE_BY_ID = new Map(NODE_TEMPLATES.map(template => [template.id, template]));
 
-  function addNode(shape = 'process') {
-    pushUndoSnapshot('add-node');
-    const board = activeBoard();
-    const id = 'n' + (Date.now().toString(36).slice(-5));
-    const defaults = NODE_DEFAULTS[shape] || NODE_DEFAULTS.process;
-    // Each shape has its own footprint width — center the spawn point accordingly.
-    const halfW = shape === 'decision' ? 90 : 110;
-    const halfH = shape === 'decision' ? 90 : 50;
+  function cloneTemplateData(template) {
+    return JSON.parse(JSON.stringify(template?.data || NODE_TEMPLATES[0].data));
+  }
+
+  function nodeTemplateMenuHtml() {
+    return NODE_TEMPLATES.map(template => {
+      const shape = template.data.shape || 'process';
+      const type = template.data.type || 'manual';
+      const typeLabel = type === 'automated' ? 'Auto' : type === 'ai' ? 'AI' : 'Manual';
+      return `
+        <button data-template-id="${template.id}" type="button" role="menuitem" title="${escapeHtml(template.label)}">
+          <span class="glyph glyph--${shape} glyph--${type}"></span>
+          <span class="menu-copy">
+            <span class="menu-label">${escapeHtml(template.label)}</span>
+            <span class="menu-helper">${escapeHtml(template.helper)}</span>
+          </span>
+          <span class="lbl-sub">${typeLabel}</span>
+        </button>
+      `;
+    }).join('');
+  }
+
+  function buildNodeFromTemplate(templateId, position) {
+    const template = NODE_TEMPLATE_BY_ID.get(templateId) || NODE_TEMPLATES[0];
+    const data = cloneTemplateData(template);
+    return migrateNode({
+      id: uid('n'),
+      x: Math.round(position.x),
+      y: Math.round(position.y),
+      ...data,
+    });
+  }
+
+  function defaultNodePositionForTemplate(templateId) {
+    const template = NODE_TEMPLATE_BY_ID.get(templateId) || NODE_TEMPLATES[0];
+    const draft = { id: '__draft__', ...cloneTemplateData(template) };
+    const size = fallbackNodeSize(draft);
     const viewportCenterX = els.canvas.scrollLeft + els.canvas.clientWidth / 2;
     const viewportCenterY = els.canvas.scrollTop + els.canvas.clientHeight / 2;
-    const newNode = {
-      id, type: 'manual', shape,
-      x: Math.round(viewportCenterX - halfW + (Math.random() * 60 - 30)),
-      y: Math.round(viewportCenterY - halfH + (Math.random() * 60 - 30)),
-      title: defaults.title,
-      kind:  defaults.kind,
-      sub:   defaults.sub,
-      status: '',
-      statusNote: '',
-      impactNotes: '',
-      documents: [],
-      showDocuments: false,
+    return {
+      x: viewportCenterX - size.width / 2 + (Math.random() * 60 - 30),
+      y: viewportCenterY - size.height / 2 + (Math.random() * 60 - 30),
     };
+  }
+
+  function createNodeFromTemplate(templateId, position, options = {}) {
+    const {
+      historyLabel = 'add-node',
+      toast = 'Node added',
+      scrollIntoView = false,
+    } = options;
+    pushUndoSnapshot(historyLabel);
+    const board = activeBoard();
+    const newNode = buildNodeFromTemplate(templateId, position);
     board.data.nodes.push(newNode);
     const el = buildNode(newNode);
     els.nodesLayer.appendChild(el);
-    nodeEls.set(id, el);
+    nodeEls.set(newNode.id, el);
     renderNodeDocs(newNode);
     updateCanvasStageSize();
     touchBoard();
     renderBoardList();
     updateSearchResults();
-    const labels = { process: 'Process step', decision: 'Decision', database: 'Database' };
-    showToast(`${labels[shape] || 'Step'} added`);
-    scheduleSave('add-node');
+    showToast(toast);
+    scheduleSave(historyLabel);
     // Auto-select the new node so the user can fill it in immediately.
-    selectNode(id);
+    selectNode(newNode.id);
+    if (scrollIntoView) requestAnimationFrame(() => scrollToNodeId(newNode.id));
+    return newNode;
+  }
+
+  function addNode(templateId = 'manual-step') {
+    createNodeFromTemplate(templateId, defaultNodePositionForTemplate(templateId), {
+      historyLabel: 'add-node',
+      toast: 'Node added',
+    });
   }
 
   // Topbar dropdowns: Export, Add Node, and Workspace share one close/open
   // path so only one menu can be open at a time.
   const addNodeMenu = document.getElementById('addNodeMenu');
+  function renderNodeTemplateMenu(menuEl) {
+    if (menuEl) menuEl.innerHTML = nodeTemplateMenuHtml();
+  }
+  renderNodeTemplateMenu(addNodeMenu);
+
+  let swimlaneTemplateMenu = null;
+  let activeSwimlaneTemplateLaneId = null;
+
+  function ensureSwimlaneTemplateMenu() {
+    if (swimlaneTemplateMenu) return swimlaneTemplateMenu;
+    swimlaneTemplateMenu = document.createElement('div');
+    swimlaneTemplateMenu.className = 'tbtn-menu template-menu';
+    swimlaneTemplateMenu.id = 'swimlaneTemplateMenu';
+    swimlaneTemplateMenu.setAttribute('role', 'menu');
+    swimlaneTemplateMenu.innerHTML = nodeTemplateMenuHtml();
+    swimlaneTemplateMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const item = e.target.closest('[data-template-id]');
+      if (!item || !activeSwimlaneTemplateLaneId) return;
+      const laneId = activeSwimlaneTemplateLaneId;
+      closeSwimlaneTemplateMenu();
+      addNodeInSwimlane(laneId, item.dataset.templateId);
+    });
+    document.body.appendChild(swimlaneTemplateMenu);
+    return swimlaneTemplateMenu;
+  }
+
+  function closeSwimlaneTemplateMenu() {
+    if (swimlaneTemplateMenu) swimlaneTemplateMenu.classList.remove('is-open');
+    activeSwimlaneTemplateLaneId = null;
+  }
+
+  function openSwimlaneTemplateMenu(laneId, anchor) {
+    if (!laneId || !anchor) return;
+    setMenuOpen(false);
+    const menu = ensureSwimlaneTemplateMenu();
+    activeSwimlaneTemplateLaneId = laneId;
+    const rect = anchor.getBoundingClientRect();
+    menu.classList.add('is-open');
+    const menuW = menu.offsetWidth || 226;
+    const menuH = menu.offsetHeight || 360;
+    const left = clampNumber(rect.right - menuW, 8, window.innerWidth - menuW - 8);
+    const top = clampNumber(rect.bottom + 6, 8, window.innerHeight - menuH - 8);
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
+  }
+
   const topbarMenus = [
     { btn: els.exportMenuBtn, menu: els.exportMenu },
     { btn: els.addNodeBtn, menu: addNodeMenu },
@@ -9557,6 +10606,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   ].filter(x => x.btn && x.menu);
 
   function setMenuOpen(open, menuToOpen = null) {
+    if (!open || menuToOpen) closeSwimlaneTemplateMenu();
     topbarMenus.forEach(({ btn, menu }) => {
       const shouldOpen = !!open && menu === menuToOpen;
       menu.classList.toggle('is-open', shouldOpen);
@@ -9576,11 +10626,11 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     menu.addEventListener('click', (e) => e.stopPropagation());
   });
 
-  addNodeMenu.querySelectorAll('button[data-shape]').forEach(btn => {
+  addNodeMenu.querySelectorAll('button[data-template-id]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       setMenuOpen(false);
-      addNode(btn.dataset.shape);
+      addNode(btn.dataset.templateId);
     });
   });
 
@@ -9740,8 +10790,10 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
         deleteSwimlane(laneId);
         return;
       }
-      if (e.target.closest('[data-action="add-node-in-swimlane"]')) {
-        addNodeInSwimlane(laneId);
+      const addInLaneBtn = e.target.closest('[data-action="add-node-in-swimlane"]');
+      if (addInLaneBtn) {
+        e.stopPropagation();
+        openSwimlaneTemplateMenu(laneId, addInLaneBtn);
         return;
       }
       const tintBtn = e.target.closest('[data-tint]');
@@ -9824,13 +10876,13 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     n.status = normalizeNodeStatus(n.status);
     if (typeof n.statusNote !== 'string') n.statusNote = '';
     if (typeof n.impactNotes !== 'string') n.impactNotes = '';
-    // Generated Documents — list of output file/document names that
-    // this step produces. Older saved boards may not have these fields.
+    // Generated Documents — list of output documents this step produces.
+    // Legacy boards may store plain strings; normalize to { name, status }.
     // showDocuments controls whether the panel is pinned visible on the
     // canvas (vs. preview-on-hover only).
     if (!Array.isArray(n.documents))     n.documents = [];
     n.documents = n.documents
-      .map(d => typeof d === 'string' ? d.trim() : '')
+      .map(normalizeDocumentEntry)
       .filter(Boolean);
     if (typeof n.showDocuments !== 'boolean') n.showDocuments = false;
     return n;

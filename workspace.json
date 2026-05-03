@@ -216,13 +216,34 @@
             "kind": "Manual · Documents",
             "sub": "Contract plus Gleitzeit, Home Office and Data Protection Agreement as required by position. Additional Documents if required: Hosting Agreement, Confirmation Letter, Invitation Letter",
             "documents": [
-              "GMI Contract",
-              "IMBA Contract",
-              "Flexietime Agreement",
-              "Home Office",
-              "Data Protection",
-              "Confirmation Letter",
-              "Invitation Letter"
+              {
+                "name": "GMI Contract",
+                "status": ""
+              },
+              {
+                "name": "IMBA Contract",
+                "status": ""
+              },
+              {
+                "name": "Flexietime Agreement",
+                "status": ""
+              },
+              {
+                "name": "Home Office",
+                "status": ""
+              },
+              {
+                "name": "Data Protection",
+                "status": ""
+              },
+              {
+                "name": "Confirmation Letter",
+                "status": ""
+              },
+              {
+                "name": "Invitation Letter",
+                "status": ""
+              }
             ],
             "showDocuments": true,
             "undefined": "GMI Contract\nIMBA Contract\nFlexietime Agreement\nHome Office Agreement\netc.",
@@ -1284,7 +1305,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.1",
       "createdAt": "2026-05-02T07:48:05.697Z",
-      "updatedAt": "2026-05-02T21:43:23.806Z",
+      "updatedAt": "2026-05-03T11:11:27.780Z",
       "parentBoardId": "b_nk2leksylr",
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -1495,8 +1516,14 @@
             "kind": "AI · Documents",
             "sub": "AI generates GMI and IMBA contracts from approved skill.md contract templates and structured HR data.",
             "documents": [
-              "GMI Contract",
-              "IMBA Contract"
+              {
+                "name": "GMI Contract",
+                "status": "in_progress"
+              },
+              {
+                "name": "IMBA Contract",
+                "status": "testing"
+              }
             ],
             "showDocuments": true,
             "undefined": "GMI Contract\nIMBA Contract",
@@ -1739,12 +1766,30 @@
             "kind": "Manual · Documents",
             "sub": "Gleitzeit, Home Office and Data Protection Agreement as required by position. Additional Documents if required: Hosting Agreement, Confirmation Letter, Invitation Letter",
             "documents": [
-              "Flexietime Agreement",
-              "Home Office",
-              "Data Protection",
-              "Hosting Agreement",
-              "Confirmation Letter",
-              "Invitation Letter"
+              {
+                "name": "Flexietime",
+                "status": ""
+              },
+              {
+                "name": "Home Office",
+                "status": ""
+              },
+              {
+                "name": "Data Protection",
+                "status": ""
+              },
+              {
+                "name": "Hosting Agreement",
+                "status": ""
+              },
+              {
+                "name": "Confirmation Letter",
+                "status": ""
+              },
+              {
+                "name": "Invitation Letter",
+                "status": ""
+              }
             ],
             "showDocuments": true,
             "undefined": "Flexietime Agreement\nHome Office\nData Protection\nHosting Agreement\nConfirmation Letter\nInvitation Letter",
@@ -2646,8 +2691,33 @@
         ]
       },
       "notes": ""
+    },
+    {
+      "id": "b_u5t2e3fal3",
+      "name": "New Workflow",
+      "version": "1.0",
+      "createdAt": "2026-05-02T23:00:35.031Z",
+      "updatedAt": "2026-05-03T10:13:26.534Z",
+      "parentBoardId": null,
+      "lineageRoot": "b_u5t2e3fal3",
+      "notes": "",
+      "data": {
+        "nodes": [],
+        "edges": [],
+        "swimlanes": [
+          {
+            "id": "lane_orqvdrje3g",
+            "title": "New Swimlane",
+            "orientation": "horizontal",
+            "y": 0,
+            "height": 260,
+            "tint": "purple",
+            "collapsed": false
+          }
+        ]
+      }
     }
   ],
-  "activeBoardId": "b_nk2leksylr",
+  "activeBoardId": "b_clgfhjqtq9",
   "seededConfluenceHrgi": true
 }

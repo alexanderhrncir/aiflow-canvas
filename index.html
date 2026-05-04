@@ -2440,7 +2440,30 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     0 0 16px -6px rgba(167, 139, 250, 0.5);
 }
 .node-docs--ai .node-docs__title { color: var(--accent); opacity: 0.9; }
-.node-docs--ai .node-docs__icon::before { background: var(--ai-2); }
+.node-docs--ai .node-docs__icon::before {
+  background:
+    linear-gradient(135deg,
+      rgba(68, 215, 245, 0.95) 0%,
+      rgba(167, 139, 250, 0.95) 38%,
+      rgba(236, 72, 153, 0.95) 62%,
+      rgba(68, 215, 245, 0.95) 100%);
+  background-size: 220% 220%;
+  animation: aiDocIconFlow 4.8s ease-in-out infinite;
+  box-shadow: 0 0 7px rgba(167, 139, 250, 0.34);
+}
+.node-docs--ai .node-docs__icon::after {
+  background: rgba(13, 10, 24, 0.84);
+}
+@keyframes aiDocIconFlow {
+  0%, 100% { background-position: 0% 50%; filter: saturate(1.02); }
+  50% { background-position: 100% 50%; filter: saturate(1.22); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .node-docs--ai .node-docs__icon::before {
+    animation: none;
+    background-position: 50% 50%;
+  }
+}
 
 .node-docs--database {
   border-color: rgba(34, 211, 238, 0.25);

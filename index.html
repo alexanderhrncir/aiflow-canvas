@@ -502,21 +502,35 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: linear-gradient(90deg, rgba(167, 139, 250, 0.045), transparent 70%);
 }
 .swimlane__label {
-  position: sticky;
-  left: 24px;
-  top: 0;
+  position: absolute;
+  left: 0;
+  bottom: 0;
   display: inline-flex;
-  margin: 12px 0 0 24px;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: rgba(8, 10, 18, 0.72);
-  border: 1px solid rgba(167, 139, 250, 0.18);
-  color: var(--text-muted);
+  align-items: center;
+  gap: 6px;
+  max-width: 280px;
+  padding: 6px 10px;
+  border-radius: 0;
+  background: rgba(8, 10, 18, 0.62);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: rgba(226, 232, 240, 0.58);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.swimlane__label-dot {
+  flex: 0 0 auto;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.56);
+  box-shadow: 0 0 8px rgba(148, 163, 184, 0.20);
 }
 .swimlane--purple { background: linear-gradient(90deg, rgba(167, 139, 250, 0.055), transparent 72%); }
 .swimlane--cyan { background: linear-gradient(90deg, rgba(34, 211, 238, 0.052), transparent 72%); }
@@ -524,6 +538,18 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .swimlane--green { background: linear-gradient(90deg, rgba(52, 211, 153, 0.048), transparent 72%); }
 .swimlane--amber { background: linear-gradient(90deg, rgba(251, 191, 36, 0.048), transparent 72%); }
 .swimlane--slate { background: linear-gradient(90deg, rgba(148, 163, 184, 0.042), transparent 72%); }
+.swimlane--purple .swimlane__label { border-color: rgba(167, 139, 250, 0.20); }
+.swimlane--purple .swimlane__label-dot { background: #a78bfa; box-shadow: 0 0 8px rgba(167, 139, 250, 0.35); }
+.swimlane--cyan .swimlane__label { border-color: rgba(34, 211, 238, 0.20); }
+.swimlane--cyan .swimlane__label-dot { background: #22d3ee; box-shadow: 0 0 8px rgba(34, 211, 238, 0.35); }
+.swimlane--pink .swimlane__label { border-color: rgba(236, 72, 153, 0.20); }
+.swimlane--pink .swimlane__label-dot { background: #ec4899; box-shadow: 0 0 8px rgba(236, 72, 153, 0.34); }
+.swimlane--green .swimlane__label { border-color: rgba(52, 211, 153, 0.20); }
+.swimlane--green .swimlane__label-dot { background: #34d399; box-shadow: 0 0 8px rgba(52, 211, 153, 0.32); }
+.swimlane--amber .swimlane__label { border-color: rgba(251, 191, 36, 0.20); }
+.swimlane--amber .swimlane__label-dot { background: #fbbf24; box-shadow: 0 0 8px rgba(251, 191, 36, 0.32); }
+.swimlane--slate .swimlane__label { border-color: rgba(148, 163, 184, 0.18); }
+.swimlane--slate .swimlane__label-dot { background: #94a3b8; }
 
 .minimap {
   position: absolute;
@@ -4944,9 +4970,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     const y = Number(lane.y);
     const height = Number(lane.height);
     const tint = SWIMLANE_TINTS.has(lane.tint) ? lane.tint : 'purple';
+    const name = typeof lane.name === 'string'
+      ? lane.name
+      : typeof lane.title === 'string'
+        ? lane.title
+        : typeof lane.label === 'string'
+          ? lane.label
+          : '';
     return {
       id: typeof lane.id === 'string' && lane.id.trim() ? lane.id : makeSwimlaneId(),
-      title: typeof lane.title === 'string' ? lane.title : '',
+      name,
+      title: name,
       orientation: lane.orientation === 'vertical' ? 'vertical' : 'horizontal',
       y: Number.isFinite(y) ? y : 0,
       height: Number.isFinite(height) && height > 0 ? height : 220,
@@ -4962,6 +4996,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   function createSwimlaneDraft(overrides = {}) {
     return normalizeSwimlane({
       id: makeSwimlaneId(),
+      name: 'New Swimlane',
       title: 'New Swimlane',
       orientation: 'horizontal',
       y: 0,
@@ -4984,7 +5019,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     els.swimlaneLayer.innerHTML = lanes.map(lane => `
       <div class="swimlane swimlane--${escapeHtml(lane.tint)}" data-lane-id="${escapeHtml(lane.id)}"
         style="top:${lane.y}px;height:${lane.height}px;">
-        <span class="swimlane__label">${escapeHtml(lane.title.trim() || 'Untitled Lane')}</span>
+        ${lane.name.trim() ? `<span class="swimlane__label"><span class="swimlane__label-dot" aria-hidden="true"></span>${escapeHtml(lane.name.trim())}</span>` : ''}
       </div>
     `).join('');
   }
@@ -5077,7 +5112,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     els.swimlaneList.innerHTML = lanes.map(lane => `
       <div class="swimlane-editor" data-lane-id="${escapeHtml(lane.id)}">
         <div class="swimlane-editor__top">
-          <input class="swimlane-editor__input" data-lane-field="title" type="text" value="${escapeHtml(lane.title)}" placeholder="Untitled Lane">
+          <input class="swimlane-editor__input" data-lane-field="name" type="text" value="${escapeHtml(lane.name)}" placeholder="New Swimlane">
           <button class="swimlane-editor__node" data-action="add-node-in-swimlane" type="button" title="Add node in this swimlane">+ Node</button>
           <button class="swimlane-editor__delete" data-action="delete-swimlane" type="button" title="Delete swimlane">×</button>
         </div>
@@ -5861,14 +5896,17 @@ ${styleText}
       amber: ['#fbbf24', 0.06],
       slate: ['#94a3b8', 0.05],
     }[lane.tint] || ['#a78bfa', 0.07];
-    const label = String(lane.title || 'Untitled Lane').toUpperCase();
+    const label = String(lane.name || lane.title || '').trim().toUpperCase();
+    const labelW = Math.max(96, Math.min(300, label.length * 8.2 + 38));
+    const labelY = lane.y + lane.height - 27;
     return `
 <g opacity="0.96">
   <rect x="0" y="${lane.y}" width="${stage.width}" height="${lane.height}" fill="${colors[0]}" opacity="${colors[1]}"/>
   <line x1="0" y1="${lane.y}" x2="${stage.width}" y2="${lane.y}" stroke="#94a3b8" stroke-width="1" opacity="0.16"/>
   <line x1="0" y1="${lane.y + lane.height}" x2="${stage.width}" y2="${lane.y + lane.height}" stroke="#94a3b8" stroke-width="1" opacity="0.10"/>
-  <rect x="24" y="${lane.y + 12}" width="${Math.max(88, Math.min(260, label.length * 7.2 + 24))}" height="24" rx="12" fill="#080a12" stroke="${colors[0]}" stroke-width="1" opacity="0.82"/>
-  <text x="36" y="${lane.y + 28}" font-family="Consolas, monospace" font-size="9" font-weight="700" letter-spacing="1.2" fill="#aeb2c1">${escapeHtml(label)}</text>
+  ${label ? `<rect x="0" y="${labelY}" width="${labelW}" height="27" rx="0" fill="#080a12" stroke="${colors[0]}" stroke-width="1" opacity="0.74"/>
+  <circle cx="12" cy="${labelY + 13.5}" r="3" fill="${colors[0]}" opacity="0.86"/>
+  <text x="22" y="${labelY + 17}" font-family="Consolas, monospace" font-size="10.5" font-weight="700" letter-spacing="1.35" fill="#9aa0b2">${escapeHtml(label)}</text>` : ''}
 </g>`;
   }
 
@@ -11312,6 +11350,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       if (!Array.isArray(b.data.edges)) b.data.edges = [];
       b.data.nodes.forEach(migrateNode);
       b.data.edges.forEach(migrateEdge);
+      if (Array.isArray(b.data.swimlanes)) b.data.swimlanes = b.data.swimlanes.map(normalizeSwimlane);
     });
     return ws;
   }

@@ -1305,7 +1305,7 @@
       "name": "HR GMI IMBA · Onboarding",
       "version": "1.1",
       "createdAt": "2026-05-02T07:48:05.697Z",
-      "updatedAt": "2026-05-03T16:25:49.083Z",
+      "updatedAt": "2026-05-04T18:47:03.413Z",
       "parentBoardId": "b_nk2leksylr",
       "lineageRoot": "b_nk2leksylr",
       "data": {
@@ -1359,7 +1359,7 @@
             "id": "funding_check",
             "type": "manual",
             "shape": "process",
-            "x": 1087,
+            "x": 1108,
             "y": 42,
             "title": "Funding Check",
             "kind": "Manual · Coordination",
@@ -1374,7 +1374,7 @@
             "id": "funding_ok",
             "type": "manual",
             "shape": "decision",
-            "x": 1381,
+            "x": 1426,
             "y": 21.5,
             "title": "Funding OK?",
             "kind": "Decision · Branch",
@@ -1730,8 +1730,8 @@
             "id": "n0rujd",
             "type": "ai",
             "shape": "process",
-            "x": 1430,
-            "y": 814,
+            "x": 1432,
+            "y": 816,
             "title": "Create Print-Ready Package",
             "kind": "AI · Document Gen",
             "sub": "Automatically compiles the Welcome Letter, Info Sheets, and pre-filled Check-In Sheet into a single, print-ready PDF per new hire for the physical folder.",
@@ -1768,27 +1768,27 @@
             "documents": [
               {
                 "name": "Flexietime",
-                "status": ""
+                "status": "planned"
               },
               {
                 "name": "Home Office",
-                "status": ""
+                "status": "planned"
               },
               {
                 "name": "Data Protection",
-                "status": ""
+                "status": "planned"
               },
               {
                 "name": "Hosting Agreement",
-                "status": ""
+                "status": "planned"
               },
               {
                 "name": "Confirmation Letter",
-                "status": ""
+                "status": "planned"
               },
               {
                 "name": "Invitation Letter",
-                "status": ""
+                "status": "planned"
               }
             ],
             "showDocuments": true,
@@ -2697,7 +2697,7 @@
       "name": "New Workflow",
       "version": "1.0",
       "createdAt": "2026-05-02T23:00:35.031Z",
-      "updatedAt": "2026-05-04T18:42:07.860Z",
+      "updatedAt": "2026-05-03T10:13:26.534Z",
       "parentBoardId": null,
       "lineageRoot": "b_u5t2e3fal3",
       "notes": "",
@@ -2707,28 +2707,18 @@
         "swimlanes": [
           {
             "id": "lane_orqvdrje3g",
-            "name": "Communications",
-            "title": "Communications",
+            "name": "New Swimlane",
+            "title": "New Swimlane",
             "orientation": "horizontal",
             "y": 0,
             "height": 260,
             "tint": "purple",
-            "collapsed": false
-          },
-          {
-            "id": "lane_48lno8hfjp",
-            "name": "HUman Resources",
-            "title": "HUman Resources",
-            "orientation": "horizontal",
-            "y": 260,
-            "height": 260,
-            "tint": "cyan",
             "collapsed": false
           }
         ]
       }
     }
   ],
-  "activeBoardId": "b_u5t2e3fal3",
+  "activeBoardId": "b_clgfhjqtq9",
   "seededConfluenceHrgi": true
 }

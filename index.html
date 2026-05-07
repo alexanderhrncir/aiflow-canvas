@@ -1538,6 +1538,94 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .node--database .node__drag { cursor: grab; }
 .node--database.is-dragging .node__drag { cursor: grabbing; }
 
+.node.has-tools:not(.node--decision) .node__inner {
+  padding-bottom: 40px;
+}
+.node--database.has-tools .node__inner {
+  padding-bottom: 42px;
+}
+.node-tools {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 4;
+}
+.node-tools__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 24px;
+  max-width: 78px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--tool-color, #94a3b8) 36%, rgba(148, 163, 184, 0.16));
+  background:
+    linear-gradient(180deg, rgba(10, 14, 24, 0.82), rgba(5, 8, 15, 0.76)),
+    color-mix(in srgb, var(--tool-color, #94a3b8) 12%, transparent);
+  color: rgba(226, 232, 240, 0.82);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.035) inset,
+    0 5px 12px rgba(0, 0, 0, 0.28),
+    0 0 10px -6px var(--tool-color, #94a3b8);
+}
+.node-tools__badge--icon-only {
+  width: 26px;
+  padding: 0;
+}
+.node-tools__icon {
+  width: 15px;
+  height: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.node-tools__icon img,
+.node-tools__icon svg {
+  width: 15px;
+  height: 15px;
+  display: block;
+  object-fit: contain;
+}
+.node-tools__mark {
+  color: var(--tool-color, #94a3b8);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--tool-color, #94a3b8) 58%, transparent);
+}
+.node-tools__badge--with-logo .node-tools__mark {
+  display: none;
+}
+.node-tools__badge--with-logo.is-logo-missing .node-tools__icon {
+  display: none;
+}
+.node-tools__badge--with-logo.is-logo-missing .node-tools__mark {
+  display: inline;
+}
+.node-tools__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.node-tools__badge--more {
+  flex: 0 0 auto;
+  color: #d8faff;
+  border-color: rgba(34, 211, 238, 0.28);
+  background: rgba(34, 211, 238, 0.08);
+}
+
 /* ============================================================
    EDGES
    ============================================================ */
@@ -1977,6 +2065,71 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: #d8faff;
   border-color: rgba(68, 215, 245, 0.38);
   box-shadow: 0 0 14px -8px rgba(68, 215, 245, 0.70);
+}
+.tool-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--stroke-subtle);
+  background: var(--bg-elev-2);
+}
+.tool-picker__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  padding: 0 8px;
+  border-radius: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(255,255,255,0.032);
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8.6px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: border-color 150ms ease, background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.tool-picker__chip:hover {
+  color: #d8faff;
+  border-color: rgba(68, 215, 245, 0.34);
+}
+.tool-picker__chip.is-active {
+  color: #f8fbff;
+  border-color: color-mix(in srgb, var(--tool-color, #44d7f5) 56%, rgba(68, 215, 245, 0.22));
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.018)),
+    color-mix(in srgb, var(--tool-color, #44d7f5) 13%, transparent);
+  box-shadow: 0 0 14px -9px var(--tool-color, #44d7f5);
+}
+.tool-picker__mark {
+  color: var(--tool-color, #44d7f5);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--tool-color, #44d7f5) 52%, transparent);
+}
+.tool-picker__logo {
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.tool-picker__logo img {
+  width: 14px;
+  height: 14px;
+  display: block;
+  object-fit: contain;
+}
+.tool-picker__chip--with-logo .tool-picker__mark {
+  display: none;
+}
+.tool-picker__chip--with-logo.is-logo-missing .tool-picker__logo {
+  display: none;
+}
+.tool-picker__chip--with-logo.is-logo-missing .tool-picker__mark {
+  display: inline;
 }
 
 /* Reusable segmented control (used for type + shape) */
@@ -2586,6 +2739,17 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: var(--text-faint);
   text-transform: none;
   white-space: nowrap;
+}
+.tbtn-menu .menu-state {
+  margin-left: auto;
+  min-width: 24px;
+  text-align: right;
+  color: #d8faff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 .tbtn-menu .menu-caret {
   margin-left: auto;
@@ -4035,6 +4199,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
               <span class="menu-helper">Export standalone app file</span>
             </span>
           </button>
+          <button id="showToolLogosMenuItem" type="button" role="menuitemcheckbox" aria-checked="true">
+            <span class="menu-copy">
+              <span class="menu-label">Show Tool Logos</span>
+              <span class="menu-helper">Toggle node tool badges</span>
+            </span>
+            <span class="menu-state" data-tool-logo-state>On</span>
+          </button>
         </div>
       </div>
     </div>
@@ -4396,6 +4567,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <div class="help-row"><span class="help-key">Filter View</span><span class="help-desc">Dim nodes by status/type/shape</span></div>
       <div class="help-row"><span class="help-key">Board Notes</span><span class="help-desc">Notes for this board/version</span></div>
       <div class="help-row"><span class="help-key">Swimlanes</span><span class="help-desc">Add horizontal board sections to group steps by phase, team, system, or responsibility</span></div>
+      <div class="help-row"><span class="help-key">Tool Logos</span><span class="help-desc">Assign compact tool badges to non-decision nodes and toggle them from Workspace</span></div>
       <div class="help-row"><span class="help-key">Quality Check</span><span class="help-desc">Find missing labels, disconnected nodes, incomplete statuses, and document issues</span></div>
         </section>
       </div>
@@ -4458,6 +4630,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   // (e.g. Safari private mode quotas, sandboxed iframes, file://
   // contexts where the browser disabled storage).
   const STORAGE_KEY = 'aiflow:workspace:v1';
+  const TOOL_LOGOS_KEY = 'aiflow:show-tool-logos:v1';
   const WORKSPACE_JSON_URL = './workspace.json';
 
   // Probe localStorage once. Even when localStorage exists as an object,
@@ -4507,6 +4680,23 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       }
     }
   };
+
+  function loadToolLogoPreference() {
+    if (!STORAGE_OK) return true;
+    try {
+      const raw = localStorage.getItem(TOOL_LOGOS_KEY);
+      return raw === null ? true : raw !== 'false';
+    } catch (_) {
+      return true;
+    }
+  }
+
+  function saveToolLogoPreference(value) {
+    if (!STORAGE_OK) return;
+    try {
+      localStorage.setItem(TOOL_LOGOS_KEY, value ? 'true' : 'false');
+    } catch (_) { /* ignore view preference failures */ }
+  }
 
   // ===== DEFAULT CONTENT =========================================
   function uid(prefix) {
@@ -4588,6 +4778,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   const diffNodeHighlights = new Map();
   const diffEdgeHighlights = new Map();
   let qualityIssues = [];
+  let showToolLogos = loadToolLogoPreference();
   const filterState = {
     status: new Set(),
     type: new Set(),
@@ -4623,6 +4814,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     downloadJsonMenuItem: document.getElementById('downloadJsonMenuItem'),
     resetLocalViewMenuItem: document.getElementById('resetLocalViewMenuItem'),
     downloadHtmlMenuItem: document.getElementById('downloadHtmlMenuItem'),
+    showToolLogosMenuItem: document.getElementById('showToolLogosMenuItem'),
     helpBtn:       document.getElementById('helpBtn'),
     helpOverlay:   document.getElementById('helpOverlay'),
     helpBackdrop:  document.getElementById('helpBackdrop'),
@@ -5715,9 +5907,10 @@ ${styleText}
     if (shape === 'decision') return { width, height: Math.max(180, width) };
     const { titleLines, descLines } = fallbackNodeTextLayout(node, width);
     const base = shape === 'database' ? 78 : 68;
+    const toolExtra = showToolLogos && nodeSupportsTools(node) && normalizeNodeTools(node.tools).length ? 26 : 0;
     const height = Math.max(
-      shape === 'database' ? 142 : 132,
-      base + titleLines.length * 17 + descLines.length * 15
+      (shape === 'database' ? 142 : 132) + toolExtra,
+      base + titleLines.length * 17 + descLines.length * 15 + toolExtra
     );
     return { width, height };
   }
@@ -5794,6 +5987,29 @@ ${styleText}
     return `<g><rect x="${bx}" y="${by}" width="${pillW}" height="20" rx="10" fill="${colors.fill}" stroke="${colors.stroke}" stroke-width="1" opacity="0.95"/><text x="${bx + pillW / 2}" y="${by + 13}" text-anchor="middle" font-family="Consolas, monospace" font-size="8" font-weight="700" fill="${colors.text}" letter-spacing="0.6">${escapeHtml(label.toUpperCase())}</text></g>`;
   }
 
+  function fallbackToolBadgesSvg(node, x, y, w, h, shape) {
+    if (!showToolLogos || !nodeSupportsTools(node)) return '';
+    const tools = normalizeNodeTools(node.tools);
+    if (!tools.length) return '';
+    const visible = tools.slice(0, 3);
+    const overflow = tools.length - visible.length;
+    let cursor = x + 14;
+    const by = y + h - 31;
+    const badges = visible.map(toolId => {
+      const tool = TOOL_BY_ID.get(toolId);
+      if (!tool) return '';
+      const label = tool.short;
+      const bw = Math.min(48, Math.max(24, label.length * 6 + 14));
+      const out = `<g><rect x="${cursor}" y="${by}" width="${bw}" height="18" rx="5" fill="#08101c" stroke="${svgAttr(tool.color)}" stroke-width="0.9" opacity="0.92"/><text x="${cursor + bw / 2}" y="${by + 12}" text-anchor="middle" font-family="Consolas, monospace" font-size="8" font-weight="700" fill="${svgAttr(tool.color)}">${escapeHtml(label)}</text></g>`;
+      cursor += bw + 5;
+      return out;
+    });
+    if (overflow > 0) {
+      badges.push(`<g><rect x="${cursor}" y="${by}" width="28" height="18" rx="5" fill="#082431" stroke="#22d3ee" stroke-width="0.9" opacity="0.9"/><text x="${cursor + 14}" y="${by + 12}" text-anchor="middle" font-family="Consolas, monospace" font-size="8" font-weight="700" fill="#d8faff">+${overflow}</text></g>`);
+    }
+    return `<g>${badges.join('')}</g>`;
+  }
+
   function fallbackNodeSvg(node) {
     const { width: w, height: h } = fallbackNodeSize(node);
     const x = node.x;
@@ -5829,6 +6045,7 @@ ${styleText}
   <path d="M ${x} ${y + h - 18} C ${x + w * 0.2} ${y + h - 2}, ${x + w * 0.8} ${y + h - 2}, ${x + w} ${y + h - 18}" fill="none" stroke="${stroke}" stroke-width="1.1" opacity="0.65"/>
   ${fallbackStatusBadgeSvg(node, x, y, w, h, shape)}
   ${fallbackImpactBadgeSvg(node, x, y, w, h, shape)}
+  ${fallbackToolBadgesSvg(node, x, y, w, h, shape)}
   ${fallbackText(x + 16, y + 43, kind ? [kind] : [], { size: 9, fill: '#22d3ee', family: 'Consolas, monospace', weight: 600 })}
   ${fallbackText(x + 16, y + 66, titleLines, { size: 14, fill: '#ebecf2', weight: 600, lineHeight: 17 })}
   ${fallbackText(x + 16, y + 84 + Math.max(0, titleLines.length - 1) * 17, descLines, { size: 11.5, fill: '#aeb2c1', weight: 400, lineHeight: 15 })}
@@ -5840,6 +6057,7 @@ ${styleText}
   <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="20" fill="${fill}" stroke="${stroke}" stroke-width="1.4"/>
   ${fallbackStatusBadgeSvg(node, x, y, w, h, shape)}
   ${fallbackImpactBadgeSvg(node, x, y, w, h, shape)}
+  ${fallbackToolBadgesSvg(node, x, y, w, h, shape)}
   ${fallbackText(x + 16, y + 24, kind ? [kind] : [], { size: 9, fill: isAi ? '#c4b5fd' : '#969aab', family: 'Consolas, monospace', weight: 600 })}
   ${fallbackText(x + 16, y + 50, titleLines, { size: 14, fill: '#ebecf2', weight: 600, lineHeight: 17 })}
   ${fallbackText(x + 16, y + 70 + Math.max(0, titleLines.length - 1) * 17, descLines, { size: 11.5, fill: '#aeb2c1', weight: 400, lineHeight: 15 })}
@@ -6884,6 +7102,81 @@ ${styleText}
     ].join('');
   }
 
+  const TOOL_REGISTRY = [
+    { id: 'snowflake', label: 'Snowflake', short: 'SN', color: '#29b5e8', logo: 'assets/logos/snowflake.svg' },
+    { id: 'outlook', label: 'Outlook', short: 'OL', color: '#60a5fa', logo: 'assets/logos/outlook.svg' },
+    { id: 'sharepoint', label: 'SharePoint', short: 'SP', color: '#2dd4bf', logo: 'assets/logos/sharepoint.svg' },
+    { id: 'excel', label: 'Excel', short: 'XL', color: '#34d399', logo: 'assets/logos/excel.svg' },
+    { id: 'sage', label: 'Sage', short: 'SG', color: '#86efac', logo: 'assets/logos/sage.svg' },
+    { id: 'onlyfy', label: 'onlyfy', short: 'OF', color: '#c084fc', logo: 'assets/logos/onlyfy.svg' },
+    { id: 'crush', label: 'Crush', short: 'CR', color: '#fb7185', logo: 'assets/logos/crush.svg' },
+    { id: 'lgv', label: 'LGV', short: 'LG', color: '#fbbf24', logo: 'assets/logos/lgv.svg' },
+    { id: 'confluence', label: 'Confluence', short: 'CF', color: '#818cf8', logo: 'assets/logos/confluence.svg' },
+    { id: 'sap', label: 'SAP', short: 'SAP', color: '#38bdf8', logo: 'assets/logos/sap.svg' },
+    { id: 'pdf', label: 'PDF', short: 'PDF', color: '#f87171', logo: 'assets/logos/pdf.svg' },
+    { id: 'email', label: 'Email', short: '@', color: '#22d3ee', logo: 'assets/logos/email.svg' },
+  ];
+  const TOOL_BY_ID = new Map(TOOL_REGISTRY.map(tool => [tool.id, tool]));
+  const TOOL_IDS = new Set(TOOL_REGISTRY.map(tool => tool.id));
+
+  function normalizeNodeTools(value) {
+    if (!Array.isArray(value)) return [];
+    const seen = new Set();
+    return value
+      .map(tool => String(tool || '').trim().toLowerCase())
+      .filter(tool => {
+        if (!TOOL_IDS.has(tool) || seen.has(tool)) return false;
+        seen.add(tool);
+        return true;
+      });
+  }
+
+  function nodeSupportsTools(node) {
+    const shape = String(node?.shape || 'process').toLowerCase();
+    const type = String(node?.type || '').toLowerCase();
+    return shape !== 'decision' && shape !== 'junction' && shape !== 'helper' && type !== 'junction' && type !== 'helper';
+  }
+
+  function nodeToolBadgesHtml(node) {
+    if (!showToolLogos || !nodeSupportsTools(node)) return '';
+    const tools = normalizeNodeTools(node.tools);
+    if (!tools.length) return '';
+    const visible = tools.slice(0, 3);
+    const overflow = tools.length - visible.length;
+    return `
+      <div class="node-tools" aria-label="Tools used">
+        ${visible.map(toolId => {
+          const tool = TOOL_BY_ID.get(toolId);
+          if (!tool) return '';
+          const hasLogo = !!tool.logo;
+          return `<span class="node-tools__badge node-tools__badge--${tool.id} ${hasLogo ? 'node-tools__badge--with-logo node-tools__badge--icon-only' : ''}" style="--tool-color:${tool.color}" title="${escapeHtml(tool.label)}">
+            ${hasLogo ? `<span class="node-tools__icon"><img src="${escapeHtml(tool.logo)}" alt="" loading="lazy" onerror="this.closest('.node-tools__badge')?.classList.add('is-logo-missing'); this.remove();"></span>` : ''}
+            <span class="node-tools__mark">${escapeHtml(tool.short)}</span>
+            ${hasLogo ? '' : `<span class="node-tools__label">${escapeHtml(tool.label)}</span>`}
+          </span>`;
+        }).join('')}
+        ${overflow > 0 ? `<span class="node-tools__badge node-tools__badge--more" title="${overflow} more tool${overflow === 1 ? '' : 's'}">+${overflow}</span>` : ''}
+      </div>
+    `;
+  }
+
+  function toolPickerHtml(node) {
+    const selected = new Set(normalizeNodeTools(node.tools));
+    return TOOL_REGISTRY.map(tool => `
+      <button class="tool-picker__chip ${tool.logo ? 'tool-picker__chip--with-logo' : ''} ${selected.has(tool.id) ? 'is-active' : ''}"
+        data-action="toggle-node-tool"
+        data-tool-id="${tool.id}"
+        type="button"
+        aria-pressed="${selected.has(tool.id) ? 'true' : 'false'}"
+        title="${escapeHtml(tool.label)}"
+        style="--tool-color:${tool.color}">
+        ${tool.logo ? `<span class="tool-picker__logo"><img src="${escapeHtml(tool.logo)}" alt="" loading="lazy" onerror="this.closest('.tool-picker__chip')?.classList.add('is-logo-missing'); this.remove();"></span>` : ''}
+        <span class="tool-picker__mark">${escapeHtml(tool.short)}</span>
+        <span>${escapeHtml(tool.label)}</span>
+      </button>
+    `).join('');
+  }
+
   function normalizeSearchText(value) {
     return String(value || '')
       .toLowerCase()
@@ -7109,6 +7402,7 @@ ${styleText}
       details.push('position changed');
     }
     if (!valuesEqual(baseNode.documents || [], targetNode.documents || [])) details.push('documents changed');
+    if (!valuesEqual(normalizeNodeTools(baseNode.tools), normalizeNodeTools(targetNode.tools))) details.push('tools changed');
     if (!valuesEqual(baseNode.impactNotes || '', targetNode.impactNotes || '')) details.push('impactNotes changed');
     if (!valuesEqual(baseNode.statusNote || '', targetNode.statusNote || '')) details.push('statusNote changed');
     return details;
@@ -7734,8 +8028,12 @@ ${styleText}
 
   function buildNode(n) {
     const el = document.createElement('div');
+    const shape = n.shape || 'process';
+    const isDecision = shape === 'decision';
+    const toolBadges = nodeToolBadgesHtml(n);
     // Node carries: type (manual/ai), shape (process/decision/database), and transient is-selected
-    el.className = `node node--${n.type} node--${n.shape || 'process'}`;
+    el.className = `node node--${n.type} node--${shape}`;
+    if (toolBadges) el.classList.add('has-tools');
     if (isNodeSelected(n.id)) el.classList.add('is-selected');
     applySearchClasses(el, n.id);
     applyNodeDiffClasses(el, n.id);
@@ -7763,7 +8061,6 @@ ${styleText}
     // Decision nodes hide the inline sub (space-constrained inside the diamond)
     // — users edit description in the inspector instead. Database nodes keep
     // the sub line because there's vertical room inside the cylinder body.
-    const isDecision = n.shape === 'decision';
     el.innerHTML = `
       <div class="node__inner node__drag">
         <div class="node__head">
@@ -7774,6 +8071,7 @@ ${styleText}
         </div>
         <div class="node__title" data-field="title" contenteditable="${isPresentationMode ? 'false' : 'true'}" spellcheck="false">${escapeHtml(n.title)}</div>
         ${isDecision ? '' : `<div class="node__sub" data-field="sub" contenteditable="${isPresentationMode ? 'false' : 'true'}" spellcheck="false">${escapeHtml(n.sub)}</div>`}
+        ${toolBadges}
       </div>
       ${statusBadge}
       ${impactBadge}
@@ -7824,7 +8122,8 @@ ${styleText}
     if (!el) return;
     const shape = n.shape || 'process';
     const sel = isNodeSelected(n.id) ? ' is-selected' : '';
-    el.className = `node node--${n.type} node--${shape}${sel}`;
+    const tools = showToolLogos && nodeSupportsTools(n) && normalizeNodeTools(n.tools).length ? ' has-tools' : '';
+    el.className = `node node--${n.type} node--${shape}${sel}${tools}`;
     applySearchClasses(el, n.id);
     applyNodeDiffClasses(el, n.id);
     applyNodeFilterClasses(el, n);
@@ -10026,6 +10325,19 @@ ${styleText}
           <button class="doc-editor__delete" data-action="delete-document" data-doc-index="${index}" type="button" title="Remove document" aria-label="Remove document">×</button>
         </div>`).join('')
       : `<div class="doc-editor__empty">No documents yet. Add one to show it in the output panel.</div>`;
+    const toolsEditorHtml = !nodeSupportsTools(node)
+      ? ''
+      : `
+        <div class="np__field" style="padding-top:14px;border-top:1px solid var(--stroke-subtle);">
+          <span class="k">Tools</span>
+          <div class="tool-picker" aria-label="Tools used by this node">
+            ${toolPickerHtml(node)}
+          </div>
+          <span class="k" style="opacity:0.7;letter-spacing:0.06em;text-transform:none;font-size:10px;">
+            Optional badges for systems or tools used in this workflow step.
+          </span>
+        </div>
+      `;
 
     els.inspectorContent.innerHTML = `
       <div class="np">
@@ -10106,6 +10418,8 @@ ${styleText}
             </button>
           </div>
         </div>
+
+        ${toolsEditorHtml}
 
         <div class="np__field" style="padding-top:14px;border-top:1px solid var(--stroke-subtle);">
           <span class="k">Generated Documents</span>
@@ -10258,6 +10572,31 @@ ${styleText}
         updateSearchResults();
         showToast(`${node.title} → ${newShape}`);
         scheduleSave('inspector-shape');
+      });
+    });
+
+    els.inspectorContent.querySelectorAll('[data-action="toggle-node-tool"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!nodeSupportsTools(node)) return;
+        const toolId = btn.dataset.toolId;
+        if (!TOOL_IDS.has(toolId)) return;
+        const current = new Set(normalizeNodeTools(node.tools));
+        pushUndoSnapshot('node-tools');
+        if (current.has(toolId)) current.delete(toolId);
+        else current.add(toolId);
+        node.tools = TOOL_REGISTRY
+          .map(tool => tool.id)
+          .filter(id => current.has(id));
+        refreshNodeBadges(node);
+        renderNodeDocs(node);
+        updateEdgesForNode(node.id);
+        updateCanvasStageSize();
+        touchBoard();
+        renderBoardList();
+        updateSearchResults();
+        scheduleMinimapRender();
+        scheduleSave('node-tools');
+        renderNodeInspector();
       });
     });
 
@@ -11025,6 +11364,22 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     setMenuOpen(!menu.classList.contains('is-open'), menu);
   }
 
+  function refreshToolLogoToggleUi() {
+    const item = els.showToolLogosMenuItem;
+    if (!item) return;
+    item.setAttribute('aria-checked', showToolLogos ? 'true' : 'false');
+    const state = item.querySelector('[data-tool-logo-state]');
+    if (state) state.textContent = showToolLogos ? 'On' : 'Off';
+  }
+
+  function setShowToolLogos(value) {
+    showToolLogos = !!value;
+    saveToolLogoPreference(showToolLogos);
+    refreshToolLogoToggleUi();
+    fullRender();
+    showToast(showToolLogos ? 'Tool logos shown' : 'Tool logos hidden');
+  }
+
   topbarMenus.forEach(({ btn, menu }) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -11069,6 +11424,12 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     els.downloadHtmlMenuItem.addEventListener('click', () => {
       setMenuOpen(false);
       downloadUpdatedHtml();
+    });
+  }
+  if (els.showToolLogosMenuItem) {
+    els.showToolLogosMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      setShowToolLogos(!showToolLogos);
     });
   }
   if (els.helpBtn) {
@@ -11300,6 +11661,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     n.status = normalizeNodeStatus(n.status);
     if (typeof n.statusNote !== 'string') n.statusNote = '';
     if (typeof n.impactNotes !== 'string') n.impactNotes = '';
+    n.tools = normalizeNodeTools(n.tools);
     // Generated Documents — list of output documents this step produces.
     // Legacy boards may store plain strings; normalize to { name, status }.
     // showDocuments controls whether the panel is pinned visible on the
@@ -11462,6 +11824,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       });
     } catch (_) { /* ignore */ }
 
+    refreshToolLogoToggleUi();
     fullRender();
 
     // Hide loading veil

@@ -11,6 +11,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&amp;family=Inter+Tight:wght@300;400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 
 <style>
+/*
+@font-face {
+  font-family: 'Brandon Grotesque';
+  src: url('assets/fonts/BrandonGrotesque-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+}
+*/
+
 /* ============================================================
    DESIGN TOKENS
    ============================================================ */
@@ -51,6 +60,10 @@
   --accent:        #a78bfa;
   --accent-glow:   rgba(167, 139, 250, 0.4);
 
+  --font-sans: 'Inter Tight', system-ui, sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -62,7 +75,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body {
-  font-family: 'Inter Tight', sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   color: var(--text-primary);
   background: var(--bg-base);
@@ -117,15 +130,22 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px 0 64px;
+  padding: 0 24px 0 112px;
   background: var(--bg-elev-1);
   border-bottom: 1px solid var(--stroke-subtle);
   z-index: 30;
   gap: 16px;
 }
 .brand { display: flex; align-items: baseline; gap: 10px; flex-shrink: 0; }
+.brand__institute-logo {
+  display: none;
+  height: 30px;
+  width: auto;
+  max-width: 148px;
+  object-fit: contain;
+}
 .brand__mark {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-serif);
   font-style: italic;
   font-weight: 300;
   font-size: 22px;
@@ -136,7 +156,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: transparent;
 }
 .brand__name {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.18em;
@@ -155,7 +175,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   min-width: 0;
 }
 .board-title {
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-serif);
   font-weight: 300;
   font-size: 18px;
   letter-spacing: -0.01em;
@@ -600,18 +620,28 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 
 /* ----- TOOL SWITCHER ----- */
-.tool-switcher {
+.corner-controls {
   position: fixed;
   top: 12px;
   left: 16px;
-  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 120;
 }
-.app.is-presenting ~ .tool-switcher {
+.tool-switcher,
+.theme-switcher {
+  position: relative;
+  flex: 0 0 auto;
+}
+.app.is-presenting ~ .corner-controls {
   display: none;
 }
-.tool-switcher__button {
+.tool-switcher__button,
+.theme-switcher__button {
   width: 32px;
   height: 32px;
+  padding: 0;
   border-radius: 8px;
   border: 1px solid rgba(148, 163, 184, 0.16);
   background: rgba(13, 15, 23, 0.88);
@@ -625,13 +655,36 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     0 8px 20px rgba(0,0,0,0.34);
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
+.theme-switcher__button {
+  flex-direction: row;
+  gap: 0;
+  color: rgba(226, 232, 240, 0.72);
+}
 .tool-switcher__button span {
   width: 13px;
   height: 1.5px;
   border-radius: 999px;
   background: rgba(226, 232, 240, 0.72);
 }
-.tool-switcher__button:hover {
+.theme-switcher__glyph {
+  display: inline-grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  border: 1px solid rgba(226, 232, 240, 0.22);
+  background:
+    linear-gradient(90deg, rgba(226,232,240,0.82) 0 50%, rgba(13,15,23,0.82) 50% 100%);
+  box-shadow: 0 0 10px rgba(167,139,250,0.12);
+}
+.theme-switcher__button[data-theme="gmi"] .theme-switcher__glyph {
+  border-color: rgba(5,119,77,0.28);
+  background:
+    radial-gradient(circle at 50% 50%, #05774d 0 34%, transparent 36%),
+    #f7f8f5;
+}
+.tool-switcher__button:hover,
+.theme-switcher__button:hover {
   border-color: rgba(68, 215, 245, 0.42);
   box-shadow:
     0 0 0 1px rgba(34,211,238,0.08) inset,
@@ -639,8 +692,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     0 8px 22px rgba(0,0,0,0.42);
   transform: translateY(-1px);
 }
-.tool-switcher__menu[hidden] { display: none !important; }
-.tool-switcher__menu {
+.tool-switcher__menu[hidden],
+.theme-switcher__menu[hidden] { display: none !important; }
+.tool-switcher__menu,
+.theme-switcher__menu {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
@@ -656,7 +711,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     0 0 24px -14px rgba(34, 211, 238, 0.65);
   backdrop-filter: blur(16px);
 }
-.tool-switcher__item {
+.theme-switcher__menu {
+  min-width: 208px;
+}
+.tool-switcher__item,
+.theme-switcher__item {
   width: 100%;
   display: grid;
   gap: 2px;
@@ -667,11 +726,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   border: 1px solid transparent;
 }
 .tool-switcher__item:hover,
-.tool-switcher__item.is-active {
+.tool-switcher__item.is-active,
+.theme-switcher__item:hover,
+.theme-switcher__item.is-active {
   background: rgba(34, 211, 238, 0.07);
   border-color: rgba(68, 215, 245, 0.22);
 }
-.tool-switcher__item-title {
+.tool-switcher__item-title,
+.theme-switcher__item-title {
   color: var(--text-primary);
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
@@ -679,7 +741,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-.tool-switcher__item-sub {
+.tool-switcher__item-sub,
+.theme-switcher__item-sub {
   color: var(--text-muted);
   font-size: 11.5px;
 }
@@ -2843,6 +2906,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+.tbtn-menu button.is-active {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: rgba(68, 215, 245, 0.22);
+}
+.tbtn-menu button.is-active .menu-state {
+  color: var(--accent);
+}
 .tbtn-menu .menu-caret {
   margin-left: auto;
   color: var(--text-faint);
@@ -3751,27 +3821,40 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   --agenda-text: #edf3ff;
   --agenda-muted: #99a7bd;
   --agenda-faint: #66758e;
-  --agenda-violet: #a78bfa;
+  --agenda-violet: #8b5cf6;
+  --agenda-blue: #3b82f6;
   --agenda-cyan: #44d7f5;
   --agenda-green: #34d399;
-  --agenda-orange: #fb923c;
+  --agenda-orange: #f97316;
   --agenda-red: #fb7185;
   height: 100vh;
   width: 100vw;
   display: grid;
-  grid-template-rows: 64px minmax(0, 1fr);
+  grid-template-rows: 64px auto;
   color: var(--agenda-text);
   background:
     radial-gradient(circle at 10% 0%, rgba(124, 58, 237, 0.18), transparent 34%),
     radial-gradient(circle at 82% 12%, rgba(34, 211, 238, 0.12), transparent 32%),
     linear-gradient(180deg, #0a0d16, var(--agenda-bg));
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
 }
 .agenda-flow,
 #agendaFlowView {
   min-height: 100vh;
   width: 100vw;
+  scrollbar-color: rgba(150, 154, 171, 0.42) rgba(255,255,255,0.035);
+  scrollbar-width: thin;
 }
+#agendaFlowView::-webkit-scrollbar { width: 10px; height: 10px; }
+#agendaFlowView::-webkit-scrollbar-track { background: rgba(255,255,255,0.035); }
+#agendaFlowView::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(150, 154, 171, 0.42);
+  border: 2px solid rgba(8, 10, 18, 0.86);
+}
+#agendaFlowView::-webkit-scrollbar-thumb:hover { background: rgba(180, 186, 203, 0.56); }
 .agenda-flow button,
 .agenda-flow input,
 .agenda-flow textarea,
@@ -3783,7 +3866,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   grid-template-columns: minmax(190px, 280px) minmax(0, 1fr) auto;
   gap: 16px;
   align-items: center;
-  padding: 0 24px 0 64px;
+  padding: 0 24px 0 112px;
   border-bottom: 1px solid var(--stroke-subtle);
   background: rgba(10, 13, 22, 0.88);
   backdrop-filter: blur(18px);
@@ -3794,6 +3877,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   gap: 11px;
   align-items: center;
   min-width: 0;
+}
+.agenda-flow__institute-logo {
+  display: none;
+  height: 34px;
+  width: auto;
+  max-width: 156px;
+  object-fit: contain;
 }
 .agenda-flow__mark {
   display: grid;
@@ -3812,11 +3902,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .agenda-flow__brand-name,
 .agenda-flow__kicker {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   text-transform: uppercase;
 }
 .agenda-flow__brand-name {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.14em;
 }
@@ -3824,7 +3914,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .agenda-flow__current-label,
 .agenda-flow__kicker {
   color: var(--agenda-muted);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.12em;
 }
@@ -3911,9 +4001,48 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .agenda-flow__workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px 280px;
-  min-height: 0;
+  min-height: calc(100vh - 64px);
+  overflow: visible;
 }
-.agenda-flow__preview,
+#agendaFlowView.agenda-flow--presenting {
+  width: 100vw;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+#agendaFlowView.agenda-flow--presenting .agenda-flow__actions > :not(#agendaExitPresentButton) {
+  display: none !important;
+}
+#agendaFlowView.agenda-flow--presenting #agendaExitPresentButton {
+  display: inline-flex !important;
+}
+#agendaFlowView.agenda-flow--presenting .agenda-flow__inspector,
+#agendaFlowView.agenda-flow--presenting .agenda-flow__sidebar,
+#agendaFlowView.agenda-flow--presenting .agenda-flow__preview-toolbar {
+  display: none !important;
+}
+#agendaFlowView.agenda-flow--presenting .agenda-flow__workspace {
+  width: 100%;
+  min-height: calc(100vh - 64px);
+  grid-template-columns: minmax(0, 1120px);
+  justify-content: center;
+  overflow: visible;
+}
+#agendaFlowView.agenda-flow--presenting .agenda-flow__preview {
+  width: min(1120px, calc(100vw - 96px));
+  max-width: 1120px;
+  margin-inline: auto;
+  padding: 32px 48px 48px;
+  overflow: visible;
+}
+#agendaFlowView.agenda-flow--presenting .agenda-flow__preview-surface {
+  max-width: 1120px;
+  margin-inline: auto;
+}
+#agendaFlowView.agenda-flow--presenting ~ .corner-controls {
+  display: none !important;
+}
 .agenda-flow__inspector,
 .agenda-flow__sidebar {
   min-height: 0;
@@ -3921,6 +4050,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .agenda-flow__preview {
   padding: 24px;
+  min-height: 0;
+  overflow: visible;
 }
 .agenda-flow__preview-toolbar {
   display: flex;
@@ -4089,7 +4220,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .agenda-page__header h1 {
   max-width: 780px;
-  font-family: 'Fraunces', serif;
+  font-family: var(--font-serif);
   font-size: clamp(42px, 6vw, 76px);
   font-weight: 300;
   line-height: 0.95;
@@ -4097,7 +4228,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .agenda-page__subtitle {
   max-width: 720px;
-  margin-top: 26px;
+  margin-top: 40px;
   color: var(--agenda-muted);
   font-size: 17px;
   line-height: 1.55;
@@ -4149,10 +4280,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   gap: 16px;
   align-items: start;
 }
-.agenda-item--violet { --phase-color: var(--agenda-violet); --phase-soft: rgba(167, 139, 250, 0.11); }
-.agenda-item--blue { --phase-color: var(--agenda-cyan); --phase-soft: rgba(68, 215, 245, 0.10); }
+.agenda-item--violet { --phase-color: var(--agenda-violet); --phase-soft: rgba(139, 92, 246, 0.12); }
+.agenda-item--blue { --phase-color: var(--agenda-blue); --phase-soft: rgba(59, 130, 246, 0.11); }
 .agenda-item--green { --phase-color: var(--agenda-green); --phase-soft: rgba(52, 211, 153, 0.10); }
-.agenda-item--orange { --phase-color: var(--agenda-orange); --phase-soft: rgba(251, 146, 60, 0.12); }
+.agenda-item--orange { --phase-color: var(--agenda-orange); --phase-soft: rgba(249, 115, 22, 0.13); }
 .agenda-item--cyan { --phase-color: #22d3ee; --phase-soft: rgba(34, 211, 238, 0.10); }
 .agenda-item--pink { --phase-color: #ec4899; --phase-soft: rgba(236, 72, 153, 0.10); }
 .agenda-item--amber { --phase-color: #fbbf24; --phase-soft: rgba(251, 191, 36, 0.11); }
@@ -4218,6 +4349,37 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .agenda-item.is-dragging .agenda-item__drag {
   cursor: grabbing;
 }
+.agenda-item__affordance {
+  position: absolute;
+  top: 12px;
+  right: 42px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: rgba(226, 232, 240, 0.72);
+  background: rgba(8, 10, 18, 0.34);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 140ms ease, border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+.agenda-item:hover .agenda-item__affordance,
+.agenda-item:focus-within .agenda-item__affordance,
+.agenda-item.is-selected .agenda-item__affordance,
+.agenda-item.is-expanded-locked .agenda-item__affordance {
+  color: var(--agenda-text);
+  border-color: color-mix(in srgb, var(--phase-color) 38%, rgba(148, 163, 184, 0.16));
+  background: var(--phase-soft);
+  transform: translateY(-1px) rotate(90deg);
+}
+.agenda-item.is-expanded-locked .agenda-item__affordance {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--phase-color) 20%, transparent);
+}
 .agenda-drop-indicator {
   position: absolute;
   left: 60px;
@@ -4262,7 +4424,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .agenda-meta {
   margin-bottom: 12px;
-  padding-right: 38px;
+  padding-right: 74px;
   transform: translateX(-2px);
 }
 .agenda-date {
@@ -4291,11 +4453,43 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   line-height: 1.15;
 }
 .agenda-description {
-  margin-top: 12px;
   color: var(--agenda-muted);
   line-height: 1.55;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+.agenda-item__expandable {
+  max-height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition:
+    max-height 280ms cubic-bezier(.2,.8,.2,1),
+    opacity 180ms ease,
+    transform 240ms ease,
+    margin-top 240ms ease;
+}
+.agenda-item:hover .agenda-item__expandable,
+.agenda-item:focus-within .agenda-item__expandable,
+.agenda-item.is-selected .agenda-item__expandable,
+.agenda-item.is-expanded-locked .agenda-item__expandable {
+  max-height: 460px;
+  margin-top: 12px;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.agenda-list.is-reordering .agenda-item__expandable {
+  max-height: 0 !important;
+  margin-top: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: translateY(-6px) !important;
+}
+.agenda-list.is-reordering .agenda-item__affordance {
+  transform: none !important;
 }
 .agenda-note-indicator {
   display: inline-flex;
@@ -4326,6 +4520,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: var(--agenda-text);
   background: rgba(255,255,255,0.052);
 }
+@media (prefers-reduced-motion: reduce) {
+  .agenda-item__expandable,
+  .agenda-item__affordance {
+    transition: none;
+  }
+}
 .agenda-badge--deadline { color: #fecdd3; background: rgba(251, 113, 133, 0.12); }
 .agenda-badge--status { color: #bfdbfe; background: rgba(96, 165, 250, 0.12); }
 .agenda-badge--done { color: #bbf7d0; background: rgba(52, 211, 153, 0.12); }
@@ -4349,8 +4549,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 @media (max-width: 1180px) {
   .agenda-flow {
-    overflow: auto;
-    grid-template-rows: auto minmax(0, 1fr);
+    overflow-x: hidden;
+    overflow-y: scroll;
+    grid-template-rows: auto auto;
   }
   .agenda-flow__topbar,
   .agenda-flow__workspace {
@@ -4818,6 +5019,1449 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .edge--automated.is-selected .edge__waypoint.is-selected {
   fill: var(--auto-stroke);
 }
+
+/* ============================================================
+   GMI CORPORATE THEME — visual refinement
+   ------------------------------------------------------------
+   Scoped overrides under html[data-theme="gmi"]. The base
+   AIFlow Dark theme is untouched. Goals: more institutional,
+   cleaner, more polished, less neon. Primary corporate green
+   #05774d is used as the single accent. Brandon Grotesque is
+   the UI sans, Palatino is the editorial serif.
+   ============================================================ */
+
+/* ---------- Tokens ---------- */
+html[data-theme="gmi"] {
+  --font-sans: 'Brandon Grotesque', 'Brandon Text', 'Avenir Next', 'Inter Tight', system-ui, sans-serif;
+  --font-serif: 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Paper / surfaces */
+  --bg-base: #f4f6f1;
+  --bg-elev-1: #ffffff;
+  --bg-elev-2: #f1f3ee;
+  --bg-elev-3: #e6ebe2;
+  --bg-glass: rgba(255, 255, 255, 0.78);
+  --bg-glass-strong: rgba(255, 255, 255, 0.92);
+
+  /* Hairlines */
+  --stroke-subtle: rgba(16, 35, 27, 0.08);
+  --stroke-soft:   rgba(16, 35, 27, 0.14);
+  --stroke-medium: rgba(16, 35, 27, 0.24);
+
+  /* Text */
+  --text-primary:   #102019;
+  --text-secondary: #3d564b;
+  --text-muted:     #6b7d75;
+  --text-faint:     #9ba89f;
+
+  /* Accent */
+  --accent: #05774d;
+  --accent-glow: rgba(5, 119, 77, 0.16);
+
+  /* Manual node */
+  --manual-bg-1: #ffffff;
+  --manual-bg-2: #f4f6f0;
+  --manual-border: rgba(16, 35, 27, 0.16);
+  --manual-stroke: #5b7468;
+
+  /* Automated edge / node */
+  --auto-1: #05774d;
+  --auto-2: #167d56;
+  --auto-stroke: #05774d;
+  --auto-stroke-sel: #024932;
+  --auto-glow: rgba(5, 119, 77, 0.18);
+
+  /* AI gradient — muted corporate version (green / olive / sage) */
+  --ai-1: #05774d;
+  --ai-2: #2c8c6c;
+  --ai-3: #8a7a3d;
+  --ai-4: #6f927f;
+  --ai-5: #05774d;
+}
+
+/* ---------- Base body ---------- */
+html[data-theme="gmi"] body {
+  background: var(--bg-base);
+  letter-spacing: 0;
+}
+
+/* ---------- Topbar ---------- */
+html[data-theme="gmi"] .topbar,
+html[data-theme="gmi"] .agenda-flow__topbar {
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid rgba(16, 35, 27, 0.10);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 6px 18px rgba(16, 35, 27, 0.04);
+  backdrop-filter: none;
+}
+
+/* ---------- Brand: logo-only, AIFlow text-mark hidden ---------- */
+html[data-theme="gmi"] .brand {
+  align-items: center;
+  gap: 14px;
+}
+html[data-theme="gmi"] .brand__institute-logo,
+html[data-theme="gmi"] .agenda-flow__institute-logo {
+  display: block;
+  height: 32px;
+  width: auto;
+  max-width: 156px;
+  object-fit: contain;
+  /* Subtle separator mood — not stretched, not distorted */
+  filter: none;
+}
+html[data-theme="gmi"] .brand__mark,
+html[data-theme="gmi"] .brand__sep,
+html[data-theme="gmi"] .agenda-flow__mark {
+  display: none;
+}
+html[data-theme="gmi"] .brand__name,
+html[data-theme="gmi"] .agenda-flow__brand-name {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+}
+html[data-theme="gmi"] .agenda-flow__brand {
+  gap: 14px;
+}
+html[data-theme="gmi"] .agenda-flow__brand-sub,
+html[data-theme="gmi"] .agenda-flow__current-label,
+html[data-theme="gmi"] .agenda-flow__kicker {
+  color: var(--text-muted);
+}
+
+/* ---------- Board title (centered) ---------- */
+html[data-theme="gmi"] .board-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .board-title:hover {
+  background: rgba(5, 119, 77, 0.06);
+}
+html[data-theme="gmi"] [contenteditable]:focus {
+  background: rgba(5, 119, 77, 0.08);
+  box-shadow: 0 0 0 1px rgba(5, 119, 77, 0.45);
+}
+
+/* ---------- Version pill (was violet/pink gradient) ---------- */
+html[data-theme="gmi"] .version-pill {
+  background: rgba(5, 119, 77, 0.08);
+  border: 1px solid rgba(5, 119, 77, 0.26);
+  color: #05553a;
+}
+html[data-theme="gmi"] .version-pill .ts {
+  color: var(--text-muted);
+  border-left-color: rgba(5, 119, 77, 0.22);
+}
+html[data-theme="gmi"] .presentation-pill {
+  background: rgba(5, 119, 77, 0.10);
+  border: 1px solid rgba(5, 119, 77, 0.28);
+  color: #05553a;
+}
+
+/* ---------- Auto-stats pill ---------- */
+html[data-theme="gmi"] .auto-stats {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(16, 35, 27, 0.12);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 4px 14px rgba(16, 35, 27, 0.05);
+}
+html[data-theme="gmi"] .auto-stats__seg--ai .auto-stats__lbl,
+html[data-theme="gmi"] .auto-stats__seg--auto .auto-stats__lbl {
+  color: var(--accent);
+  opacity: 1;
+}
+html[data-theme="gmi"] .auto-stats__seg--ai .auto-stats__val {
+  color: #05553a;
+}
+html[data-theme="gmi"] .auto-stats__seg--auto .auto-stats__val {
+  color: #05553a;
+}
+html[data-theme="gmi"] .auto-stats__seg--human .auto-stats__lbl {
+  color: var(--text-muted);
+}
+html[data-theme="gmi"] .auto-stats__seg--human .auto-stats__val {
+  color: var(--text-secondary);
+}
+html[data-theme="gmi"] .auto-stats__bar {
+  background: rgba(16, 35, 27, 0.08);
+}
+html[data-theme="gmi"] .auto-stats__bar-fill--ai {
+  background: linear-gradient(90deg, #05774d, #8a7a3d);
+  box-shadow: none;
+}
+html[data-theme="gmi"] .auto-stats__bar-fill--automated {
+  background: #2c8c6c;
+  box-shadow: none;
+}
+html[data-theme="gmi"] .auto-stats__bar-fill--human {
+  background: #6b7d75;
+}
+
+/* ---------- Topbar search ---------- */
+html[data-theme="gmi"] .topbar-search {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.14);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
+}
+html[data-theme="gmi"] .topbar-search:focus-within {
+  border-color: rgba(5, 119, 77, 0.45);
+  box-shadow: 0 0 0 3px rgba(5, 119, 77, 0.12);
+}
+html[data-theme="gmi"] .topbar-search__input {
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .topbar-search__input::placeholder {
+  color: var(--text-faint);
+}
+
+/* ---------- Topbar buttons ---------- */
+html[data-theme="gmi"] .tbtn {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.14);
+  color: var(--text-secondary);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
+  font-family: var(--font-mono);
+}
+html[data-theme="gmi"] .tbtn:hover {
+  color: var(--text-primary);
+  border-color: rgba(5, 119, 77, 0.34);
+  background: #ffffff;
+}
+html[data-theme="gmi"] .tbtn.is-active {
+  color: #ffffff;
+  background: #05774d;
+  border-color: #05774d;
+  box-shadow: 0 4px 12px rgba(5, 119, 77, 0.22);
+}
+html[data-theme="gmi"] .tbtn--accent,
+html[data-theme="gmi"] .boards__newbtn,
+html[data-theme="gmi"] .agenda-flow__button--primary {
+  background: #05774d;
+  border: 1px solid #05774d;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(5, 119, 77, 0.22);
+}
+html[data-theme="gmi"] .tbtn--accent:hover,
+html[data-theme="gmi"] .boards__newbtn:hover,
+html[data-theme="gmi"] .agenda-flow__button--primary:hover {
+  background: #035f3d;
+  border-color: #035f3d;
+  box-shadow: 0 6px 16px rgba(5, 119, 77, 0.28);
+}
+
+/* ---------- tbtn dropdown menu ---------- */
+html[data-theme="gmi"] .tbtn-menu {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.14);
+  box-shadow: 0 12px 28px rgba(16, 35, 27, 0.12), 0 1px 0 rgba(255,255,255,0.6) inset;
+}
+html[data-theme="gmi"] .tbtn-menu button {
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .tbtn-menu button:hover:not(:disabled) {
+  background: rgba(5, 119, 77, 0.07);
+}
+html[data-theme="gmi"] .tbtn-menu .menu-state {
+  color: var(--accent);
+}
+html[data-theme="gmi"] .tbtn-menu button.is-active {
+  background: rgba(5, 119, 77, 0.10);
+}
+html[data-theme="gmi"] .tbtn-menu .menu-helper {
+  color: var(--text-faint);
+}
+
+/* ---------- Tool / theme switcher (corner controls) ---------- */
+html[data-theme="gmi"] .tool-switcher__button,
+html[data-theme="gmi"] .theme-switcher__button {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.14);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 4px 12px rgba(16, 35, 27, 0.06);
+  color: var(--text-secondary);
+}
+html[data-theme="gmi"] .tool-switcher__button span {
+  background: var(--text-secondary);
+}
+html[data-theme="gmi"] .tool-switcher__button:hover,
+html[data-theme="gmi"] .theme-switcher__button:hover {
+  border-color: rgba(5, 119, 77, 0.40);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 6px 16px rgba(5, 119, 77, 0.14);
+  transform: translateY(-1px);
+}
+html[data-theme="gmi"] .tool-switcher__menu,
+html[data-theme="gmi"] .theme-switcher__menu {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.14);
+  box-shadow: 0 16px 40px rgba(16, 35, 27, 0.14), 0 1px 0 rgba(255,255,255,0.6) inset;
+  backdrop-filter: none;
+}
+html[data-theme="gmi"] .tool-switcher__item,
+html[data-theme="gmi"] .theme-switcher__item {
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .tool-switcher__item:hover,
+html[data-theme="gmi"] .tool-switcher__item.is-active,
+html[data-theme="gmi"] .theme-switcher__item:hover,
+html[data-theme="gmi"] .theme-switcher__item.is-active {
+  background: rgba(5, 119, 77, 0.08);
+  border-color: rgba(5, 119, 77, 0.22);
+}
+html[data-theme="gmi"] .tool-switcher__item-title,
+html[data-theme="gmi"] .theme-switcher__item-title {
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .tool-switcher__item-sub,
+html[data-theme="gmi"] .theme-switcher__item-sub {
+  color: var(--text-muted);
+}
+
+/* ---------- Canvas ---------- */
+html[data-theme="gmi"] .canvas {
+  background-color: #f4f6f1;
+  background-image:
+    linear-gradient(rgba(5,119,77,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(5,119,77,0.045) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ---------- Boards sidebar / Inspector ---------- */
+html[data-theme="gmi"] .inspector,
+html[data-theme="gmi"] .boards,
+html[data-theme="gmi"] .agenda-flow__inspector,
+html[data-theme="gmi"] .agenda-flow__sidebar {
+  background: #ffffff;
+  border-color: rgba(16, 35, 27, 0.10);
+}
+html[data-theme="gmi"] .agenda-flow__sidebar {
+  background: #fbfcf9;
+}
+html[data-theme="gmi"] .inspector__header,
+html[data-theme="gmi"] .boards__header {
+  border-bottom: 1px solid rgba(16, 35, 27, 0.08);
+}
+html[data-theme="gmi"] .inspector__eyebrow,
+html[data-theme="gmi"] .boards__eyebrow {
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+html[data-theme="gmi"] .inspector__title,
+html[data-theme="gmi"] .boards__title,
+html[data-theme="gmi"] .agenda-flow__panel-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .inspector__title em,
+html[data-theme="gmi"] .boards__title em {
+  font-style: italic;
+  background: none;
+  -webkit-text-fill-color: var(--accent);
+  color: var(--accent);
+}
+html[data-theme="gmi"] .inspector__empty {
+  color: var(--text-secondary);
+}
+html[data-theme="gmi"] .inspector__empty .hint {
+  color: var(--text-muted);
+  border-top-color: rgba(16, 35, 27, 0.14);
+}
+html[data-theme="gmi"] .inspector__body::-webkit-scrollbar-thumb,
+html[data-theme="gmi"] .boards__list::-webkit-scrollbar-thumb {
+  background: rgba(16, 35, 27, 0.16);
+}
+
+/* ---------- Boards new-board buttons ---------- */
+html[data-theme="gmi"] .boards__newbtn--secondary {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.14);
+  color: var(--text-secondary);
+  box-shadow: none;
+}
+html[data-theme="gmi"] .boards__newbtn--secondary:hover {
+  color: var(--accent);
+  border-color: rgba(5, 119, 77, 0.36);
+  background: rgba(5, 119, 77, 0.05);
+  box-shadow: none;
+}
+html[data-theme="gmi"] .boards__newbtn--secondary.is-active {
+  color: var(--accent);
+  border-color: rgba(5, 119, 77, 0.40);
+  background: rgba(5, 119, 77, 0.08);
+}
+
+/* ---------- Board cards ---------- */
+html[data-theme="gmi"] .board-card {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.10);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
+}
+html[data-theme="gmi"] .board-card:hover {
+  background: #fbfcf9;
+  border-color: rgba(5, 119, 77, 0.30);
+  box-shadow: 0 4px 12px rgba(16, 35, 27, 0.06);
+}
+html[data-theme="gmi"] .board-card.is-active {
+  border-color: rgba(5, 119, 77, 0.45);
+  background: linear-gradient(180deg, rgba(5, 119, 77, 0.08), rgba(5, 119, 77, 0.02));
+  box-shadow: 0 0 0 1px rgba(5, 119, 77, 0.20) inset, 0 4px 14px rgba(5, 119, 77, 0.10);
+}
+html[data-theme="gmi"] .board-card__title {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .board-card__version {
+  background: rgba(16, 35, 27, 0.04);
+  border-color: rgba(16, 35, 27, 0.14);
+  color: var(--text-secondary);
+}
+html[data-theme="gmi"] .board-card.is-active .board-card__version {
+  background: rgba(5, 119, 77, 0.12);
+  border-color: rgba(5, 119, 77, 0.34);
+  color: #05553a;
+}
+html[data-theme="gmi"] .board-card__date,
+html[data-theme="gmi"] .board-card__meta {
+  color: var(--text-muted);
+}
+html[data-theme="gmi"] .board-card__del {
+  background: rgba(16, 35, 27, 0.05);
+  color: var(--text-muted);
+}
+html[data-theme="gmi"] .board-card__del:hover {
+  color: #b03c3c;
+  background: rgba(176, 60, 60, 0.10);
+}
+html[data-theme="gmi"] .board-card__stats .ai-dot {
+  background: var(--accent);
+  box-shadow: none;
+}
+
+/* ---------- Nodes (process / decision / database, manual + AI) ---------- */
+html[data-theme="gmi"] .node--manual {
+  background: linear-gradient(180deg, #ffffff, #f4f6f0);
+  border: 1px solid rgba(16, 35, 27, 0.16);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.85) inset, 0 6px 18px rgba(16, 35, 27, 0.08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+html[data-theme="gmi"] .node__title {
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+html[data-theme="gmi"] .node__sub {
+  color: var(--text-secondary);
+}
+html[data-theme="gmi"] .node__kind {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+html[data-theme="gmi"] .node--manual .node__kind::before {
+  background: var(--manual-stroke);
+}
+/* AI ring — keep the conic gradient identity but use corporate palette
+   and turn off the spin/pulse animations for a calmer feel. */
+html[data-theme="gmi"] .node--ai,
+html[data-theme="gmi"] .node--ai::before,
+html[data-theme="gmi"] .node--database.node--ai::before,
+html[data-theme="gmi"] .node--decision.node--ai::before {
+  animation: none !important;
+}
+html[data-theme="gmi"] .node--ai::before,
+html[data-theme="gmi"] .node--database.node--ai::before,
+html[data-theme="gmi"] .node--decision.node--ai::before {
+  background: linear-gradient(135deg, #05774d, #8a7a3d 60%, #05774d);
+}
+html[data-theme="gmi"] .node--ai::after {
+  background: linear-gradient(180deg, #ffffff 0%, #f4f6f0 100%);
+  box-shadow: 0 6px 18px rgba(5, 119, 77, 0.10);
+}
+html[data-theme="gmi"] .node--ai .node__kind {
+  color: var(--accent);
+}
+html[data-theme="gmi"] .node--ai .node__kind::before {
+  background: var(--accent);
+}
+/* Selection state — replace violet/cyan glow with corporate green */
+html[data-theme="gmi"] .node.is-selected.node--manual {
+  border-color: rgba(5, 119, 77, 0.55);
+  box-shadow: 0 0 0 3px rgba(5, 119, 77, 0.14), 0 8px 22px rgba(16, 35, 27, 0.10);
+}
+html[data-theme="gmi"] .node.is-selected.node--ai::after {
+  box-shadow: 0 0 0 3px rgba(5, 119, 77, 0.16), 0 8px 22px rgba(16, 35, 27, 0.10);
+}
+html[data-theme="gmi"] .node--decision.is-selected {
+  filter: none;
+}
+html[data-theme="gmi"] .node--database.is-selected .node__inner {
+  box-shadow: 0 0 0 3px rgba(5, 119, 77, 0.14);
+}
+/* Node tools / impact tooltip badge backgrounds need to be light too */
+html[data-theme="gmi"] .node-tools__badge,
+html[data-theme="gmi"] .edge-label__bg {
+  filter: none;
+}
+
+/* ---------- Edges ---------- */
+html[data-theme="gmi"] .edge--automated .edge__line,
+html[data-theme="gmi"] .edge--ai .edge__line {
+  stroke: #05774d;
+  filter: none;
+}
+html[data-theme="gmi"] .edge--automated .edge__shimmer,
+html[data-theme="gmi"] .edge--ai .edge__shimmer {
+  display: none;
+}
+html[data-theme="gmi"] .edge.is-selected.edge--manual .edge__line {
+  stroke: #024932;
+}
+html[data-theme="gmi"] .edge.is-selected.edge--automated .edge__line,
+html[data-theme="gmi"] .edge.is-selected.edge--ai .edge__line {
+  stroke: #024932;
+  filter: none;
+}
+
+/* ---------- Inspector form controls (np__) ---------- */
+html[data-theme="gmi"] .np__input,
+html[data-theme="gmi"] .np__textarea,
+html[data-theme="gmi"] .np__select {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.14);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+html[data-theme="gmi"] .np__input:hover,
+html[data-theme="gmi"] .np__textarea:hover,
+html[data-theme="gmi"] .np__select:hover {
+  border-color: rgba(5, 119, 77, 0.30);
+}
+html[data-theme="gmi"] .np__input:focus,
+html[data-theme="gmi"] .np__textarea:focus,
+html[data-theme="gmi"] .np__select:focus {
+  border-color: rgba(5, 119, 77, 0.50);
+  box-shadow: 0 0 0 3px rgba(5, 119, 77, 0.14);
+  background: #ffffff;
+}
+html[data-theme="gmi"] .np__field .k {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+html[data-theme="gmi"] .np__input::placeholder,
+html[data-theme="gmi"] .np__textarea::placeholder {
+  color: var(--text-faint);
+}
+html[data-theme="gmi"] .np__select {
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+}
+
+/* ---------- Edge toggle (segmented control) ---------- */
+html[data-theme="gmi"] .edge-toggle {
+  background: rgba(5, 119, 77, 0.05);
+  border: 1px solid rgba(16, 35, 27, 0.10);
+}
+html[data-theme="gmi"] .edge-toggle button {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+html[data-theme="gmi"] .edge-toggle button:hover {
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .edge-toggle button.is-active {
+  background: #ffffff;
+  border-color: rgba(16, 35, 27, 0.12);
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(16, 35, 27, 0.06);
+}
+html[data-theme="gmi"] .edge-toggle button .pip {
+  background: var(--manual-stroke);
+}
+html[data-theme="gmi"] .edge-toggle button.is-automated-option .pip,
+html[data-theme="gmi"] .edge-toggle button.is-ai-option .pip {
+  background: var(--accent);
+}
+html[data-theme="gmi"] .edge-toggle button.is-active.is-automated-option,
+html[data-theme="gmi"] .edge-toggle button.is-active.is-ai-option {
+  background: rgba(5, 119, 77, 0.10);
+  border-color: rgba(5, 119, 77, 0.34);
+  color: #05553a;
+}
+html[data-theme="gmi"] .edge-toggle button.is-active.is-automated-option .pip,
+html[data-theme="gmi"] .edge-toggle button.is-active.is-ai-option .pip {
+  box-shadow: none;
+}
+
+/* ---------- conn route + fields (Edge inspector) ---------- */
+html[data-theme="gmi"] .conn__route {
+  background: #fbfcf9;
+  border: 1px solid rgba(16, 35, 27, 0.10);
+}
+html[data-theme="gmi"] .conn__route .endpoint .label {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+html[data-theme="gmi"] .conn__route .endpoint .name {
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .conn__route .arrow {
+  color: var(--text-muted);
+}
+html[data-theme="gmi"] .conn__route.is-ai .arrow,
+html[data-theme="gmi"] .conn__route.is-automated .arrow {
+  background: none;
+  -webkit-text-fill-color: var(--accent);
+  color: var(--accent);
+  text-shadow: none;
+}
+html[data-theme="gmi"] .conn__field {
+  border-top: 1px solid rgba(16, 35, 27, 0.08);
+}
+html[data-theme="gmi"] .conn__field .k {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+html[data-theme="gmi"] .conn__field .v {
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .conn__field .v.mono {
+  color: var(--accent);
+}
+
+/* ---------- Doc editor rows ---------- */
+html[data-theme="gmi"] .doc-editor__empty {
+  background: rgba(5, 119, 77, 0.04);
+  border-color: rgba(16, 35, 27, 0.16);
+  color: var(--text-muted);
+}
+html[data-theme="gmi"] .doc-editor__delete,
+html[data-theme="gmi"] .doc-editor__add {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.14);
+  color: var(--text-secondary);
+}
+html[data-theme="gmi"] .doc-editor__delete:hover {
+  color: #b03c3c;
+  border-color: rgba(176, 60, 60, 0.30);
+  background: rgba(176, 60, 60, 0.06);
+}
+html[data-theme="gmi"] .doc-editor__add:hover {
+  color: var(--accent);
+  border-color: rgba(5, 119, 77, 0.34);
+  background: rgba(5, 119, 77, 0.06);
+}
+
+/* ---------- Generic surface panels ---------- */
+html[data-theme="gmi"] .compare-panel,
+html[data-theme="gmi"] .filter-panel,
+html[data-theme="gmi"] .quality-panel,
+html[data-theme="gmi"] .board-notes-panel,
+html[data-theme="gmi"] .swimlane-panel {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.12);
+  box-shadow: 0 6px 18px rgba(16, 35, 27, 0.08), 0 1px 0 rgba(255,255,255,0.6) inset;
+}
+
+/* ---------- Help overlay / scrollbars ---------- */
+html[data-theme="gmi"] ::-webkit-scrollbar-thumb {
+  background: rgba(16, 35, 27, 0.16);
+}
+
+/* ============================================================
+   Agenda Flow — GMI overrides
+   ============================================================ */
+html[data-theme="gmi"] .agenda-flow {
+  --agenda-bg: #f4f6f1;
+  --agenda-panel: #ffffff;
+  --agenda-panel-soft: rgba(5, 119, 77, 0.05);
+  --agenda-surface: #ffffff;
+  --agenda-surface-strong: #ffffff;
+  --agenda-line: rgba(16, 35, 27, 0.10);
+  --agenda-text: #102019;
+  --agenda-muted: #6b7d75;
+  --agenda-faint: #9ba89f;
+  /* Keep phase labels visually honest while staying calmer than neon */
+  --agenda-violet: #7c3aed;
+  --agenda-blue:   #2563eb;
+  --agenda-cyan:   #2c8c6c;
+  --agenda-green:  #4a7a4a;
+  --agenda-orange: #ea580c;
+  --agenda-red:    #a64b4b;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(5,119,77,0.06), transparent 38%),
+    linear-gradient(180deg, #fbfcf9, #f2f4ef);
+}
+
+html[data-theme="gmi"] .agenda-flow__topbar {
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid rgba(16, 35, 27, 0.10);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset, 0 6px 18px rgba(16, 35, 27, 0.04);
+  backdrop-filter: none;
+}
+html[data-theme="gmi"] .agenda-flow__context strong {
+  color: var(--text-primary);
+  font-family: var(--font-serif);
+  font-weight: 400;
+}
+html[data-theme="gmi"] .agenda-flow__save {
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+
+html[data-theme="gmi"] .agenda-flow__inspector,
+html[data-theme="gmi"] .agenda-flow__sidebar {
+  border-left: 1px solid rgba(16, 35, 27, 0.08);
+}
+html[data-theme="gmi"] .agenda-flow__sidebar {
+  background: #fbfcf9;
+}
+
+/* Agenda preview surface — clean paper card */
+html[data-theme="gmi"] .agenda-flow__preview {
+  background:
+    linear-gradient(rgba(5,119,77,0.030) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(5,119,77,0.030) 1px, transparent 1px),
+    #f4f6f1;
+  background-size: 24px 24px;
+}
+html[data-theme="gmi"] .agenda-flow__preview-surface {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.10);
+  box-shadow: 0 12px 36px rgba(16, 35, 27, 0.08), 0 1px 0 rgba(255,255,255,0.6) inset;
+}
+
+/* Editorial typography for agenda page */
+html[data-theme="gmi"] .agenda-page__kicker {
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+html[data-theme="gmi"] .agenda-page__header h1 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .agenda-page__subtitle {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+html[data-theme="gmi"] .agenda-section__heading h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .agenda-section__heading p {
+  color: var(--text-muted);
+  font-family: var(--font-serif);
+}
+
+/* Timeline rail */
+html[data-theme="gmi"] .agenda-list::before {
+  background: linear-gradient(180deg, transparent, rgba(5,119,77,0.22) 8%, rgba(5,119,77,0.22) 92%, transparent);
+}
+
+/* Agenda cards — clean white card with phase-tinted left rail */
+html[data-theme="gmi"] .agenda-card {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.10);
+  box-shadow: 0 6px 18px rgba(16, 35, 27, 0.06), 0 1px 0 rgba(255,255,255,0.6) inset;
+  border-left: 3px solid var(--phase-color);
+}
+html[data-theme="gmi"] .agenda-card:hover {
+  border-color: rgba(16, 35, 27, 0.16);
+  border-left-color: var(--phase-color);
+  box-shadow: 0 10px 24px rgba(16, 35, 27, 0.10);
+}
+html[data-theme="gmi"] .agenda-item.is-selected .agenda-card {
+  border-color: rgba(5, 119, 77, 0.45);
+  border-left-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(5, 119, 77, 0.12), 0 10px 24px rgba(16, 35, 27, 0.10);
+}
+
+/* Agenda phase-colored chips need a soft tinted background that
+   actually shows on a paper background. */
+html[data-theme="gmi"] .agenda-phase,
+html[data-theme="gmi"] .agenda-badge {
+  background: rgba(5, 119, 77, 0.08);
+  color: var(--phase-color);
+  font-weight: 600;
+}
+html[data-theme="gmi"] .agenda-date {
+  color: var(--phase-color);
+  font-weight: 600;
+}
+html[data-theme="gmi"] .agenda-people span {
+  background: rgba(16, 35, 27, 0.06);
+  color: var(--text-secondary);
+}
+html[data-theme="gmi"] .agenda-badge--deadline {
+  background: rgba(166, 75, 75, 0.10);
+  color: #8a3a3a;
+}
+html[data-theme="gmi"] .agenda-badge--status {
+  background: rgba(5, 119, 77, 0.08);
+  color: #05553a;
+}
+html[data-theme="gmi"] .agenda-badge--done {
+  background: rgba(74, 122, 74, 0.12);
+  color: #2f5a2f;
+}
+html[data-theme="gmi"] .agenda-badge--due {
+  background: rgba(138, 122, 61, 0.14);
+  color: #6a5d2c;
+}
+html[data-theme="gmi"] .agenda-footer {
+  border-top: 1px solid rgba(16, 35, 27, 0.08);
+}
+html[data-theme="gmi"] .agenda-description {
+  color: var(--text-secondary);
+  font-family: var(--font-serif);
+}
+
+/* Agenda timeline marker — white ring, not dark, so it sits on paper */
+html[data-theme="gmi"] .agenda-marker {
+  border-color: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(16, 35, 27, 0.10),
+    0 0 0 6px var(--phase-soft);
+}
+html[data-theme="gmi"] .agenda-item__drag {
+  color: var(--text-muted);
+}
+html[data-theme="gmi"] .agenda-item__drag:hover {
+  color: var(--text-primary);
+  background: rgba(5, 119, 77, 0.07);
+}
+html[data-theme="gmi"] .agenda-item__affordance {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(16, 35, 27, 0.12);
+}
+html[data-theme="gmi"] .agenda-item:hover .agenda-item__affordance,
+html[data-theme="gmi"] .agenda-item:focus-within .agenda-item__affordance,
+html[data-theme="gmi"] .agenda-item.is-selected .agenda-item__affordance,
+html[data-theme="gmi"] .agenda-item.is-expanded-locked .agenda-item__affordance {
+  color: #05774d;
+  border-color: rgba(5, 119, 77, 0.22);
+  background: rgba(5, 119, 77, 0.07);
+}
+html[data-theme="gmi"] .agenda-item.is-expanded-locked .agenda-item__affordance {
+  box-shadow: 0 0 0 2px rgba(5, 119, 77, 0.12);
+}
+html[data-theme="gmi"] .agenda-drop-indicator {
+  border-top-color: rgba(5, 119, 77, 0.85);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.10), 0 0 12px rgba(5, 119, 77, 0.30);
+}
+html[data-theme="gmi"] .agenda-drop-indicator::before,
+html[data-theme="gmi"] .agenda-drop-indicator::after {
+  background: rgba(5, 119, 77, 0.95);
+  box-shadow: 0 0 8px rgba(5, 119, 77, 0.40);
+}
+html[data-theme="gmi"] .agenda-empty {
+  background: #ffffff;
+  border-color: rgba(16, 35, 27, 0.16);
+  color: var(--text-muted);
+}
+html[data-theme="gmi"] .agenda-note-indicator {
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+html[data-theme="gmi"] .agenda-note-indicator::before {
+  background: var(--accent);
+  box-shadow: none;
+}
+
+/* Agenda buttons */
+html[data-theme="gmi"] .agenda-flow__button,
+html[data-theme="gmi"] .agenda-flow__icon-button,
+html[data-theme="gmi"] .agenda-flow__mini-button {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.14);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+html[data-theme="gmi"] .agenda-flow__button:hover,
+html[data-theme="gmi"] .agenda-flow__icon-button:hover,
+html[data-theme="gmi"] .agenda-flow__mini-button:hover {
+  border-color: rgba(5, 119, 77, 0.34);
+  box-shadow: 0 4px 12px rgba(5, 119, 77, 0.10);
+  background: #fbfcf9;
+}
+html[data-theme="gmi"] .agenda-flow__button--soft {
+  color: #05553a;
+  border-color: rgba(5, 119, 77, 0.30);
+  background: rgba(5, 119, 77, 0.07);
+}
+html[data-theme="gmi"] .agenda-flow__button--soft:hover {
+  background: rgba(5, 119, 77, 0.12);
+  border-color: rgba(5, 119, 77, 0.40);
+  box-shadow: none;
+}
+html[data-theme="gmi"] .agenda-flow__button--danger,
+html[data-theme="gmi"] .agenda-flow__mini-button--danger {
+  color: #8a3a3a;
+  border-color: rgba(166, 75, 75, 0.32);
+  background: rgba(166, 75, 75, 0.08);
+}
+html[data-theme="gmi"] .agenda-flow__button--danger:hover,
+html[data-theme="gmi"] .agenda-flow__mini-button--danger:hover {
+  background: rgba(166, 75, 75, 0.14);
+  border-color: rgba(166, 75, 75, 0.45);
+  box-shadow: none;
+}
+
+/* Agenda inspector form */
+html[data-theme="gmi"] .agenda-flow__form-section {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.10);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
+}
+html[data-theme="gmi"] .agenda-flow__form-title {
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+html[data-theme="gmi"] .agenda-flow__field span {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+html[data-theme="gmi"] .agenda-flow__field input,
+html[data-theme="gmi"] .agenda-flow__field textarea,
+html[data-theme="gmi"] .agenda-flow__field select {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.14);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  box-shadow: none;
+}
+html[data-theme="gmi"] .agenda-flow__field input:focus,
+html[data-theme="gmi"] .agenda-flow__field textarea:focus,
+html[data-theme="gmi"] .agenda-flow__field select:focus {
+  border-color: rgba(5, 119, 77, 0.50);
+  box-shadow: 0 0 0 3px rgba(5, 119, 77, 0.14);
+}
+
+
+/* ============================================================
+   GMI CORPORATE THEME — green emphasis pass (Agenda Flow focus)
+   ------------------------------------------------------------
+   Purpose: bring the corporate green #05774d more clearly into
+   the Agenda Flow without making everything uniformly green.
+   Green is used as an identity accent — keylines, dots, rules,
+   pills, hovers, focus — to create hierarchy.
+   ============================================================ */
+
+/* ---------- Topbar identity strip ----------
+   A 2px corporate green hairline anchors the brand at the top of
+   both the canvas topbar and the agenda topbar. This is the
+   single strongest "this is GMI" cue in the chrome. */
+html[data-theme="gmi"] .topbar,
+html[data-theme="gmi"] .agenda-flow__topbar {
+  border-top: 2px solid #05774d;
+}
+
+/* ---------- Agenda topbar: subtle green keyline next to logo ----------
+   Creates a small "lockup" feel where the institute logo sits
+   beside a thin green divider before the brand-name block. */
+html[data-theme="gmi"] .agenda-flow__brand {
+  position: relative;
+}
+html[data-theme="gmi"] .agenda-flow__brand::after {
+  content: "";
+  flex: 0 0 auto;
+  width: 1px;
+  height: 22px;
+  margin: 0 -2px;
+  background: rgba(5, 119, 77, 0.34);
+  order: 2;
+}
+html[data-theme="gmi"] .agenda-flow__institute-logo {
+  order: 1;
+}
+html[data-theme="gmi"] .agenda-flow__brand > div {
+  order: 3;
+}
+
+/* Brand wordmark in the agenda topbar — push the green into the
+   typography, not just the chrome. */
+html[data-theme="gmi"] .agenda-flow__brand-name {
+  color: #05553a;
+}
+html[data-theme="gmi"] .agenda-flow__brand-sub {
+  color: var(--accent);
+  opacity: 0.78;
+}
+
+/* ---------- Active-agenda contextual pill ----------
+   The "Active agenda" label + name in the topbar is currently
+   inert text. Wrap the label in a green pill with a leading dot
+   so it reads as a live status — strong identity, no clutter. */
+html[data-theme="gmi"] .agenda-flow__current-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 3px 10px;
+  border-radius: 999px;
+  background: rgba(5, 119, 77, 0.10);
+  border: 1px solid rgba(5, 119, 77, 0.30);
+  color: #05553a;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+  position: relative;
+}
+html[data-theme="gmi"] .agenda-flow__current-label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #05774d;
+  box-shadow: 0 0 0 3px rgba(5, 119, 77, 0.16);
+}
+html[data-theme="gmi"] .agenda-flow__context strong {
+  color: #102019;
+  font-weight: 500;
+}
+
+/* ---------- "Saved" indicator: now a proper tinted pill ---------- */
+html[data-theme="gmi"] .agenda-flow__save {
+  background: rgba(5, 119, 77, 0.10);
+  border: 1px solid rgba(5, 119, 77, 0.30);
+  color: #05553a;
+  padding: 0 10px;
+}
+
+/* ---------- Agenda main background: a slightly stronger green wash ----------
+   The previous 0.06 alpha radial barely registered on a paper
+   background. 0.10 reads as identity without being heavy. */
+html[data-theme="gmi"] .agenda-flow {
+  background:
+    radial-gradient(circle at 6% -2%, rgba(5,119,77,0.10), transparent 36%),
+    radial-gradient(circle at 96% 0%, rgba(5,119,77,0.05), transparent 32%),
+    linear-gradient(180deg, #fbfcf9, #f1f4ec);
+}
+
+/* ---------- Preview surface: corporate masthead ----------
+   The white preview surface gains a 3px green top rule — this is
+   the classic GMI corporate-report masthead treatment and is the
+   single most identity-establishing change in this pass. */
+html[data-theme="gmi"] .agenda-flow__preview-surface {
+  position: relative;
+  border-top: 3px solid #05774d;
+  padding-top: 4px;
+}
+
+/* ---------- Editorial agenda page ---------- */
+
+/* Kicker gets a leading green keyline */
+html[data-theme="gmi"] .agenda-page__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #05553a;
+}
+html[data-theme="gmi"] .agenda-page__kicker::before {
+  content: "";
+  display: inline-block;
+  width: 22px;
+  height: 2px;
+  background: #05774d;
+}
+
+/* H1 gets a short green underline-mark — corporate-report cover feel */
+html[data-theme="gmi"] .agenda-page__header h1 {
+  position: relative;
+  padding-bottom: 22px;
+}
+html[data-theme="gmi"] .agenda-page__header h1::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 56px;
+  height: 3px;
+  background: #05774d;
+  border-radius: 2px;
+}
+
+/* Subtitle pulled slightly closer to the rule */
+html[data-theme="gmi"] .agenda-page__subtitle {
+  margin-top: 28px;
+}
+
+/* ---------- Section heading: anchored with a green left rail ---------- */
+html[data-theme="gmi"] .agenda-section__heading {
+  padding-left: 14px;
+  border-left: 2px solid rgba(5, 119, 77, 0.34);
+}
+html[data-theme="gmi"] .agenda-section__heading h2 {
+  color: #05553a;
+  font-weight: 500;
+}
+html[data-theme="gmi"] .agenda-section__heading p {
+  color: var(--text-muted);
+}
+
+/* Section divider above each section after the first */
+html[data-theme="gmi"] .agenda-section + .agenda-section {
+  position: relative;
+  margin-top: 12px;
+  padding-top: 36px;
+}
+html[data-theme="gmi"] .agenda-section + .agenda-section::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(5, 119, 77, 0.30) 12%,
+    rgba(5, 119, 77, 0.30) 88%,
+    transparent);
+}
+
+/* ---------- Timeline rail: a touch stronger ---------- */
+html[data-theme="gmi"] .agenda-list::before {
+  background: linear-gradient(180deg,
+    transparent,
+    rgba(5,119,77,0.32) 8%,
+    rgba(5,119,77,0.32) 92%,
+    transparent);
+}
+
+/* ---------- Cards ---------- */
+
+/* Thicker green-leaning left rail. Phase color stays the source
+   of truth, but a corporate-green hover wash unifies the family. */
+html[data-theme="gmi"] .agenda-card {
+  border-left-width: 4px;
+}
+html[data-theme="gmi"] .agenda-card:hover {
+  background: linear-gradient(90deg, rgba(5,119,77,0.04), #ffffff 30%);
+  border-color: rgba(5, 119, 77, 0.22);
+}
+
+/* Selected card: a true GMI green identity, ring + tinted wash */
+html[data-theme="gmi"] .agenda-item.is-selected .agenda-card {
+  background: linear-gradient(90deg, rgba(5,119,77,0.07), #ffffff 35%);
+  border-color: rgba(5, 119, 77, 0.55);
+  border-left-color: #05774d;
+  box-shadow:
+    0 0 0 3px rgba(5, 119, 77, 0.14),
+    0 10px 24px rgba(16, 35, 27, 0.10);
+}
+
+/* ---------- Phase chip: identity dot prefix ----------
+   Every phase chip now starts with a small green dot. The phase
+   color still tints the text and chip background, but the green
+   dot reads as "this is a GMI phase marker". */
+html[data-theme="gmi"] .agenda-phase {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding-left: 10px;
+  font-weight: 600;
+}
+html[data-theme="gmi"] .agenda-phase::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #05774d;
+  flex: 0 0 auto;
+}
+
+/* Date is the most-scanned meta on a card → always green, never
+   phase color, so dates read as a single corporate motif. */
+html[data-theme="gmi"] .agenda-date {
+  color: #05553a;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  letter-spacing: 0.01em;
+}
+
+/* Status badge: more confidently green, with a leading dot */
+html[data-theme="gmi"] .agenda-badge--status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 9px;
+  background: rgba(5, 119, 77, 0.10);
+  border: 1px solid rgba(5, 119, 77, 0.26);
+  color: #05553a;
+}
+html[data-theme="gmi"] .agenda-badge--status::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: #05774d;
+}
+html[data-theme="gmi"] .agenda-badge--done {
+  background: rgba(5, 119, 77, 0.08);
+  color: #05553a;
+  border: 1px solid rgba(5, 119, 77, 0.22);
+}
+/* Keep deadline / due in their muted institutional tones */
+html[data-theme="gmi"] .agenda-badge--deadline {
+  border: 1px solid rgba(166, 75, 75, 0.22);
+}
+html[data-theme="gmi"] .agenda-badge--due {
+  border: 1px solid rgba(138, 122, 61, 0.26);
+}
+
+/* People chips — give them a soft green outline so they sit in
+   the same identity family as the rest of the card meta */
+html[data-theme="gmi"] .agenda-people span {
+  background: rgba(5, 119, 77, 0.05);
+  border: 1px solid rgba(5, 119, 77, 0.18);
+  color: #1f3a30;
+  font-weight: 600;
+}
+
+/* Note-indicator dot already green; pill it for emphasis */
+html[data-theme="gmi"] .agenda-note-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px 4px 9px;
+  border-radius: 999px;
+  background: rgba(5, 119, 77, 0.07);
+  border: 1px solid rgba(5, 119, 77, 0.22);
+  color: #05553a;
+}
+
+/* ---------- Marker rings ----------
+   When an item is selected, the marker tint should also flip to
+   green so the card and its rail read as one identity unit. */
+html[data-theme="gmi"] .agenda-item.is-selected .agenda-marker {
+  background: #05774d;
+  box-shadow:
+    0 0 0 1px rgba(16, 35, 27, 0.10),
+    0 0 0 6px rgba(5, 119, 77, 0.18);
+}
+
+/* ---------- Sidebar tabs (agenda list view) ----------
+   The active tab was still using a violet radial — now corporate
+   green. Inactive tabs gain a thin green rail on hover so users
+   feel where they are in the list. */
+html[data-theme="gmi"] .agenda-flow__tab {
+  background: #ffffff;
+  border: 1px solid rgba(16, 35, 27, 0.10);
+  border-left: 3px solid transparent;
+  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+html[data-theme="gmi"] .agenda-flow__tab:hover {
+  border-left-color: rgba(5, 119, 77, 0.34);
+  background: linear-gradient(90deg, rgba(5,119,77,0.04), #ffffff 30%);
+}
+html[data-theme="gmi"] .agenda-flow__tab.is-active {
+  border-color: rgba(5, 119, 77, 0.45);
+  border-left: 3px solid #05774d;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(5, 119, 77, 0.10), transparent 60%),
+    #ffffff;
+  box-shadow: 0 4px 12px rgba(5, 119, 77, 0.10);
+}
+html[data-theme="gmi"] .agenda-flow__tab-title {
+  color: #05553a;
+  font-weight: 500;
+}
+html[data-theme="gmi"] .agenda-flow__tab-meta {
+  color: var(--text-muted);
+}
+
+/* ---------- Inspector panel header ----------
+   A small green keyline before the panel title, mirroring the
+   kicker treatment on the editorial page. Gives the inspector a
+   consistent identity moment. */
+html[data-theme="gmi"] .agenda-flow__panel-header {
+  position: relative;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(5, 119, 77, 0.16);
+}
+html[data-theme="gmi"] .agenda-flow__panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-primary);
+}
+html[data-theme="gmi"] .agenda-flow__panel-title::before {
+  content: "";
+  width: 4px;
+  height: 22px;
+  border-radius: 2px;
+  background: #05774d;
+}
+
+/* ---------- Form sections: green leading bar on titles ---------- */
+html[data-theme="gmi"] .agenda-flow__form-section {
+  border-left: 3px solid rgba(5, 119, 77, 0.30);
+}
+html[data-theme="gmi"] .agenda-flow__form-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #05553a;
+}
+html[data-theme="gmi"] .agenda-flow__form-title::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: #05774d;
+}
+
+/* Field labels lean very slightly green */
+html[data-theme="gmi"] .agenda-flow__field span {
+  color: #4a6259;
+}
+
+/* ---------- Buttons & icon buttons ----------
+   Default agenda buttons gain a more confident green hover, and
+   icon buttons in the sidebar get a green-tinted rest state so
+   they read as part of the identity family rather than neutral. */
+html[data-theme="gmi"] .agenda-flow__button:hover,
+html[data-theme="gmi"] .agenda-flow__icon-button:hover,
+html[data-theme="gmi"] .agenda-flow__mini-button:hover {
+  color: #05553a;
+  border-color: rgba(5, 119, 77, 0.45);
+  background: rgba(5, 119, 77, 0.06);
+  box-shadow: 0 4px 12px rgba(5, 119, 77, 0.12);
+}
+html[data-theme="gmi"] .agenda-flow__icon-button {
+  color: #4a6259;
+}
+html[data-theme="gmi"] .agenda-flow__mini-button {
+  color: #4a6259;
+}
+
+/* The "Edit agenda" soft button on the preview-toolbar is the
+   primary CTA on that surface — make it visibly green. */
+html[data-theme="gmi"] .agenda-flow__button--soft {
+  background: rgba(5, 119, 77, 0.10);
+  border: 1px solid rgba(5, 119, 77, 0.34);
+  color: #05553a;
+  font-weight: 600;
+}
+html[data-theme="gmi"] .agenda-flow__button--soft:hover {
+  background: #05774d;
+  color: #ffffff;
+  border-color: #05774d;
+}
+
+/* ---------- Preview-toolbar headline ---------- */
+html[data-theme="gmi"] .agenda-flow__preview-toolbar h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  color: #102019;
+  letter-spacing: -0.01em;
+}
+html[data-theme="gmi"] .agenda-flow__kicker {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+/* ---------- Agenda empty state ---------- */
+html[data-theme="gmi"] .agenda-empty {
+  background: linear-gradient(180deg, rgba(5,119,77,0.04), #ffffff);
+  border: 1px dashed rgba(5, 119, 77, 0.28);
+  color: #4a6259;
+}
+
+/* ---------- Inspector body scrollbar ---------- */
+html[data-theme="gmi"] .agenda-flow__inspector::-webkit-scrollbar-thumb,
+html[data-theme="gmi"] .agenda-flow__sidebar::-webkit-scrollbar-thumb {
+  background: rgba(5, 119, 77, 0.22);
+}
+
+/* ---------- Date input highlight: a green focus ring already set;
+   add a subtle hover affordance on the inputs so the field family
+   feels consistently branded. */
+html[data-theme="gmi"] .agenda-flow__field input:hover,
+html[data-theme="gmi"] .agenda-flow__field textarea:hover,
+html[data-theme="gmi"] .agenda-flow__field select:hover {
+  border-color: rgba(5, 119, 77, 0.32);
+}
+
+/* ---------- Requested GMI Agenda refinements ---------- */
+html[data-theme="gmi"] #agendaFlowView,
+html[data-theme="gmi"] .agenda-flow,
+html[data-theme="gmi"] .agenda-flow__preview,
+html[data-theme="gmi"] .agenda-flow__preview-surface,
+html[data-theme="gmi"] .agenda-flow__inspector,
+html[data-theme="gmi"] .agenda-flow__sidebar,
+html[data-theme="gmi"] .agenda-flow__form {
+  scrollbar-color: rgba(5, 119, 77, 0.62) rgba(5, 119, 77, 0.10);
+  scrollbar-width: thin;
+}
+html[data-theme="gmi"] #agendaFlowView::-webkit-scrollbar,
+html[data-theme="gmi"] .agenda-flow::-webkit-scrollbar,
+html[data-theme="gmi"] .agenda-flow__preview::-webkit-scrollbar,
+html[data-theme="gmi"] .agenda-flow__preview-surface::-webkit-scrollbar,
+html[data-theme="gmi"] .agenda-flow__inspector::-webkit-scrollbar,
+html[data-theme="gmi"] .agenda-flow__sidebar::-webkit-scrollbar,
+html[data-theme="gmi"] .agenda-flow__form::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+html[data-theme="gmi"] #agendaFlowView::-webkit-scrollbar-track,
+html[data-theme="gmi"] .agenda-flow::-webkit-scrollbar-track,
+html[data-theme="gmi"] .agenda-flow__preview::-webkit-scrollbar-track,
+html[data-theme="gmi"] .agenda-flow__preview-surface::-webkit-scrollbar-track,
+html[data-theme="gmi"] .agenda-flow__inspector::-webkit-scrollbar-track,
+html[data-theme="gmi"] .agenda-flow__sidebar::-webkit-scrollbar-track,
+html[data-theme="gmi"] .agenda-flow__form::-webkit-scrollbar-track {
+  background: rgba(5, 119, 77, 0.08);
+}
+html[data-theme="gmi"] #agendaFlowView::-webkit-scrollbar-thumb,
+html[data-theme="gmi"] .agenda-flow::-webkit-scrollbar-thumb,
+html[data-theme="gmi"] .agenda-flow__preview::-webkit-scrollbar-thumb,
+html[data-theme="gmi"] .agenda-flow__preview-surface::-webkit-scrollbar-thumb,
+html[data-theme="gmi"] .agenda-flow__inspector::-webkit-scrollbar-thumb,
+html[data-theme="gmi"] .agenda-flow__sidebar::-webkit-scrollbar-thumb,
+html[data-theme="gmi"] .agenda-flow__form::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(5, 119, 77, 0.62);
+  border: 2px solid rgba(247, 248, 245, 0.95);
+}
+html[data-theme="gmi"] #agendaFlowView::-webkit-scrollbar-thumb:hover,
+html[data-theme="gmi"] .agenda-flow::-webkit-scrollbar-thumb:hover {
+  background: #05774d;
+}
+html[data-theme="gmi"] .agenda-flow__preview-surface {
+  box-shadow:
+    18px 12px 34px rgba(5, 119, 77, 0.085),
+    0 12px 28px rgba(16, 35, 27, 0.055),
+    0 1px 0 rgba(255,255,255,0.6) inset;
+}
+html[data-theme="gmi"] .agenda-page__header h1 {
+  font-size: var(--agenda-title-size, clamp(42px, 6vw, 76px));
+}
+html[data-theme="gmi"] .agenda-page__header h1::after {
+  width: 132px;
+  background: #05774d;
+}
+html[data-theme="gmi"] .agenda-flow__button,
+html[data-theme="gmi"] .agenda-flow__icon-button,
+html[data-theme="gmi"] .agenda-flow__mini-button {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+html[data-theme="gmi"] .agenda-people span {
+  color: #05774d;
+}
+
 </style>
 </head>
 
@@ -4827,6 +6471,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   <!-- ===== TOPBAR ===== -->
   <header class="topbar">
     <div class="brand">
+      <img class="brand__institute-logo" src="assets/institute-logos/gmi_logo_2026.svg" alt="GMI">
       <span class="brand__mark">AIFlow</span>
       <span class="brand__sep"></span>
       <span class="brand__name">Workspace / v0.3</span>
@@ -5252,6 +6897,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 <section class="agenda-flow" id="agendaFlowView" hidden aria-label="Agenda Flow">
   <header class="agenda-flow__topbar">
     <div class="agenda-flow__brand" aria-label="Agenda Flow">
+      <img class="agenda-flow__institute-logo" src="assets/institute-logos/gmi_logo_2026.svg" alt="GMI">
       <span class="agenda-flow__mark">A</span>
       <div>
         <p class="agenda-flow__brand-name">Agenda Flow</p>
@@ -5264,8 +6910,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
       <strong id="agendaCurrentAgendaName">KI-Workshop Vorbereitung</strong>
     </div>
 
-    <div class="agenda-flow__actions" aria-label="Agenda export and import">
+    <div class="agenda-flow__actions" aria-label="Agenda actions">
       <span class="agenda-flow__save" id="agendaSaveIndicator">Saved</span>
+      <button class="agenda-flow__button agenda-flow__button--soft" type="button" id="agendaPresentButton" aria-pressed="false">Present</button>
+      <button class="agenda-flow__button agenda-flow__button--primary" type="button" id="agendaExitPresentButton" aria-pressed="true" hidden>Exit Presentation</button>
       <button class="agenda-flow__button" type="button" id="agendaExportHtmlButton">Export HTML</button>
       <button class="agenda-flow__button" type="button" id="agendaExportJsonButton">Export JSON</button>
       <button class="agenda-flow__button agenda-flow__button--primary" type="button" id="agendaImportJsonButton">Import JSON</button>
@@ -5323,21 +6971,39 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   </main>
 </section>
 
-<div class="tool-switcher" id="toolSwitcher">
-  <button class="tool-switcher__button" id="toolSwitcherButton" type="button" aria-label="Switch tool" aria-haspopup="true" aria-expanded="false">
-    <span></span>
-    <span></span>
-    <span></span>
-  </button>
-  <div class="tool-switcher__menu" id="toolSwitcherMenu" role="menu" hidden>
-    <button class="tool-switcher__item is-active" type="button" data-tool-view="ai-flow" role="menuitem">
-      <span class="tool-switcher__item-title">AI Flow</span>
-      <span class="tool-switcher__item-sub">Workflow canvas</span>
+<div class="corner-controls" id="cornerControls" aria-label="App and theme controls">
+  <div class="tool-switcher" id="toolSwitcher">
+    <button class="tool-switcher__button" id="toolSwitcherButton" type="button" aria-label="Switch tool" aria-haspopup="true" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
     </button>
-    <button class="tool-switcher__item" type="button" data-tool-view="agenda-flow" role="menuitem">
-      <span class="tool-switcher__item-title">Agenda Flow</span>
-      <span class="tool-switcher__item-sub">Agenda planning</span>
+    <div class="tool-switcher__menu" id="toolSwitcherMenu" role="menu" hidden>
+      <button class="tool-switcher__item is-active" type="button" data-tool-view="ai-flow" role="menuitem">
+        <span class="tool-switcher__item-title">AI Flow</span>
+        <span class="tool-switcher__item-sub">Workflow canvas</span>
+      </button>
+      <button class="tool-switcher__item" type="button" data-tool-view="agenda-flow" role="menuitem">
+        <span class="tool-switcher__item-title">Agenda Flow</span>
+        <span class="tool-switcher__item-sub">Agenda planning</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="theme-switcher" id="themeSwitcher">
+    <button class="theme-switcher__button" id="themeSwitcherButton" type="button" aria-label="Switch theme" aria-haspopup="true" aria-expanded="false">
+      <span class="theme-switcher__glyph" aria-hidden="true"></span>
     </button>
+    <div class="theme-switcher__menu" id="themeSwitcherMenu" role="menu" hidden>
+      <button class="theme-switcher__item is-active" type="button" data-theme-choice="dark" role="menuitemradio" aria-checked="true">
+        <span class="theme-switcher__item-title">AIFlow Dark</span>
+        <span class="theme-switcher__item-sub">Dark workspace</span>
+      </button>
+      <button class="theme-switcher__item" type="button" data-theme-choice="gmi" role="menuitemradio" aria-checked="false">
+        <span class="theme-switcher__item-title">GMI Corporate</span>
+        <span class="theme-switcher__item-sub">Institutional style</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -5483,6 +7149,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   const STORAGE_KEY = 'aiflow:workspace:v1';
   const TOOL_LOGOS_KEY = 'aiflow:show-tool-logos:v1';
   const ACTIVE_TOOL_VIEW_KEY = 'aiflow-active-tool-view';
+  const THEME_STORAGE_KEY = 'aiflow-theme';
   const WORKSPACE_JSON_URL = './workspace.json';
 
   // Probe localStorage once. Even when localStorage exists as an object,
@@ -5632,6 +7299,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   let qualityIssues = [];
   let showToolLogos = loadToolLogoPreference();
   let activeToolView = 'ai-flow';
+  let activeTheme = 'dark';
   const filterState = {
     status: new Set(),
     type: new Set(),
@@ -12239,6 +13907,107 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     showToast(showToolLogos ? 'Tool logos shown' : 'Tool logos hidden');
   }
 
+  function loadThemePreference() {
+    if (!STORAGE_OK) return 'dark';
+    try {
+      return localStorage.getItem(THEME_STORAGE_KEY) === 'gmi' ? 'gmi' : 'dark';
+    } catch (_) {
+      return 'dark';
+    }
+  }
+
+  function saveThemePreference(theme) {
+    if (!STORAGE_OK) return;
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (_) { /* ignore theme preference failures */ }
+  }
+
+  function refreshThemeControls() {
+    document.querySelectorAll('[data-theme-choice]').forEach(btn => {
+      const isActive = btn.dataset.themeChoice === activeTheme;
+      btn.classList.toggle('is-active', isActive);
+      btn.setAttribute('aria-checked', isActive ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-theme-state]').forEach(state => {
+      state.textContent = state.dataset.themeState === activeTheme ? 'On' : '';
+    });
+    const themeButton = document.getElementById('themeSwitcherButton');
+    if (themeButton) {
+      themeButton.dataset.theme = activeTheme;
+      themeButton.title = activeTheme === 'gmi' ? 'Theme: GMI Corporate' : 'Theme: AIFlow Dark';
+    }
+  }
+
+  function setActiveTheme(theme, options = {}) {
+    const next = theme === 'gmi' ? 'gmi' : 'dark';
+    activeTheme = next;
+    document.documentElement.dataset.theme = next;
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) metaTheme.setAttribute('content', next === 'gmi' ? '#f7f8f5' : '#08090f');
+    refreshThemeControls();
+    if (!options.silent) saveThemePreference(next);
+  }
+
+  function closeThemeSwitcherMenu() {
+    const menu = document.getElementById('themeSwitcherMenu');
+    const button = document.getElementById('themeSwitcherButton');
+    if (menu) menu.hidden = true;
+    if (button) button.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleThemeSwitcherMenu() {
+    const menu = document.getElementById('themeSwitcherMenu');
+    const button = document.getElementById('themeSwitcherButton');
+    if (!menu || !button) return;
+    const nextOpen = !!menu.hidden;
+    if (nextOpen) {
+      setMenuOpen(false);
+      closeToolSwitcherMenu();
+    }
+    menu.hidden = !nextOpen;
+    button.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
+  }
+
+  function initThemeSwitcher() {
+    setActiveTheme(loadThemePreference(), { silent: true });
+    const switcher = document.getElementById('themeSwitcher');
+    const button = document.getElementById('themeSwitcherButton');
+    const menu = document.getElementById('themeSwitcherMenu');
+
+    if (switcher && button && menu && switcher.dataset.initialized !== 'true') {
+      switcher.dataset.initialized = 'true';
+      button.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleThemeSwitcherMenu();
+      });
+      menu.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+      });
+      document.addEventListener('click', event => {
+        if (!switcher.contains(event.target)) closeThemeSwitcherMenu();
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeThemeSwitcherMenu();
+      });
+    }
+
+    document.querySelectorAll('[data-theme-choice]').forEach(btn => {
+      if (btn.dataset.themeInitialized === 'true') return;
+      btn.dataset.themeInitialized = 'true';
+      btn.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        setActiveTheme(btn.dataset.themeChoice);
+        setMenuOpen(false);
+        closeThemeSwitcherMenu();
+        showToast(activeTheme === 'gmi' ? 'GMI Corporate theme active' : 'AIFlow Dark theme active');
+      });
+    });
+  }
+
   function loadActiveToolViewPreference() {
     if (!STORAGE_OK) return 'ai-flow';
     try {
@@ -12268,7 +14037,10 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     const button = els.toolSwitcherButton || document.getElementById('toolSwitcherButton');
     if (!menu || !button) return;
     const nextOpen = !!menu.hidden;
-    if (nextOpen) setMenuOpen(false);
+    if (nextOpen) {
+      setMenuOpen(false);
+      closeThemeSwitcherMenu();
+    }
     menu.hidden = !nextOpen;
     button.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
   }
@@ -12379,6 +14151,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   }
 
   initToolSwitcher();
+  initThemeSwitcher();
 
   topbarMenus.forEach(({ btn, menu }) => {
     btn.addEventListener('click', (e) => {
@@ -12662,59 +14435,238 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     const defaultAgendas = [
       {
         id: 'agenda-1',
-        title: 'KI-Workshop Vorbereitung',
+        title: 'GMI Retreat 2026: KI im Arbeitsalltag',
+        titleSize: 76,
         kicker: 'Agenda & Roadmap',
-        subtitle: 'Eine kompakte Übersicht der wichtigsten Phasen, Verantwortlichkeiten und Deadlines bis zum Workshop.',
-        sectionTitle: 'Workshop-Roadmap',
-        sectionDescription: 'Von der Use-Case-Erarbeitung bis zur Durchführung beim GMI Retreat.',
+        subtitle: 'Hands-on Workshop zur praktischen Integration von KI in wiederkehrende Arbeitsprozesse.',
+        sectionTitle: 'AI Workshop Roadmap',
+        sectionDescription: 'GMI Retreat · 10.–12. Juni 2026 · Steinschaler Dörfl · Theme: Artificial Intelligence in the workplace.',
         items: [
           {
             id: 'item-1',
-            date: '14. - 24. April 2026',
-            phase: 'Phase 1',
-            title: 'Erste Use Cases erarbeiten',
-            description: 'Initiale Use Cases identifizieren und dokumentieren. Erste Prototypen und Beispiele vorbereiten, die als Grundlage fuer die Abteilungsgespraeche dienen.',
-            people: ['Ronny', 'Adaresh', 'Alexander'],
-            badges: ['Deadline: 24. April'],
-            status: 'deadline',
+            date: '10.–12. Juni 2026',
+            phase: 'Orientation',
+            title: 'Von Reactive AI zu Multi-Agent Systems',
+            description: 'Kurzer Rückblick auf das letzte Jahr: Wo wir mit Chat-basierten KI-Systemen gestartet sind und warum wir uns heute in Richtung vernetzter, agentischer Workflows bewegen.',
+            notes: `Zum Einstieg die Evolutionspyramide zeigen.
+
+Einordnung:
+- Letztes Jahr lag der Fokus auf Reactive AI: einzelne Prompts, Chat-Interaktion, direkte Antworten.
+- Heute bewegen wir uns stärker in Richtung Multi-Agent Systems: mehrere spezialisierte KI-Komponenten arbeiten gemeinsam an einem Ziel.
+- Das Ziel ist nicht, sofort „Superintelligence“ oder AGI zu erreichen, sondern konkrete Arbeitsabläufe schrittweise mit KI zu unterstützen.
+
+Begriffe kurz erklären:
+- LLM:
+  Ein Sprachmodell, das Text versteht, erzeugt und strukturiert verarbeitet.
+- Harness:
+  Die Umgebung oder Anwendung, die ein Modell nutzbar macht, z. B. mit Tools, Datenquellen, Regeln und Workflows.
+- MCP Connector:
+  Eine standardisierte Verbindung zwischen KI-System und externen Tools oder Datenquellen. Ein MCP Connector kann z. B. ermöglichen, dass die KI auf bestimmte Systeme, Dateien, Wissensspeicher oder Aktionen zugreifen kann — kontrolliert, strukturiert und mit klar definierten Schnittstellen.
+- Agent:
+  Ein KI-System, das nicht nur antwortet, sondern Schritte plant, Tools nutzt und Aufgaben teilweise selbstständig ausführt.
+- Skills:
+  Wiederverwendbare Fähigkeiten oder strukturierte Arbeitsabläufe, mit denen KI bestimmte Aufgaben zuverlässiger erledigen kann.
+- Multi-Agent System:
+  Mehrere spezialisierte Agenten oder Rollen arbeiten zusammen, z. B. Recherche, Prüfung, Erstellung und Review.
+
+Kernaussage:
+Wir wollen uns langsam und kontrolliert von einfachen Chat-Anfragen hin zu unterstützten Workflows bewegen.`,
+            people: ['Ronny Zimmermann', 'Alexander Hrncir'],
+            badges: ['AI Evolution', 'Terminology'],
+            status: 'planned',
             color: 'violet',
             type: 'phase',
           },
           {
             id: 'item-2',
-            date: '25. April - 8. Mai 2026',
-            phase: 'Phase 2',
-            title: 'Abteilungsgespraeche & Use Case Discovery',
-            description: 'Gespraeche mit den einzelnen Abteilungen fuehren, um spezifische Use Cases zu identifizieren, die im Workshop bearbeitet werden.',
-            people: ['Alexander', 'Nadine'],
-            badges: ['Deadline: 8. Mai'],
-            status: 'deadline',
-            color: 'blue',
-            type: 'phase',
-          },
-          {
-            id: 'item-3',
-            date: '9. - 22. Mai 2026',
-            phase: 'Phase 3',
-            title: 'Workshop-Vorbereitung',
-            description: 'Materialien erstellen, Workshop-Agenda finalisieren, Uebungen und Hands-on-Aufgaben vorbereiten. Technische Infrastruktur bereitstellen.',
-            people: ['Ronny', 'Adaresh', 'Alexander', 'Markus'],
-            badges: ['Zwischenstand: 15. Mai', 'Fertig: 22. Mai'],
-            status: 'in-progress',
+            date: '10.–12. Juni 2026',
+            phase: 'Tool Introduction',
+            title: 'Abacus AI als Arbeitsumgebung',
+            description: 'Einführung in Abacus als zentrale Umgebung für praktische KI-Anwendungen: Chatten, Dateien einbinden, Arbeitskontexte nutzen und Ergebnisse verwertbar machen.',
+            notes: `Abacus nicht als „noch ein Tool“ vorstellen, sondern als Arbeitsumgebung für konkrete Aufgaben.
+
+Mögliche Punkte:
+- Wie starte ich eine Anfrage?
+- Wie gebe ich Kontext mit?
+- Wie lade ich Dateien hoch?
+- Wie arbeite ich mit längeren Aufgaben?
+- Wann ist Abacus hilfreich, wann brauche ich weiterhin Fachprüfung?
+- Welche Rolle spielen Datenschutz, Vertraulichkeit und interne Informationen?
+- Zugang prüfen: Wer noch keinen Zugang hat, soll rechtzeitig ein IT-Ticket erstellen.
+
+Praktischer Fokus:
+Die Teilnehmer sollen verstehen, dass Abacus nicht nur Antworten liefert, sondern beim Strukturieren, Formulieren, Prüfen und Automatisieren von wiederkehrenden Aufgaben helfen kann.
+
+Beispiele aus dem Retreat-Kontext:
+- Outlook-Suche mit Abacus vorbereiten
+- Meeting Minutes erstellen
+- Texte für wiederkehrende Mails anpassen
+- Dokumente zusammenfassen oder prüfen
+- Ideen für eigene Workflows testen`,
+            people: ['Ronny Zimmermann', 'Team'],
+            badges: ['Abacus AI', 'Hands-on'],
+            status: 'planned',
             color: 'green',
             type: 'phase',
           },
           {
-            id: 'item-4',
-            date: '10. Juni 2026',
-            phase: 'Event',
-            title: 'KI-Workshop @ GMI Retreat',
-            description: 'Durchfuehrung des Hands-on Workshops. Teilnehmende erstellen KI-generierte Dokumente und dokumentieren abteilungsspezifische Use Cases.',
-            people: ['Ronny', 'Adaresh', 'Alexander'],
-            badges: ['Due Date'],
-            status: 'due',
+            id: 'item-3',
+            date: '10.–12. Juni 2026',
+            phase: 'Prompt Engineering',
+            title: 'Die 6 Bausteine guter Prompts',
+            description: 'Ein praktisches Prompting-Modell für bessere Ergebnisse: Rolle, Aufgabe, Kontext, Vorgehen, negative Regeln und gewünschtes Ausgabeformat.',
+            notes: `Die sechs Bausteine als einfache Checkliste erklären.
+
+1. Rolle
+Die KI soll wissen, durch welche „Brille“ sie auf die Aufgabe schauen soll.
+Beispiel:
+„Du bist eine erfahrene HR-Kommunikationsexpertin.“
+Hinweis:
+Nicht übertreiben. Zu stark formulierte Rollen können dazu führen, dass die KI zu selbstsicher klingt.
+
+2. Aufgabe
+Mit einem klaren Verb starten.
+Beispiel:
+„Erstelle eine kurze E-Mail, um die Belegschaft an die Deadline zu erinnern.“
+Wichtig:
+Ziel der Aufgabe nennen.
+
+3. Kontext
+Je mehr relevanter Kontext, desto besser.
+Beispiele:
+Zielgruppe, Anlass, vorhandene Dokumente, Fristen, Tonalität, interne Regeln.
+
+4. Vorgehen
+Bei komplexen Aufgaben konkrete Schritte verlangen.
+Beispiel:
+„Prüfe zuerst die Fristen, erstelle dann eine Tabelle und formuliere danach eine E-Mail.“
+
+5. Negative Regeln
+Sagen, was die KI nicht tun soll.
+Beispiele:
+„Erfinde keine Daten.“
+„Verändere keine rechtlichen Formulierungen.“
+„Fasse dich kurz.“
+„Nutze keine Informationen, die nicht im Dokument stehen.“
+
+6. Ergebnisformat
+Genau sagen, wie das Ergebnis aussehen soll.
+Beispiele:
+- Ready-to-copy Text
+- Tabelle
+- Stichpunkte
+- Markdown
+- ZIP zum Download
+- E-Mail-Entwurf
+- Word-kompatibler Text
+
+Abschlussprompt:
+„Bevor du loslegst, frage mich alles, was du wissen musst, um deine Aufgabe bestmöglich zu erfüllen.“
+
+Kernaussage:
+Gute Prompts sind keine Magie. Sie sind klare Arbeitsaufträge mit Ziel, Kontext und gewünschtem Ergebnis.`,
+            people: ['Alexander Hrncir'],
+            badges: ['Prompting', 'Checkliste'],
+            status: 'planned',
             color: 'orange',
-            type: 'event',
+            type: 'phase',
+          },
+          {
+            id: 'item-4',
+            date: '10.–12. Juni 2026',
+            phase: 'Hands-on Exercise',
+            title: 'Plaudern, protokollieren, zusammenfassen',
+            description: 'Hands-on Übung: Wie KI aus Gesprächen, Stichworten oder Rohnotizen strukturierte Meeting Minutes und verwertbare Zusammenfassungen erstellt.',
+            notes: `Der Titel kann gerne als „Plaude / Minute Meetings“ oder professioneller als „Meeting Minutes mit KI“ erscheinen.
+
+Workshop-Idee:
+Die Teilnehmer testen, wie aus unstrukturierten Notizen oder gesprochenem Input ein brauchbares Protokoll entsteht.
+
+Mögliche Übung:
+- Rohnotizen oder Transkript bereitstellen.
+- KI erstellt Meeting Minutes.
+- KI extrahiert Entscheidungen, offene Punkte und Verantwortlichkeiten.
+- KI formuliert Follow-up-Mail.
+- Ergebnis gemeinsam kritisch prüfen.
+
+Wichtige Lernpunkte:
+- KI kann Struktur schaffen, aber sie muss geprüft werden.
+- Gute Meeting Minutes brauchen klare Vorgaben:
+  - Was wurde entschieden?
+  - Wer macht was?
+  - Bis wann?
+  - Welche Punkte bleiben offen?
+- Datenschutz und Vertraulichkeit beachten.
+
+Bezug zu eingereichten Ideen:
+„Erstellen von Meeting Minutes“ ist ein konkreter wiederkehrender Workflow, der sich gut für KI-Unterstützung eignet.`,
+            people: ['Ronny Zimmermann', 'Team'],
+            badges: ['Meeting Minutes', 'Übung'],
+            status: 'planned',
+            color: 'blue',
+            type: 'phase',
+          },
+          {
+            id: 'item-5',
+            date: '10.–12. Juni 2026',
+            phase: 'Knowledge Work',
+            title: 'Confluence als Wissensspeicher verstehen',
+            description: 'Wie KI mit internem Wissen arbeiten kann: nicht nur Inhalte aufnehmen, sondern Strukturen, Policies und Zusammenhänge auffindbar und prüfbar machen.',
+            notes: `Kernaussage:
+Confluence soll nicht nur ein Ablageort sein. Es soll als Wissensspeicher verstanden werden, aus dem KI relevante Informationen finden, einordnen und für Aufgaben nutzbar machen kann.
+
+Mögliche Punkte:
+- Was macht gute Wissensdokumentation aus?
+- Warum klare Seitenstruktur wichtig ist.
+- Wie Policies, Vertragsinformationen oder Prozessbeschreibungen KI-tauglicher werden.
+- Unterschied zwischen „Information speichern“ und „Wissen nutzbar machen“.
+- Beispiel: Policy Checker oder Contract Checker.
+- Beispiel: bessere Suche in Confluence und Laufwerken.
+- Beispiel: wiederkehrende Standardtexte mit aktuellen Daten prüfen und anpassen.
+
+Workshop-Perspektive:
+Die Teilnehmer sollen überlegen, welche Informationen in ihrem Bereich wiederholt gesucht, geprüft oder formuliert werden müssen.
+
+Leitfragen:
+- Welche Dokumente werden immer wieder benötigt?
+- Welche Entscheidungen hängen von Policies oder Regeln ab?
+- Wo entstehen Fehler, weil Informationen schwer auffindbar sind?
+- Welche Inhalte müssten besser strukturiert werden, damit KI sie zuverlässig nutzen kann?`,
+            people: ['Ronny Zimmermann', 'Alexander Hrncir'],
+            badges: ['Confluence', 'Knowledge Base'],
+            status: 'planned',
+            color: 'green',
+            type: 'phase',
+          },
+          {
+            id: 'item-6',
+            date: '10.–12. Juni 2026',
+            phase: 'Search & Retrieval',
+            title: 'Outlook-Suche mit KI',
+            description: 'Wie KI dabei helfen kann, relevante E-Mails, Termine und Zusammenhänge in Outlook schneller zu finden und für Aufgaben nutzbar zu machen.',
+            notes: `Outlook ist für viele Arbeitsbereiche ein zentraler Informationsspeicher, aber Informationen sind oft schwer auffindbar: alte E-Mail-Verläufe, Anhänge, Termine, Absprachen oder Fristen.
+
+In diesem Block soll gezeigt werden, wie KI bei der Suche und Einordnung helfen kann.
+
+Mögliche Beispiele:
+- relevante E-Mails zu einem Thema finden
+- lange E-Mail-Verläufe zusammenfassen
+- Anhänge oder Informationen aus Mails strukturieren
+- offene Punkte aus E-Mail-Konversationen extrahieren
+- Fristen oder wiederkehrende Termine erkennen
+- Suchanfragen besser formulieren
+- Ergebnisse in eine Zusammenfassung oder Aufgabenliste überführen
+
+Wichtige Botschaft:
+KI ersetzt nicht die eigene Prüfung, kann aber helfen, schneller von verstreuter Information zu einer verwertbaren Übersicht zu kommen.
+
+Bezug zum Retreat-Kontext:
+„Searches in Outlook mit Abacus“ war ein konkretes Beispiel für einen wiederkehrenden Workflow, der mit KI unterstützt werden kann.`,
+            people: ['Alexander Hrncir'],
+            badges: ['Outlook', 'Search'],
+            status: 'planned',
+            color: 'blue',
+            type: 'phase',
           },
         ],
       },
@@ -12734,6 +14686,8 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     let agendaEditSnapshotUsed = false;
     let agendaDragItemId = null;
     let agendaDropIndex = null;
+    let agendaPresentationMode = false;
+    const lockedAgendaItemIds = new Set();
 
     const agendaEls = {};
 
@@ -12757,6 +14711,8 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
         moveItemUpButton: root.querySelector('#agendaMoveItemUpButton'),
         moveItemDownButton: root.querySelector('#agendaMoveItemDownButton'),
         createAgendaButton: root.querySelector('#agendaCreateAgendaButton'),
+        presentButton: root.querySelector('#agendaPresentButton'),
+        exitPresentButton: root.querySelector('#agendaExitPresentButton'),
         exportHtmlButton: root.querySelector('#agendaExportHtmlButton'),
         exportJsonButton: root.querySelector('#agendaExportJsonButton'),
         importJsonButton: root.querySelector('#agendaImportJsonButton'),
@@ -12797,6 +14753,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       return agendas.map((agenda, agendaIndex) => ({
         id: agenda.id || createAgendaId('agenda'),
         title: agenda.title || `Agenda ${agendaIndex + 1}`,
+        titleSize: normalizeAgendaTitleSize(agenda.titleSize),
         kicker: agenda.kicker || 'Agenda & Roadmap',
         subtitle: agenda.subtitle || '',
         sectionTitle: agenda.sectionTitle || 'Workshop-Roadmap',
@@ -12903,6 +14860,23 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       if (agendaEls.redoButton) agendaEls.redoButton.disabled = agendaRedoStack.length === 0;
     }
 
+    function setAgendaPresentationMode(enabled) {
+      agendaPresentationMode = Boolean(enabled);
+      agendaEls.root?.classList.toggle('agenda-flow--presenting', agendaPresentationMode);
+      updateAgendaPresentationControls();
+    }
+
+    function updateAgendaPresentationControls() {
+      if (agendaEls.presentButton) {
+        agendaEls.presentButton.hidden = agendaPresentationMode;
+        agendaEls.presentButton.setAttribute('aria-pressed', String(agendaPresentationMode));
+      }
+      if (agendaEls.exitPresentButton) {
+        agendaEls.exitPresentButton.hidden = !agendaPresentationMode;
+        agendaEls.exitPresentButton.setAttribute('aria-pressed', String(agendaPresentationMode));
+      }
+    }
+
     function beginAgendaEditSession() {
       agendaEditSnapshot = getAgendaSnapshot();
       agendaEditSnapshotUsed = false;
@@ -12945,6 +14919,8 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       agendaEls.moveItemUpButton?.addEventListener('click', () => moveSelectedItem(-1));
       agendaEls.moveItemDownButton?.addEventListener('click', () => moveSelectedItem(1));
       agendaEls.createAgendaButton?.addEventListener('click', createAgenda);
+      agendaEls.presentButton?.addEventListener('click', () => setAgendaPresentationMode(true));
+      agendaEls.exitPresentButton?.addEventListener('click', () => setAgendaPresentationMode(false));
       agendaEls.exportHtmlButton?.addEventListener('click', exportCurrentAgendaHtml);
       agendaEls.exportJsonButton?.addEventListener('click', exportAgendasJson);
       agendaEls.importJsonButton?.addEventListener('click', () => agendaEls.jsonFileInput?.click());
@@ -12959,6 +14935,11 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
 
     function handleAgendaShortcutKeydown(event) {
       if (!isAgendaFlowActive()) return;
+      if (event.key === 'Escape' && agendaPresentationMode) {
+        event.preventDefault();
+        setAgendaPresentationMode(false);
+        return;
+      }
       const key = event.key.toLowerCase();
       const mod = event.ctrlKey || event.metaKey;
       if (event.altKey) return;
@@ -12991,6 +14972,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     function clearAgendaDragState() {
       agendaDragItemId = null;
       agendaDropIndex = null;
+      agendaEls.agendaPreview?.querySelector('.agenda-list')?.classList.remove('is-reordering');
       agendaEls.agendaPreview?.querySelectorAll('.agenda-item.is-dragging')
         .forEach(item => item.classList.remove('is-dragging'));
       agendaEls.agendaPreview?.querySelector('.agenda-drop-indicator')?.remove();
@@ -13006,6 +14988,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       agendaDragItemId = itemElement.dataset.itemId;
       agendaDropIndex = null;
       itemElement.classList.add('is-dragging');
+      itemElement.closest('.agenda-list')?.classList.add('is-reordering');
       event.dataTransfer.effectAllowed = 'move';
       event.dataTransfer.setData('text/plain', agendaDragItemId);
     }
@@ -13079,6 +15062,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       updateTopbar();
       updateItemActionButtons();
       updateAgendaUndoRedoButtons();
+      updateAgendaPresentationControls();
     }
 
     function renderAgendaPreview() {
@@ -13097,7 +15081,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
         <main class="agenda-page">
           <header class="agenda-page__header">
             <p class="agenda-page__kicker">${agendaEscapeHtml(agenda.kicker)}</p>
-            <h1>${agendaEscapeHtml(agenda.title)}</h1>
+            <h1 style="--agenda-title-size:${normalizeAgendaTitleSize(agenda.titleSize)}px">${agendaEscapeHtml(agenda.title)}</h1>
             <p class="agenda-page__subtitle">${agendaEscapeHtml(agenda.subtitle)}</p>
           </header>
           <section class="agenda-section" aria-labelledby="agenda-title">
@@ -13114,6 +15098,9 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     function buildAgendaItemHtml(item, selectedItemId, interactive) {
       const selectedClass = item.id === selectedItemId ? ' is-selected' : '';
       const typeClass = item.type === 'event' ? ' agenda-item--event' : '';
+      const locked = lockedAgendaItemIds.has(item.id);
+      const lockedClass = locked ? ' is-expanded-locked' : '';
+      const ariaExpanded = locked || item.id === selectedItemId ? 'true' : 'false';
       const roleAttributes = interactive ? ' role="button" tabindex="0" draggable="true"' : '';
       const peopleHtml = item.people.map(person => `<span>${agendaEscapeHtml(person)}</span>`).join('');
       const badgesHtml = item.badges.map(badge =>
@@ -13124,23 +15111,34 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
         : '';
 
       return `
-        <li class="agenda-item agenda-item--${agendaEscapeHtml(item.color)}${typeClass}${selectedClass}"
+        <li class="agenda-item agenda-item--${agendaEscapeHtml(item.color)}${typeClass}${selectedClass}${lockedClass}"
             data-item-id="${agendaEscapeHtml(item.id)}"
             data-status="${agendaEscapeHtml(item.status)}"
             data-owners="${agendaEscapeHtml(item.people.join(','))}"${roleAttributes}>
           <div class="agenda-marker" aria-hidden="true"></div>
           <article class="agenda-card">
             ${interactive ? '<span class="agenda-item__drag" draggable="true" title="Drag to reorder" aria-hidden="true">⋮⋮</span>' : ''}
+            ${interactive ? `
+              <button class="agenda-item__affordance"
+                      type="button"
+                      data-action="toggle-agenda-lock"
+                      aria-expanded="${ariaExpanded}"
+                      aria-pressed="${locked ? 'true' : 'false'}"
+                      aria-label="${locked ? 'Unlock item' : 'Lock item open'}"
+                      title="${locked ? 'Unlock item' : 'Lock item open'}">&#9656;</button>
+            ` : ''}
             <div class="agenda-meta">
               <p class="agenda-date">${agendaEscapeHtml(item.date)}</p>
               <span class="agenda-phase">${agendaEscapeHtml(item.phase)}</span>
             </div>
             <h3 class="agenda-title">${agendaEscapeHtml(item.title)}</h3>
-            <p class="agenda-description">${agendaEscapeHtml(item.description)}</p>
-            ${notesIndicator}
-            <div class="agenda-footer">
-              <p class="agenda-people" aria-label="Responsible people">${peopleHtml}</p>
-              <div class="agenda-badges" aria-label="Status and deadlines">${badgesHtml}</div>
+            <div class="agenda-item__expandable">
+              <p class="agenda-description">${agendaEscapeHtml(item.description)}</p>
+              ${notesIndicator}
+              <div class="agenda-footer">
+                <p class="agenda-people" aria-label="Responsible people">${peopleHtml}</p>
+                <div class="agenda-badges" aria-label="Status and deadlines">${badgesHtml}</div>
+              </div>
             </div>
           </article>
         </li>
@@ -13162,7 +15160,8 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
         <section class="agenda-flow__form-section" aria-label="Agenda settings">
           <p class="agenda-flow__form-title">Agenda level</p>
           ${inputField('Agenda title', 'title', agenda.title, 'agenda')}
-          ${inputField('Kicker / label', 'kicker', agenda.kicker, 'agenda')}
+          ${numberField('Title Size', 'titleSize', normalizeAgendaTitleSize(agenda.titleSize), 'agenda', 44, 96)}
+          ${inputField('Header Label', 'kicker', agenda.kicker, 'agenda')}
           ${textareaField('Subtitle', 'subtitle', agenda.subtitle, 'agenda', 4)}
           ${inputField('Section heading', 'sectionTitle', agenda.sectionTitle, 'agenda')}
           ${textareaField('Section description', 'sectionDescription', agenda.sectionDescription, 'agenda', 3)}
@@ -13229,6 +15228,14 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     }
 
     function handlePreviewSelection(event) {
+      const lockButton = event.target.closest('[data-action="toggle-agenda-lock"]');
+      if (lockButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        const itemElement = lockButton.closest('.agenda-item[data-item-id]');
+        if (itemElement) toggleAgendaItemLock(itemElement.dataset.itemId);
+        return;
+      }
       const itemElement = event.target.closest('.agenda-item[data-item-id]');
       if (!itemElement) return;
       agendaState.selectedItemId = itemElement.dataset.itemId;
@@ -13237,6 +15244,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     }
 
     function handlePreviewKeydown(event) {
+      if (event.target.closest('[data-action="toggle-agenda-lock"]')) return;
       if (!['Enter', ' '].includes(event.key)) return;
       const itemElement = event.target.closest('.agenda-item[data-item-id]');
       if (!itemElement) return;
@@ -13244,6 +15252,15 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       agendaState.selectedItemId = itemElement.dataset.itemId;
       renderAgendaPreview();
       renderInspector();
+    }
+
+    function toggleAgendaItemLock(itemId) {
+      if (lockedAgendaItemIds.has(itemId)) {
+        lockedAgendaItemIds.delete(itemId);
+      } else {
+        lockedAgendaItemIds.add(itemId);
+      }
+      renderAgendaPreview();
     }
 
     function handleInspectorInput(event) {
@@ -13256,7 +15273,9 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
         item[field.name] = ['people', 'badges'].includes(field.name) ? parseAgendaList(field.value) : field.value;
       }
       if (field.dataset.scope === 'agenda') {
-        agenda[field.name] = field.value;
+        agenda[field.name] = field.name === 'titleSize'
+          ? normalizeAgendaTitleSize(field.value)
+          : field.value;
       }
       renderAgendaPreview();
       renderAgendaTabs();
@@ -13306,6 +15325,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       const agenda = {
         id: createAgendaId('agenda'),
         title: `Neue Agenda ${agendaNumber}`,
+        titleSize: 76,
         kicker: 'Agenda & Roadmap',
         subtitle: 'Kurze Beschreibung dieser Agenda.',
         sectionTitle: 'Roadmap',
@@ -13344,6 +15364,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
         agendaState.agendas = [{
           id: createAgendaId('agenda'),
           title: 'Neue Agenda',
+          titleSize: 76,
           kicker: 'Agenda & Roadmap',
           subtitle: '',
           sectionTitle: 'Roadmap',
@@ -13460,7 +15481,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   <style>
 ${inlineCss}
 body { background: #070a12; overflow: auto; }
-.tool-switcher, .app, .help-overlay { display: none !important; }
+.corner-controls, .tool-switcher, .theme-switcher, .app, .help-overlay { display: none !important; }
 .agenda-flow { min-height: 100vh; height: auto; overflow: visible; }
 .agenda-flow__topbar, .agenda-flow__inspector, .agenda-flow__sidebar, .agenda-flow__preview-toolbar { display: none !important; }
 .agenda-flow__workspace { display: block; }
@@ -13559,6 +15580,15 @@ body { background: #070a12; overflow: auto; }
       `;
     }
 
+    function numberField(label, name, value, scope, min, max) {
+      return `
+        <label class="agenda-flow__field">
+          <span>${agendaEscapeHtml(label)}</span>
+          <input type="number" name="${agendaEscapeHtml(name)}" data-scope="${agendaEscapeHtml(scope)}" min="${min}" max="${max}" step="1" value="${agendaEscapeHtml(value)}">
+        </label>
+      `;
+    }
+
     function textareaField(label, name, value, scope, rows, placeholder = '') {
       return `
         <label class="agenda-flow__field">
@@ -13584,6 +15614,12 @@ body { background: #070a12; overflow: auto; }
     function parseAgendaList(value) {
       if (Array.isArray(value)) return value;
       return String(value).split(',').map(entry => entry.trim()).filter(Boolean);
+    }
+
+    function normalizeAgendaTitleSize(value) {
+      const size = Number(value);
+      if (!Number.isFinite(size)) return 76;
+      return Math.min(96, Math.max(44, Math.round(size)));
     }
 
     function createAgendaId(prefix) {
@@ -13812,6 +15848,7 @@ body { background: #070a12; overflow: auto; }
     } catch (_) { /* ignore */ }
 
     initToolSwitcher();
+    initThemeSwitcher();
     AgendaFlow.init();
     activeToolView = loadActiveToolViewPreference();
     refreshToolLogoToggleUi();

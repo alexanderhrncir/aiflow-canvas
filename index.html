@@ -4153,6 +4153,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .agenda-item--blue { --phase-color: var(--agenda-cyan); --phase-soft: rgba(68, 215, 245, 0.10); }
 .agenda-item--green { --phase-color: var(--agenda-green); --phase-soft: rgba(52, 211, 153, 0.10); }
 .agenda-item--orange { --phase-color: var(--agenda-orange); --phase-soft: rgba(251, 146, 60, 0.12); }
+.agenda-item--cyan { --phase-color: #22d3ee; --phase-soft: rgba(34, 211, 238, 0.10); }
+.agenda-item--pink { --phase-color: #ec4899; --phase-soft: rgba(236, 72, 153, 0.10); }
+.agenda-item--amber { --phase-color: #fbbf24; --phase-soft: rgba(251, 191, 36, 0.11); }
+.agenda-item--red { --phase-color: #fb7185; --phase-soft: rgba(251, 113, 133, 0.11); }
+.agenda-item--slate { --phase-color: #94a3b8; --phase-soft: rgba(148, 163, 184, 0.10); }
+.agenda-item--lime { --phase-color: #c7e95a; --phase-soft: rgba(199, 233, 90, 0.11); }
 .agenda-item[role="button"] { cursor: pointer; }
 .agenda-item.is-selected .agenda-card {
   border-color: rgba(167, 139, 250, 0.58);
@@ -7460,6 +7466,8 @@ ${styleText}
       closeHelpOverlay();
       return;
     }
+
+    if (activeToolView === 'agenda-flow') return;
 
     // Browser-native text undo wins inside any editable field.
     if (isEditableTarget(e.target)) return;
@@ -12641,6 +12649,11 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       saveTimer: null,
       initialized: false,
     };
+    const AGENDA_HISTORY_LIMIT = 80;
+    const agendaUndoStack = [];
+    const agendaRedoStack = [];
+    let agendaEditSnapshot = null;
+    let agendaEditSnapshotUsed = false;
 
     const agendaEls = {};
 
@@ -12718,7 +12731,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
               people: Array.isArray(item.people) ? item.people : parseAgendaList(item.people || ''),
               badges: Array.isArray(item.badges) ? item.badges : parseAgendaList(item.badges || ''),
               status: item.status || 'planned',
-              color: ['violet', 'blue', 'green', 'orange'].includes(item.color) ? item.color : 'violet',
+              color: ['violet', 'blue', 'green', 'orange', 'cyan', 'pink', 'amber', 'red', 'slate', 'lime'].includes(item.color) ? item.color : 'violet',
               type: item.type === 'event' ? 'event' : 'phase',
             }))
           : [],
@@ -12742,6 +12755,89 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       agendaState.saveTimer = window.setTimeout(() => setSaveIndicator('Saved'), 280);
     }
 
+    function getAgendaSnapshot() {
+      return clone({
+        agendas: agendaState.agendas,
+        activeAgendaId: agendaState.activeAgendaId,
+        selectedItemId: agendaState.selectedItemId,
+      });
+    }
+
+    function ensureValidAgendaSelection() {
+      if (!agendaState.agendas.length) {
+        agendaState.agendas = normalizeAgendas([]);
+      }
+      if (!agendaState.agendas.some(agenda => agenda.id === agendaState.activeAgendaId)) {
+        agendaState.activeAgendaId = agendaState.agendas[0]?.id || '';
+      }
+      const agenda = getActiveAgenda();
+      if (!agenda?.items?.some(item => item.id === agendaState.selectedItemId)) {
+        agendaState.selectedItemId = null;
+      }
+    }
+
+    function restoreAgendaSnapshot(snapshot) {
+      if (!snapshot) return;
+      agendaState.agendas = normalizeAgendas(snapshot.agendas);
+      agendaState.activeAgendaId = snapshot.activeAgendaId || agendaState.agendas[0]?.id || '';
+      agendaState.selectedItemId = snapshot.selectedItemId || null;
+      ensureValidAgendaSelection();
+      persist();
+      renderAll();
+    }
+
+    function pushAgendaUndoSnapshot(snapshot = getAgendaSnapshot()) {
+      agendaUndoStack.push(clone(snapshot));
+      if (agendaUndoStack.length > AGENDA_HISTORY_LIMIT) agendaUndoStack.shift();
+      agendaRedoStack.length = 0;
+      updateAgendaUndoRedoButtons();
+    }
+
+    function undoAgenda() {
+      if (!agendaUndoStack.length) return false;
+      const current = getAgendaSnapshot();
+      const previous = agendaUndoStack.pop();
+      agendaRedoStack.push(current);
+      if (agendaRedoStack.length > AGENDA_HISTORY_LIMIT) agendaRedoStack.shift();
+      restoreAgendaSnapshot(previous);
+      updateAgendaUndoRedoButtons();
+      showToast('Agenda undone');
+      return true;
+    }
+
+    function redoAgenda() {
+      if (!agendaRedoStack.length) return false;
+      const current = getAgendaSnapshot();
+      const next = agendaRedoStack.pop();
+      agendaUndoStack.push(current);
+      if (agendaUndoStack.length > AGENDA_HISTORY_LIMIT) agendaUndoStack.shift();
+      restoreAgendaSnapshot(next);
+      updateAgendaUndoRedoButtons();
+      showToast('Agenda redone');
+      return true;
+    }
+
+    function updateAgendaUndoRedoButtons() {
+      if (agendaEls.undoButton) agendaEls.undoButton.disabled = agendaUndoStack.length === 0;
+      if (agendaEls.redoButton) agendaEls.redoButton.disabled = agendaRedoStack.length === 0;
+    }
+
+    function beginAgendaEditSession() {
+      agendaEditSnapshot = getAgendaSnapshot();
+      agendaEditSnapshotUsed = false;
+    }
+
+    function ensureAgendaEditUndoSnapshot() {
+      if (agendaEditSnapshotUsed) return;
+      pushAgendaUndoSnapshot(agendaEditSnapshot || getAgendaSnapshot());
+      agendaEditSnapshotUsed = true;
+    }
+
+    function finishAgendaEditSession() {
+      agendaEditSnapshot = null;
+      agendaEditSnapshotUsed = false;
+    }
+
     function setSaveIndicator(text) {
       if (agendaEls.saveIndicator) agendaEls.saveIndicator.textContent = text;
       if (agendaEls.panelSaveIndicator) agendaEls.panelSaveIndicator.textContent = text;
@@ -12750,8 +12846,10 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     function bindEvents() {
       agendaEls.agendaPreview?.addEventListener('click', handlePreviewSelection);
       agendaEls.agendaPreview?.addEventListener('keydown', handlePreviewKeydown);
+      agendaEls.inspectorForm?.addEventListener('focusin', beginAgendaEditSession);
       agendaEls.inspectorForm?.addEventListener('input', handleInspectorInput);
       agendaEls.inspectorForm?.addEventListener('change', handleInspectorInput);
+      agendaEls.inspectorForm?.addEventListener('focusout', finishAgendaEditSession);
       agendaEls.agendaTabs?.addEventListener('click', handleAgendaTabClick);
       agendaEls.agendaTabs?.addEventListener('keydown', handleAgendaTabKeydown);
       agendaEls.editAgendaButton?.addEventListener('click', selectAgendaSettings);
@@ -12765,6 +12863,43 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       agendaEls.exportJsonButton?.addEventListener('click', exportAgendasJson);
       agendaEls.importJsonButton?.addEventListener('click', () => agendaEls.jsonFileInput?.click());
       agendaEls.jsonFileInput?.addEventListener('change', importAgendasJson);
+      document.addEventListener('keydown', handleAgendaShortcutKeydown);
+    }
+
+    function isAgendaFlowActive() {
+      const root = agendaEls.root || document.getElementById('agendaFlowView');
+      return activeToolView === 'agenda-flow' && !!root && !root.hidden;
+    }
+
+    function handleAgendaShortcutKeydown(event) {
+      if (!isAgendaFlowActive()) return;
+      const key = event.key.toLowerCase();
+      const mod = event.ctrlKey || event.metaKey;
+      if (event.altKey) return;
+
+      // Native text-field undo/redo should remain smooth. The input event
+      // keeps Agenda state in sync when the browser edits the field value.
+      if (isEditableTarget(event.target)) return;
+
+      if (!mod && event.key === 'Delete') {
+        if (getSelectedItem()) {
+          event.preventDefault();
+          deleteSelectedItem();
+        }
+        return;
+      }
+
+      if (!mod) return;
+
+      if (key === 'z' && !event.shiftKey) {
+        event.preventDefault();
+        undoAgenda();
+        return;
+      }
+      if (key === 'y' || (key === 'z' && event.shiftKey)) {
+        event.preventDefault();
+        redoAgenda();
+      }
     }
 
     function renderAll() {
@@ -12773,6 +12908,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       renderAgendaTabs();
       updateTopbar();
       updateItemActionButtons();
+      updateAgendaUndoRedoButtons();
     }
 
     function renderAgendaPreview() {
@@ -12881,6 +13017,12 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
             ['blue', 'Blue'],
             ['green', 'Green'],
             ['orange', 'Orange'],
+            ['cyan', 'Cyan'],
+            ['pink', 'Pink'],
+            ['amber', 'Amber'],
+            ['red', 'Red'],
+            ['slate', 'Slate'],
+            ['lime', 'Lime'],
           ])}
           ${selectField('Item type', 'type', item.type, 'item', [
             ['phase', 'Phase'],
@@ -12933,6 +13075,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       if (!field.name || !field.dataset.scope) return;
       const item = getSelectedItem();
       const agenda = getActiveAgenda();
+      ensureAgendaEditUndoSnapshot();
       if (field.dataset.scope === 'item' && item) {
         item[field.name] = ['people', 'badges'].includes(field.name) ? parseAgendaList(field.value) : field.value;
       }
@@ -12982,6 +13125,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     }
 
     function createAgenda() {
+      pushAgendaUndoSnapshot();
       const agendaNumber = agendaState.agendas.length + 1;
       const agenda = {
         id: createAgendaId('agenda'),
@@ -13002,6 +13146,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     function duplicateAgenda(agendaId) {
       const agenda = agendaState.agendas.find(entry => entry.id === agendaId);
       if (!agenda) return;
+      pushAgendaUndoSnapshot();
       const copy = clone(agenda);
       copy.id = createAgendaId('agenda');
       copy.title = `${agenda.title} Kopie`;
@@ -13017,7 +13162,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     function deleteAgenda(agendaId) {
       const agenda = agendaState.agendas.find(entry => entry.id === agendaId);
       if (!agenda) return;
-      if (!window.confirm(`Agenda "${agenda.title}" wirklich loeschen?`)) return;
+      pushAgendaUndoSnapshot();
       agendaState.agendas = agendaState.agendas.filter(entry => entry.id !== agendaId);
       if (!agendaState.agendas.length) {
         agendaState.agendas = [{
@@ -13034,10 +13179,12 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       agendaState.selectedItemId = null;
       persist();
       renderAll();
+      showToast('Agenda deleted');
     }
 
     function createAgendaItem() {
       const agenda = getActiveAgenda();
+      pushAgendaUndoSnapshot();
       const insertIndex = getSelectedItemIndex();
       const itemNumber = agenda.items.length + 1;
       const item = {
@@ -13063,6 +13210,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       const agenda = getActiveAgenda();
       const index = getSelectedItemIndex();
       if (index < 0) return;
+      pushAgendaUndoSnapshot();
       const source = agenda.items[index];
       const copy = clone(source);
       copy.id = createAgendaId('item');
@@ -13078,11 +13226,12 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       const item = getSelectedItem();
       const index = getSelectedItemIndex();
       if (!item || index < 0) return;
-      if (!window.confirm(`Agenda-Punkt "${item.title}" wirklich loeschen?`)) return;
+      pushAgendaUndoSnapshot();
       agenda.items.splice(index, 1);
       agendaState.selectedItemId = agenda.items[index]?.id || agenda.items[index - 1]?.id || null;
       persist();
       renderAll();
+      showToast('Agenda item deleted');
     }
 
     function moveSelectedItem(direction) {
@@ -13090,6 +13239,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       const index = getSelectedItemIndex();
       const targetIndex = index + direction;
       if (index < 0 || targetIndex < 0 || targetIndex >= agenda.items.length) return;
+      pushAgendaUndoSnapshot();
       const [item] = agenda.items.splice(index, 1);
       agenda.items.splice(targetIndex, 0, item);
       persist();
@@ -13147,6 +13297,7 @@ body { background: #070a12; overflow: auto; }
           const importedAgendas = Array.isArray(parsed) ? parsed : parsed.agendas;
           if (!Array.isArray(importedAgendas)) throw new Error('Imported JSON must include agendas.');
           const normalized = normalizeAgendas(importedAgendas);
+          pushAgendaUndoSnapshot();
           agendaState.agendas = normalized;
           agendaState.activeAgendaId = normalized[0].id;
           agendaState.selectedItemId = null;
@@ -13238,6 +13389,7 @@ body { background: #070a12; overflow: auto; }
     }
 
     function clone(value) {
+      if (typeof structuredClone === 'function') return structuredClone(value);
       return JSON.parse(JSON.stringify(value));
     }
 

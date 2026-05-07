@@ -4097,7 +4097,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .agenda-page__subtitle {
   max-width: 720px;
-  margin-top: 18px;
+  margin-top: 26px;
   color: var(--agenda-muted);
   font-size: 17px;
   line-height: 1.55;
@@ -4160,6 +4160,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .agenda-item--slate { --phase-color: #94a3b8; --phase-soft: rgba(148, 163, 184, 0.10); }
 .agenda-item--lime { --phase-color: #c7e95a; --phase-soft: rgba(199, 233, 90, 0.11); }
 .agenda-item[role="button"] { cursor: pointer; }
+.agenda-item.is-dragging {
+  opacity: 0.45;
+  cursor: grabbing;
+}
 .agenda-item.is-selected .agenda-card {
   border-color: rgba(167, 139, 250, 0.58);
   box-shadow:
@@ -4180,6 +4184,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     0 0 18px -6px var(--phase-color);
 }
 .agenda-card {
+  position: relative;
   overflow: hidden;
   padding: 22px;
   border: 1px solid rgba(148, 163, 184, 0.16);
@@ -4190,6 +4195,55 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow: 0 20px 55px rgba(0,0,0,0.25);
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
+.agenda-item__drag {
+  position: absolute;
+  top: 12px;
+  right: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 28px;
+  border-radius: 8px;
+  color: rgba(148, 163, 184, 0.56);
+  cursor: grab;
+  user-select: none;
+  transition: color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+.agenda-item__drag:hover {
+  color: rgba(226, 232, 240, 0.86);
+  background: rgba(255,255,255,0.045);
+}
+.agenda-item.is-dragging .agenda-item__drag {
+  cursor: grabbing;
+}
+.agenda-drop-indicator {
+  position: absolute;
+  left: 60px;
+  right: 0;
+  height: 0;
+  border-top: 2px solid rgba(34, 211, 238, 0.92);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08),
+    0 0 18px rgba(34, 211, 238, 0.36);
+  pointer-events: none;
+  transform: translateY(-1px);
+  z-index: 4;
+}
+.agenda-drop-indicator::before,
+.agenda-drop-indicator::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(34, 211, 238, 0.95);
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.48);
+}
+.agenda-drop-indicator::before { left: -4px; }
+.agenda-drop-indicator::after { right: -4px; }
 .agenda-card:hover {
   border-color: color-mix(in srgb, var(--phase-color) 42%, rgba(148, 163, 184, 0.16));
 }
@@ -4208,6 +4262,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .agenda-meta {
   margin-bottom: 12px;
+  padding-right: 38px;
+  transform: translateX(-2px);
 }
 .agenda-date {
   color: var(--phase-color);
@@ -4238,6 +4294,28 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   margin-top: 12px;
   color: var(--agenda-muted);
   line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.agenda-note-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  color: rgba(216, 250, 255, 0.74);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.agenda-note-indicator::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(34, 211, 238, 0.86);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.38);
 }
 .agenda-footer {
   margin-top: 20px;
@@ -12654,6 +12732,8 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     const agendaRedoStack = [];
     let agendaEditSnapshot = null;
     let agendaEditSnapshotUsed = false;
+    let agendaDragItemId = null;
+    let agendaDropIndex = null;
 
     const agendaEls = {};
 
@@ -12728,6 +12808,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
               phase: item.phase || `Phase ${itemIndex + 1}`,
               title: item.title || 'Neuer Agenda-Punkt',
               description: item.description || '',
+              notes: typeof item.notes === 'string' ? item.notes : '',
               people: Array.isArray(item.people) ? item.people : parseAgendaList(item.people || ''),
               badges: Array.isArray(item.badges) ? item.badges : parseAgendaList(item.badges || ''),
               status: item.status || 'planned',
@@ -12846,6 +12927,11 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     function bindEvents() {
       agendaEls.agendaPreview?.addEventListener('click', handlePreviewSelection);
       agendaEls.agendaPreview?.addEventListener('keydown', handlePreviewKeydown);
+      agendaEls.agendaPreview?.addEventListener('dragstart', handleAgendaDragStart);
+      agendaEls.agendaPreview?.addEventListener('dragover', handleAgendaDragOver);
+      agendaEls.agendaPreview?.addEventListener('dragleave', handleAgendaDragLeave);
+      agendaEls.agendaPreview?.addEventListener('drop', handleAgendaDrop);
+      agendaEls.agendaPreview?.addEventListener('dragend', clearAgendaDragState);
       agendaEls.inspectorForm?.addEventListener('focusin', beginAgendaEditSession);
       agendaEls.inspectorForm?.addEventListener('input', handleInspectorInput);
       agendaEls.inspectorForm?.addEventListener('change', handleInspectorInput);
@@ -12902,6 +12988,90 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       }
     }
 
+    function clearAgendaDragState() {
+      agendaDragItemId = null;
+      agendaDropIndex = null;
+      agendaEls.agendaPreview?.querySelectorAll('.agenda-item.is-dragging')
+        .forEach(item => item.classList.remove('is-dragging'));
+      agendaEls.agendaPreview?.querySelector('.agenda-drop-indicator')?.remove();
+    }
+
+    function handleAgendaDragStart(event) {
+      const itemElement = event.target.closest('.agenda-item[data-item-id]');
+      const handle = event.target.closest('.agenda-item__drag');
+      if (!itemElement || !handle) {
+        event.preventDefault();
+        return;
+      }
+      agendaDragItemId = itemElement.dataset.itemId;
+      agendaDropIndex = null;
+      itemElement.classList.add('is-dragging');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', agendaDragItemId);
+    }
+
+    function handleAgendaDragOver(event) {
+      if (!agendaDragItemId) return;
+      event.preventDefault();
+      const list = agendaEls.agendaPreview?.querySelector('.agenda-list');
+      const items = Array.from(list?.querySelectorAll('.agenda-item[data-item-id]') || []);
+      if (!list || !items.length) return;
+
+      let nextIndex = items.length;
+      for (let i = 0; i < items.length; i += 1) {
+        const rect = items[i].getBoundingClientRect();
+        if (event.clientY < rect.top + rect.height / 2) {
+          nextIndex = i;
+          break;
+        }
+      }
+      agendaDropIndex = nextIndex;
+      renderAgendaDropIndicator(nextIndex);
+      event.dataTransfer.dropEffect = 'move';
+    }
+
+    function handleAgendaDragLeave(event) {
+      const list = agendaEls.agendaPreview?.querySelector('.agenda-list');
+      if (list && event.relatedTarget && list.contains(event.relatedTarget)) return;
+      agendaDropIndex = null;
+      agendaEls.agendaPreview?.querySelector('.agenda-drop-indicator')?.remove();
+    }
+
+    function handleAgendaDrop(event) {
+      if (!agendaDragItemId || agendaDropIndex == null) {
+        clearAgendaDragState();
+        return;
+      }
+      event.preventDefault();
+      reorderAgendaItemToIndex(agendaDragItemId, agendaDropIndex);
+      clearAgendaDragState();
+    }
+
+    function renderAgendaDropIndicator(index) {
+      const list = agendaEls.agendaPreview?.querySelector('.agenda-list');
+      const items = Array.from(list?.querySelectorAll('.agenda-item[data-item-id]') || []);
+      if (!list || !items.length) return;
+      let indicator = list.querySelector('.agenda-drop-indicator');
+      if (!indicator) {
+        indicator = document.createElement('div');
+        indicator.className = 'agenda-drop-indicator';
+        list.appendChild(indicator);
+      }
+      const listRect = list.getBoundingClientRect();
+      let y = 0;
+      if (index <= 0) {
+        y = items[0].offsetTop;
+      } else if (index >= items.length) {
+        const last = items[items.length - 1];
+        y = last.offsetTop + last.offsetHeight;
+      } else {
+        y = items[index].offsetTop;
+      }
+      indicator.style.top = `${y}px`;
+      indicator.style.left = `${Math.max(60, items[0].offsetLeft + 44)}px`;
+      indicator.style.right = `${Math.max(0, listRect.width - (items[0].offsetLeft + items[0].offsetWidth))}px`;
+    }
+
     function renderAll() {
       renderAgendaPreview();
       renderInspector();
@@ -12944,11 +13114,14 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     function buildAgendaItemHtml(item, selectedItemId, interactive) {
       const selectedClass = item.id === selectedItemId ? ' is-selected' : '';
       const typeClass = item.type === 'event' ? ' agenda-item--event' : '';
-      const roleAttributes = interactive ? ' role="button" tabindex="0"' : '';
+      const roleAttributes = interactive ? ' role="button" tabindex="0" draggable="true"' : '';
       const peopleHtml = item.people.map(person => `<span>${agendaEscapeHtml(person)}</span>`).join('');
       const badgesHtml = item.badges.map(badge =>
         `<span class="agenda-badge ${getBadgeClass(item.status)}">${agendaEscapeHtml(badge)}</span>`
       ).join('');
+      const notesIndicator = String(item.notes || '').trim()
+        ? '<span class="agenda-note-indicator" title="Meeting notes available">Notes</span>'
+        : '';
 
       return `
         <li class="agenda-item agenda-item--${agendaEscapeHtml(item.color)}${typeClass}${selectedClass}"
@@ -12957,12 +13130,14 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
             data-owners="${agendaEscapeHtml(item.people.join(','))}"${roleAttributes}>
           <div class="agenda-marker" aria-hidden="true"></div>
           <article class="agenda-card">
+            ${interactive ? '<span class="agenda-item__drag" draggable="true" title="Drag to reorder" aria-hidden="true">⋮⋮</span>' : ''}
             <div class="agenda-meta">
               <p class="agenda-date">${agendaEscapeHtml(item.date)}</p>
               <span class="agenda-phase">${agendaEscapeHtml(item.phase)}</span>
             </div>
             <h3 class="agenda-title">${agendaEscapeHtml(item.title)}</h3>
             <p class="agenda-description">${agendaEscapeHtml(item.description)}</p>
+            ${notesIndicator}
             <div class="agenda-footer">
               <p class="agenda-people" aria-label="Responsible people">${peopleHtml}</p>
               <div class="agenda-badges" aria-label="Status and deadlines">${badgesHtml}</div>
@@ -12999,10 +13174,11 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       return `
         <section class="agenda-flow__form-section" aria-label="Agenda item settings">
           <p class="agenda-flow__form-title">Item level</p>
-          ${inputField('Date', 'date', item.date, 'item')}
+          ${inputField('Date/Time', 'date', item.date, 'item')}
           ${inputField('Phase label', 'phase', item.phase, 'item')}
           ${inputField('Title', 'title', item.title, 'item')}
           ${textareaField('Description', 'description', item.description, 'item', 6)}
+          ${textareaField('Meeting Notes', 'notes', item.notes || '', 'item', 5, 'Add notes, decisions, or context from the meeting…')}
           ${inputField('People / owners', 'people', item.people.join(', '), 'item')}
           ${inputField('Badges', 'badges', item.badges.join(', '), 'item')}
           ${selectField('Status', 'status', item.status, 'item', [
@@ -13193,6 +13369,7 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
         phase: `Phase ${itemNumber}`,
         title: 'Neuer Agenda-Punkt',
         description: 'Beschreibung des Agenda-Punkts.',
+        notes: '',
         people: [],
         badges: ['Planned'],
         status: 'planned',
@@ -13244,6 +13421,31 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       agenda.items.splice(targetIndex, 0, item);
       persist();
       renderAll();
+    }
+
+    function reorderAgendaItemToIndex(draggedId, dropIndex) {
+      const agenda = getActiveAgenda();
+      const items = agenda?.items || [];
+      const fromIndex = items.findIndex(item => item.id === draggedId);
+      if (fromIndex < 0 || !Number.isFinite(dropIndex)) return;
+
+      const nextItems = items.slice();
+      const [moved] = nextItems.splice(fromIndex, 1);
+      let insertIndex = Math.max(0, Math.min(dropIndex, items.length));
+      if (fromIndex < insertIndex) insertIndex -= 1;
+      insertIndex = Math.max(0, Math.min(insertIndex, nextItems.length));
+      nextItems.splice(insertIndex, 0, moved);
+
+      const oldOrder = items.map(item => item.id).join('|');
+      const newOrder = nextItems.map(item => item.id).join('|');
+      if (oldOrder === newOrder) return;
+
+      pushAgendaUndoSnapshot();
+      agenda.items = nextItems;
+      agendaState.selectedItemId = draggedId;
+      persist();
+      renderAll();
+      showToast('Agenda items reordered');
     }
 
     function exportCurrentAgendaHtml() {
@@ -13357,11 +13559,11 @@ body { background: #070a12; overflow: auto; }
       `;
     }
 
-    function textareaField(label, name, value, scope, rows) {
+    function textareaField(label, name, value, scope, rows, placeholder = '') {
       return `
         <label class="agenda-flow__field">
           <span>${agendaEscapeHtml(label)}</span>
-          <textarea name="${agendaEscapeHtml(name)}" data-scope="${agendaEscapeHtml(scope)}" rows="${rows}">${agendaEscapeHtml(value)}</textarea>
+          <textarea name="${agendaEscapeHtml(name)}" data-scope="${agendaEscapeHtml(scope)}" rows="${rows}" placeholder="${agendaEscapeHtml(placeholder)}">${agendaEscapeHtml(value)}</textarea>
         </label>
       `;
     }

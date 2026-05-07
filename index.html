@@ -93,6 +93,13 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   height: 100vh;
   width: 100vw;
 }
+.app[hidden],
+#app[hidden],
+#aiFlowView[hidden],
+.agenda-flow[hidden],
+#agendaFlowView[hidden] {
+  display: none !important;
+}
 .app.is-presenting {
   grid-template-columns: 1fr;
   grid-template-areas:
@@ -3760,7 +3767,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     linear-gradient(180deg, #0a0d16, var(--agenda-bg));
   overflow: hidden;
 }
-.agenda-flow[hidden] { display: none !important; }
+.agenda-flow,
+#agendaFlowView {
+  min-height: 100vh;
+  width: 100vw;
+}
 .agenda-flow button,
 .agenda-flow input,
 .agenda-flow textarea,
@@ -12160,16 +12171,20 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   }
 
   function closeToolSwitcherMenu() {
-    if (els.toolSwitcherMenu) els.toolSwitcherMenu.hidden = true;
-    if (els.toolSwitcherButton) els.toolSwitcherButton.setAttribute('aria-expanded', 'false');
+    const menu = els.toolSwitcherMenu || document.getElementById('toolSwitcherMenu');
+    const button = els.toolSwitcherButton || document.getElementById('toolSwitcherButton');
+    if (menu) menu.hidden = true;
+    if (button) button.setAttribute('aria-expanded', 'false');
   }
 
   function toggleToolSwitcherMenu() {
-    if (!els.toolSwitcherMenu || !els.toolSwitcherButton) return;
-    const nextOpen = !!els.toolSwitcherMenu.hidden;
+    const menu = els.toolSwitcherMenu || document.getElementById('toolSwitcherMenu');
+    const button = els.toolSwitcherButton || document.getElementById('toolSwitcherButton');
+    if (!menu || !button) return;
+    const nextOpen = !!menu.hidden;
     if (nextOpen) setMenuOpen(false);
-    els.toolSwitcherMenu.hidden = !nextOpen;
-    els.toolSwitcherButton.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
+    menu.hidden = !nextOpen;
+    button.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
   }
 
   function setActiveToolView(viewId, options = {}) {
@@ -12180,10 +12195,36 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       setPresentationMode(false);
     }
 
-    if (els.app) els.app.hidden = next !== 'ai-flow';
-    if (els.agendaFlowView) els.agendaFlowView.hidden = next !== 'agenda-flow';
+    const aiFlowView = document.getElementById('aiFlowView') || els.app || document.getElementById('app') || document.querySelector('.app');
+    const agendaFlowView = els.agendaFlowView || document.getElementById('agendaFlowView');
+    const toolItems = els.toolSwitcherItems.length
+      ? els.toolSwitcherItems
+      : Array.from(document.querySelectorAll('[data-tool-view]'));
 
-    els.toolSwitcherItems.forEach(item => {
+    if (next === 'agenda-flow') {
+      const agendaApi = typeof AgendaFlow !== 'undefined' ? AgendaFlow : null;
+      if (aiFlowView) {
+        aiFlowView.hidden = true;
+        aiFlowView.style.display = 'none';
+      }
+      if (agendaFlowView) {
+        agendaFlowView.hidden = false;
+        agendaFlowView.style.display = 'grid';
+        agendaFlowView.style.visibility = 'visible';
+        agendaFlowView.style.opacity = '1';
+      }
+      if (agendaApi?.init) agendaApi.init();
+      requestAnimationFrame(() => {
+        if (agendaApi?.renderAll) agendaApi.renderAll();
+        if (agendaFlowView) {
+          agendaFlowView.scrollTop = 0;
+          const preview = agendaFlowView.querySelector('#agendaPreview');
+          if (preview) preview.scrollTop = 0;
+        }
+      });
+    }
+
+    toolItems.forEach(item => {
       const isActive = item.dataset.toolView === next;
       item.classList.toggle('is-active', isActive);
       item.setAttribute('aria-current', isActive ? 'page' : 'false');
@@ -12193,6 +12234,14 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     if (!options.silent) saveActiveToolViewPreference(next);
 
     if (next === 'ai-flow') {
+      if (agendaFlowView) {
+        agendaFlowView.hidden = true;
+        agendaFlowView.style.display = 'none';
+      }
+      if (aiFlowView) {
+        aiFlowView.hidden = false;
+        aiFlowView.style.display = '';
+      }
       requestAnimationFrame(() => {
         updateCanvasStageSize();
         activeBoard()?.data?.edges?.forEach(updateEdgePath);
@@ -12201,6 +12250,49 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       });
     }
   }
+
+  function initToolSwitcher() {
+    const switcher = document.getElementById('toolSwitcher');
+    const button = document.getElementById('toolSwitcherButton');
+    const menu = document.getElementById('toolSwitcherMenu');
+    const items = Array.from(document.querySelectorAll('[data-tool-view]'));
+
+    if (!switcher || !button || !menu || !items.length) {
+      console.warn('[AIFlow] Tool Switcher is missing required DOM elements');
+      return;
+    }
+    if (switcher.dataset.initialized === 'true') return;
+    switcher.dataset.initialized = 'true';
+
+    els.toolSwitcherButton = button;
+    els.toolSwitcherMenu = menu;
+    els.toolSwitcherItems = items;
+
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleToolSwitcherMenu();
+    });
+
+    menu.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const item = event.target.closest('[data-tool-view]');
+      if (!item) return;
+      setActiveToolView(item.dataset.toolView);
+      closeToolSwitcherMenu();
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!switcher.contains(event.target)) closeToolSwitcherMenu();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeToolSwitcherMenu();
+    });
+  }
+
+  initToolSwitcher();
 
   topbarMenus.forEach(({ btn, menu }) => {
     btn.addEventListener('click', (e) => {
@@ -12264,21 +12356,6 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   }
   if (els.helpCloseBtn) els.helpCloseBtn.addEventListener('click', closeHelpOverlay);
   if (els.helpBackdrop) els.helpBackdrop.addEventListener('click', closeHelpOverlay);
-
-  if (els.toolSwitcherButton) {
-    els.toolSwitcherButton.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleToolSwitcherMenu();
-    });
-  }
-  if (els.toolSwitcherMenu) {
-    els.toolSwitcherMenu.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const item = e.target.closest('[data-tool-view]');
-      if (!item) return;
-      setActiveToolView(item.dataset.toolView);
-    });
-  }
 
   // Close menus on any outside click or Escape.
   document.addEventListener('click', () => {
@@ -13199,7 +13276,7 @@ body { background: #070a12; overflow: auto; }
       }
     }
 
-    return { init };
+    return { init, renderAll };
   })();
 
   // ============================================================
@@ -13380,6 +13457,7 @@ body { background: #070a12; overflow: auto; }
       });
     } catch (_) { /* ignore */ }
 
+    initToolSwitcher();
     AgendaFlow.init();
     activeToolView = loadActiveToolViewPreference();
     refreshToolLogoToggleUi();

@@ -110,7 +110,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
+  padding: 0 24px 0 64px;
   background: var(--bg-elev-1);
   border-bottom: 1px solid var(--stroke-subtle);
   z-index: 30;
@@ -590,6 +590,91 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-muted);
+}
+
+/* ----- TOOL SWITCHER ----- */
+.tool-switcher {
+  position: fixed;
+  top: 12px;
+  left: 16px;
+  z-index: 90;
+}
+.app.is-presenting ~ .tool-switcher {
+  display: none;
+}
+.tool-switcher__button {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(13, 15, 23, 0.88);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.025) inset,
+    0 8px 20px rgba(0,0,0,0.34);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+.tool-switcher__button span {
+  width: 13px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: rgba(226, 232, 240, 0.72);
+}
+.tool-switcher__button:hover {
+  border-color: rgba(68, 215, 245, 0.42);
+  box-shadow:
+    0 0 0 1px rgba(34,211,238,0.08) inset,
+    0 0 16px -8px rgba(68, 215, 245, 0.85),
+    0 8px 22px rgba(0,0,0,0.42);
+  transform: translateY(-1px);
+}
+.tool-switcher__menu[hidden] { display: none !important; }
+.tool-switcher__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 198px;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(167, 139, 250, 0.22);
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(124, 58, 237, 0.14), transparent 58%),
+    linear-gradient(180deg, rgba(18, 22, 34, 0.96), rgba(8, 10, 18, 0.94));
+  box-shadow:
+    0 16px 42px rgba(0,0,0,0.46),
+    0 0 24px -14px rgba(34, 211, 238, 0.65);
+  backdrop-filter: blur(16px);
+}
+.tool-switcher__item {
+  width: 100%;
+  display: grid;
+  gap: 2px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+}
+.tool-switcher__item:hover,
+.tool-switcher__item.is-active {
+  background: rgba(34, 211, 238, 0.07);
+  border-color: rgba(68, 215, 245, 0.22);
+}
+.tool-switcher__item-title {
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.tool-switcher__item-sub {
+  color: var(--text-muted);
+  font-size: 11.5px;
 }
 .minimap__toggle {
   display: inline-flex;
@@ -3643,6 +3728,585 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   text-transform: uppercase;
 }
 .help-overlay[hidden] { display: none !important; }
+
+/* ============================================================
+   AGENDA FLOW VIEW
+   Scoped second tool/view. Class names are intentionally prefixed so
+   the imported agenda UI cannot override AIFlow Canvas controls.
+   ============================================================ */
+.agenda-flow {
+  --agenda-bg: #070a12;
+  --agenda-panel: rgba(15, 20, 32, 0.92);
+  --agenda-panel-soft: rgba(255,255,255,0.035);
+  --agenda-surface: rgba(11, 15, 26, 0.92);
+  --agenda-surface-strong: rgba(18, 24, 38, 0.96);
+  --agenda-line: rgba(148, 163, 184, 0.18);
+  --agenda-text: #edf3ff;
+  --agenda-muted: #99a7bd;
+  --agenda-faint: #66758e;
+  --agenda-violet: #a78bfa;
+  --agenda-cyan: #44d7f5;
+  --agenda-green: #34d399;
+  --agenda-orange: #fb923c;
+  --agenda-red: #fb7185;
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  grid-template-rows: 64px minmax(0, 1fr);
+  color: var(--agenda-text);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(124, 58, 237, 0.18), transparent 34%),
+    radial-gradient(circle at 82% 12%, rgba(34, 211, 238, 0.12), transparent 32%),
+    linear-gradient(180deg, #0a0d16, var(--agenda-bg));
+  overflow: hidden;
+}
+.agenda-flow[hidden] { display: none !important; }
+.agenda-flow button,
+.agenda-flow input,
+.agenda-flow textarea,
+.agenda-flow select {
+  font: inherit;
+}
+.agenda-flow__topbar {
+  display: grid;
+  grid-template-columns: minmax(190px, 280px) minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 0 24px 0 64px;
+  border-bottom: 1px solid var(--stroke-subtle);
+  background: rgba(10, 13, 22, 0.88);
+  backdrop-filter: blur(18px);
+  z-index: 20;
+}
+.agenda-flow__brand {
+  display: flex;
+  gap: 11px;
+  align-items: center;
+  min-width: 0;
+}
+.agenda-flow__mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.32), transparent 32%),
+    linear-gradient(135deg, var(--agenda-violet), var(--agenda-cyan));
+  font-family: 'Fraunces', serif;
+  font-size: 19px;
+  font-style: italic;
+  box-shadow: 0 0 22px -10px rgba(68, 215, 245, 0.9);
+}
+.agenda-flow__brand-name,
+.agenda-flow__kicker {
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+}
+.agenda-flow__brand-name {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+}
+.agenda-flow__brand-sub,
+.agenda-flow__current-label,
+.agenda-flow__kicker {
+  color: var(--agenda-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.agenda-flow__context {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: center;
+  min-width: 0;
+}
+.agenda-flow__context strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agenda-flow__actions,
+.agenda-flow__panel-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.agenda-flow__save {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(52, 211, 153, 0.24);
+  color: #bbf7d0;
+  background: rgba(52, 211, 153, 0.08);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.agenda-flow__button,
+.agenda-flow__icon-button,
+.agenda-flow__mini-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--agenda-line);
+  border-radius: 9px;
+  color: var(--agenda-text);
+  background: rgba(255,255,255,0.035);
+  transition: transform 150ms ease, border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+.agenda-flow__button {
+  min-height: 34px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.agenda-flow__button:hover,
+.agenda-flow__icon-button:hover,
+.agenda-flow__mini-button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(68, 215, 245, 0.42);
+  box-shadow: 0 0 18px -11px rgba(68, 215, 245, 0.9);
+}
+.agenda-flow__button--primary {
+  border-color: rgba(167, 139, 250, 0.42);
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.78), rgba(6, 182, 212, 0.52));
+}
+.agenda-flow__button--soft {
+  color: #d8faff;
+  border-color: rgba(68, 215, 245, 0.24);
+  background: rgba(34, 211, 238, 0.08);
+}
+.agenda-flow__button--danger,
+.agenda-flow__mini-button--danger {
+  color: #ffe4e6;
+  border-color: rgba(251, 113, 133, 0.28);
+  background: rgba(251, 113, 133, 0.10);
+}
+.agenda-flow__icon-button {
+  width: 34px;
+  height: 34px;
+  font-size: 20px;
+}
+.agenda-flow__workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px 280px;
+  min-height: 0;
+}
+.agenda-flow__preview,
+.agenda-flow__inspector,
+.agenda-flow__sidebar {
+  min-height: 0;
+  overflow: auto;
+}
+.agenda-flow__preview {
+  padding: 24px;
+}
+.agenda-flow__preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1120px;
+  margin: 0 auto 16px;
+}
+.agenda-flow h2,
+.agenda-flow h3,
+.agenda-flow p {
+  margin: 0;
+}
+.agenda-flow__preview-surface {
+  max-width: 1120px;
+  margin: 0 auto;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(124, 58, 237, 0.08), transparent 42%),
+    rgba(8, 11, 20, 0.86);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    0 24px 70px rgba(0,0,0,0.36);
+}
+.agenda-flow__inspector,
+.agenda-flow__sidebar {
+  padding: 16px;
+  border-left: 1px solid var(--stroke-subtle);
+  background: rgba(8, 10, 18, 0.74);
+}
+.agenda-flow__sidebar {
+  background: rgba(10, 13, 22, 0.84);
+}
+.agenda-flow__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.agenda-flow__panel-title {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 300;
+}
+.agenda-flow__panel-actions {
+  margin-bottom: 10px;
+  justify-content: flex-start;
+}
+.agenda-flow__form {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+.agenda-flow__form-section {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(255,255,255,0.03);
+}
+.agenda-flow__form-title {
+  color: #d8faff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.agenda-flow__field {
+  display: grid;
+  gap: 6px;
+}
+.agenda-flow__field span {
+  color: var(--agenda-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+.agenda-flow__field input,
+.agenda-flow__field textarea,
+.agenda-flow__field select {
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 10px;
+  color: var(--agenda-text);
+  background: rgba(4, 7, 13, 0.72);
+  outline: none;
+}
+.agenda-flow__field input,
+.agenda-flow__field select {
+  min-height: 36px;
+  padding: 0 10px;
+}
+.agenda-flow__field textarea {
+  min-height: 92px;
+  resize: vertical;
+  padding: 9px 10px;
+  line-height: 1.45;
+}
+.agenda-flow__field input:focus,
+.agenda-flow__field textarea:focus,
+.agenda-flow__field select:focus {
+  border-color: rgba(167, 139, 250, 0.52);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
+}
+.agenda-flow__tabs {
+  display: grid;
+  gap: 10px;
+}
+.agenda-flow__tab {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 15px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  color: var(--agenda-text);
+  background: rgba(255,255,255,0.032);
+  text-align: left;
+}
+.agenda-flow__tab.is-active {
+  border-color: rgba(167, 139, 250, 0.42);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(167, 139, 250, 0.16), transparent 50%),
+    rgba(255,255,255,0.045);
+}
+.agenda-flow__tab-title {
+  font-weight: 850;
+  line-height: 1.25;
+}
+.agenda-flow__tab-meta {
+  color: var(--agenda-muted);
+  font-size: 12px;
+}
+.agenda-flow__tab-actions {
+  display: flex;
+  gap: 7px;
+}
+.agenda-flow__mini-button {
+  min-height: 28px;
+  padding: 0 8px;
+  color: var(--agenda-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+.agenda-page {
+  width: min(100% - 32px, 1040px);
+  margin-inline: auto;
+  padding: 56px 0;
+}
+.agenda-page__header {
+  max-width: 760px;
+  margin-bottom: 48px;
+}
+.agenda-page__kicker {
+  margin-bottom: 12px;
+  color: var(--agenda-cyan);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.agenda-page__header h1 {
+  max-width: 780px;
+  font-family: 'Fraunces', serif;
+  font-size: clamp(42px, 6vw, 76px);
+  font-weight: 300;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+.agenda-page__subtitle {
+  max-width: 720px;
+  margin-top: 18px;
+  color: var(--agenda-muted);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.agenda-section {
+  display: grid;
+  grid-template-columns: minmax(180px, 260px) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+.agenda-section__heading {
+  position: sticky;
+  top: 24px;
+  padding-top: 4px;
+}
+.agenda-section__heading h2 {
+  font-size: 16px;
+  line-height: 1.2;
+}
+.agenda-section__heading p {
+  margin-top: 9px;
+  color: var(--agenda-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.agenda-list {
+  position: relative;
+  display: grid;
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.agenda-list::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 22px;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, rgba(148, 163, 184, 0.22) 8%, rgba(148, 163, 184, 0.22) 92%, transparent);
+}
+.agenda-item {
+  --phase-color: var(--agenda-violet);
+  --phase-soft: rgba(167, 139, 250, 0.10);
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.agenda-item--violet { --phase-color: var(--agenda-violet); --phase-soft: rgba(167, 139, 250, 0.11); }
+.agenda-item--blue { --phase-color: var(--agenda-cyan); --phase-soft: rgba(68, 215, 245, 0.10); }
+.agenda-item--green { --phase-color: var(--agenda-green); --phase-soft: rgba(52, 211, 153, 0.10); }
+.agenda-item--orange { --phase-color: var(--agenda-orange); --phase-soft: rgba(251, 146, 60, 0.12); }
+.agenda-item[role="button"] { cursor: pointer; }
+.agenda-item.is-selected .agenda-card {
+  border-color: rgba(167, 139, 250, 0.58);
+  box-shadow:
+    0 0 0 4px rgba(167, 139, 250, 0.12),
+    0 24px 60px rgba(0,0,0,0.28);
+}
+.agenda-marker {
+  position: relative;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  margin: 25px auto 0;
+  border: 4px solid #090d16;
+  border-radius: 50%;
+  background: var(--phase-color);
+  box-shadow:
+    0 0 0 6px var(--phase-soft),
+    0 0 18px -6px var(--phase-color);
+}
+.agenda-card {
+  overflow: hidden;
+  padding: 22px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 20px;
+  background:
+    linear-gradient(90deg, var(--phase-soft), transparent 42%),
+    rgba(255,255,255,0.038);
+  box-shadow: 0 20px 55px rgba(0,0,0,0.25);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+.agenda-card:hover {
+  border-color: color-mix(in srgb, var(--phase-color) 42%, rgba(148, 163, 184, 0.16));
+}
+.agenda-meta,
+.agenda-footer,
+.agenda-people,
+.agenda-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.agenda-meta,
+.agenda-footer {
+  justify-content: space-between;
+}
+.agenda-meta {
+  margin-bottom: 12px;
+}
+.agenda-date {
+  color: var(--phase-color);
+  font-size: 13px;
+  font-weight: 850;
+}
+.agenda-phase,
+.agenda-badge,
+.agenda-people span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.agenda-phase,
+.agenda-badge {
+  color: var(--phase-color);
+  background: var(--phase-soft);
+}
+.agenda-title {
+  font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.15;
+}
+.agenda-description {
+  margin-top: 12px;
+  color: var(--agenda-muted);
+  line-height: 1.55;
+}
+.agenda-footer {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+.agenda-people span {
+  color: var(--agenda-text);
+  background: rgba(255,255,255,0.052);
+}
+.agenda-badge--deadline { color: #fecdd3; background: rgba(251, 113, 133, 0.12); }
+.agenda-badge--status { color: #bfdbfe; background: rgba(96, 165, 250, 0.12); }
+.agenda-badge--done { color: #bbf7d0; background: rgba(52, 211, 153, 0.12); }
+.agenda-badge--due { color: #fed7aa; background: rgba(251, 146, 60, 0.12); }
+.agenda-empty {
+  padding: 28px;
+  border: 1px dashed rgba(148, 163, 184, 0.22);
+  border-radius: 18px;
+  color: var(--agenda-muted);
+  background: rgba(255,255,255,0.035);
+}
+.agenda-flow__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 1180px) {
+  .agenda-flow {
+    overflow: auto;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .agenda-flow__topbar,
+  .agenda-flow__workspace {
+    grid-template-columns: 1fr;
+  }
+  .agenda-flow__topbar {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .agenda-flow__context,
+  .agenda-flow__actions {
+    justify-content: flex-start;
+  }
+  .agenda-flow__preview,
+  .agenda-flow__inspector,
+  .agenda-flow__sidebar {
+    overflow: visible;
+  }
+  .agenda-flow__inspector,
+  .agenda-flow__sidebar {
+    border-top: 1px solid var(--stroke-subtle);
+    border-left: 0;
+  }
+  .agenda-flow__tabs {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .agenda-flow__preview,
+  .agenda-flow__inspector,
+  .agenda-flow__sidebar {
+    padding: 14px;
+  }
+  .agenda-flow__actions,
+  .agenda-flow__preview-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .agenda-page {
+    width: min(100% - 20px, 1040px);
+    padding: 36px 0;
+  }
+  .agenda-section {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .agenda-section__heading {
+    position: static;
+  }
+}
+
 .help-overlay {
   position: fixed;
   inset: 0;
@@ -4490,6 +5154,98 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   </aside>
 </div>
 
+<section class="agenda-flow" id="agendaFlowView" hidden aria-label="Agenda Flow">
+  <header class="agenda-flow__topbar">
+    <div class="agenda-flow__brand" aria-label="Agenda Flow">
+      <span class="agenda-flow__mark">A</span>
+      <div>
+        <p class="agenda-flow__brand-name">Agenda Flow</p>
+        <p class="agenda-flow__brand-sub">Timeline Builder</p>
+      </div>
+    </div>
+
+    <div class="agenda-flow__context" aria-live="polite">
+      <span class="agenda-flow__current-label">Active agenda</span>
+      <strong id="agendaCurrentAgendaName">KI-Workshop Vorbereitung</strong>
+    </div>
+
+    <div class="agenda-flow__actions" aria-label="Agenda export and import">
+      <span class="agenda-flow__save" id="agendaSaveIndicator">Saved</span>
+      <button class="agenda-flow__button" type="button" id="agendaExportHtmlButton">Export HTML</button>
+      <button class="agenda-flow__button" type="button" id="agendaExportJsonButton">Export JSON</button>
+      <button class="agenda-flow__button agenda-flow__button--primary" type="button" id="agendaImportJsonButton">Import JSON</button>
+      <input class="agenda-flow__visually-hidden" type="file" id="agendaJsonFileInput" accept="application/json,.json">
+    </div>
+  </header>
+
+  <main class="agenda-flow__workspace" aria-label="Agenda Editor">
+    <section class="agenda-flow__preview" aria-label="Agenda preview">
+      <div class="agenda-flow__preview-toolbar">
+        <div>
+          <p class="agenda-flow__kicker">Live Preview</p>
+          <h2>Agenda Preview</h2>
+        </div>
+        <button class="agenda-flow__button agenda-flow__button--soft" type="button" id="agendaEditAgendaButton">Edit agenda</button>
+      </div>
+
+      <div class="agenda-flow__preview-surface" id="agendaPreview"></div>
+    </section>
+
+    <aside class="agenda-flow__inspector" aria-label="Agenda inspector">
+      <div class="agenda-flow__panel-header">
+        <div>
+          <p class="agenda-flow__kicker">Inspector</p>
+          <h2 class="agenda-flow__panel-title" id="agendaInspectorTitle">Edit agenda</h2>
+        </div>
+        <span class="agenda-flow__save" id="agendaPanelSaveIndicator">Saved</span>
+      </div>
+
+      <div class="agenda-flow__panel-actions">
+        <button class="agenda-flow__button agenda-flow__button--soft" type="button" id="agendaAddItemButton">New item</button>
+        <button class="agenda-flow__button" type="button" id="agendaDuplicateItemButton">Duplicate</button>
+      </div>
+
+      <div class="agenda-flow__panel-actions">
+        <button class="agenda-flow__button" type="button" id="agendaMoveItemUpButton">Move up</button>
+        <button class="agenda-flow__button" type="button" id="agendaMoveItemDownButton">Move down</button>
+        <button class="agenda-flow__button agenda-flow__button--danger" type="button" id="agendaDeleteItemButton">Delete</button>
+      </div>
+
+      <form class="agenda-flow__form" id="agendaInspectorForm"></form>
+    </aside>
+
+    <aside class="agenda-flow__sidebar" aria-label="Saved agendas">
+      <div class="agenda-flow__panel-header">
+        <div>
+          <p class="agenda-flow__kicker">Agendas</p>
+          <h2 class="agenda-flow__panel-title">Boards</h2>
+        </div>
+        <button class="agenda-flow__icon-button" type="button" id="agendaCreateAgendaButton" aria-label="Create new agenda">+</button>
+      </div>
+
+      <div class="agenda-flow__tabs" id="agendaTabs"></div>
+    </aside>
+  </main>
+</section>
+
+<div class="tool-switcher" id="toolSwitcher">
+  <button class="tool-switcher__button" id="toolSwitcherButton" type="button" aria-label="Switch tool" aria-haspopup="true" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+  <div class="tool-switcher__menu" id="toolSwitcherMenu" role="menu" hidden>
+    <button class="tool-switcher__item is-active" type="button" data-tool-view="ai-flow" role="menuitem">
+      <span class="tool-switcher__item-title">AI Flow</span>
+      <span class="tool-switcher__item-sub">Workflow canvas</span>
+    </button>
+    <button class="tool-switcher__item" type="button" data-tool-view="agenda-flow" role="menuitem">
+      <span class="tool-switcher__item-title">Agenda Flow</span>
+      <span class="tool-switcher__item-sub">Agenda planning</span>
+    </button>
+  </div>
+</div>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="icon-sparkle" viewBox="0 0 24 24">
     <path fill="currentColor" d="M12 2l1.6 4.8a4 4 0 0 0 2.6 2.6L21 11l-4.8 1.6a4 4 0 0 0-2.6 2.6L12 20l-1.6-4.8a4 4 0 0 0-2.6-2.6L3 11l4.8-1.6a4 4 0 0 0 2.6-2.6L12 2z"></path>
@@ -4631,6 +5387,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   // contexts where the browser disabled storage).
   const STORAGE_KEY = 'aiflow:workspace:v1';
   const TOOL_LOGOS_KEY = 'aiflow:show-tool-logos:v1';
+  const ACTIVE_TOOL_VIEW_KEY = 'aiflow-active-tool-view';
   const WORKSPACE_JSON_URL = './workspace.json';
 
   // Probe localStorage once. Even when localStorage exists as an object,
@@ -4779,6 +5536,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   const diffEdgeHighlights = new Map();
   let qualityIssues = [];
   let showToolLogos = loadToolLogoPreference();
+  let activeToolView = 'ai-flow';
   const filterState = {
     status: new Set(),
     type: new Set(),
@@ -4789,6 +5547,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   // ===== DOM HOOKS ==============================================
   const els = {
     app:           document.getElementById('app'),
+    agendaFlowView: document.getElementById('agendaFlowView'),
+    toolSwitcherButton: document.getElementById('toolSwitcherButton'),
+    toolSwitcherMenu: document.getElementById('toolSwitcherMenu'),
+    toolSwitcherItems: Array.from(document.querySelectorAll('[data-tool-view]')),
     canvas:        document.getElementById('canvas'),
     canvasStage:   document.getElementById('canvasStage'),
     swimlaneLayer: document.getElementById('swimlaneLayer'),
@@ -11380,6 +12142,66 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
     showToast(showToolLogos ? 'Tool logos shown' : 'Tool logos hidden');
   }
 
+  function loadActiveToolViewPreference() {
+    if (!STORAGE_OK) return 'ai-flow';
+    try {
+      const saved = localStorage.getItem(ACTIVE_TOOL_VIEW_KEY);
+      return saved === 'agenda-flow' ? 'agenda-flow' : 'ai-flow';
+    } catch (_) {
+      return 'ai-flow';
+    }
+  }
+
+  function saveActiveToolViewPreference(viewId) {
+    if (!STORAGE_OK) return;
+    try {
+      localStorage.setItem(ACTIVE_TOOL_VIEW_KEY, viewId);
+    } catch (_) { /* ignore view preference failures */ }
+  }
+
+  function closeToolSwitcherMenu() {
+    if (els.toolSwitcherMenu) els.toolSwitcherMenu.hidden = true;
+    if (els.toolSwitcherButton) els.toolSwitcherButton.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleToolSwitcherMenu() {
+    if (!els.toolSwitcherMenu || !els.toolSwitcherButton) return;
+    const nextOpen = !!els.toolSwitcherMenu.hidden;
+    if (nextOpen) setMenuOpen(false);
+    els.toolSwitcherMenu.hidden = !nextOpen;
+    els.toolSwitcherButton.setAttribute('aria-expanded', nextOpen ? 'true' : 'false');
+  }
+
+  function setActiveToolView(viewId, options = {}) {
+    const next = viewId === 'agenda-flow' ? 'agenda-flow' : 'ai-flow';
+    activeToolView = next;
+
+    if (next === 'agenda-flow' && isPresentationMode) {
+      setPresentationMode(false);
+    }
+
+    if (els.app) els.app.hidden = next !== 'ai-flow';
+    if (els.agendaFlowView) els.agendaFlowView.hidden = next !== 'agenda-flow';
+
+    els.toolSwitcherItems.forEach(item => {
+      const isActive = item.dataset.toolView === next;
+      item.classList.toggle('is-active', isActive);
+      item.setAttribute('aria-current', isActive ? 'page' : 'false');
+    });
+
+    closeToolSwitcherMenu();
+    if (!options.silent) saveActiveToolViewPreference(next);
+
+    if (next === 'ai-flow') {
+      requestAnimationFrame(() => {
+        updateCanvasStageSize();
+        activeBoard()?.data?.edges?.forEach(updateEdgePath);
+        activeBoard()?.data?.nodes?.forEach(updateNodeDocsPosition);
+        scheduleMinimapRender();
+      });
+    }
+  }
+
   topbarMenus.forEach(({ btn, menu }) => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -11443,10 +12265,31 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   if (els.helpCloseBtn) els.helpCloseBtn.addEventListener('click', closeHelpOverlay);
   if (els.helpBackdrop) els.helpBackdrop.addEventListener('click', closeHelpOverlay);
 
+  if (els.toolSwitcherButton) {
+    els.toolSwitcherButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleToolSwitcherMenu();
+    });
+  }
+  if (els.toolSwitcherMenu) {
+    els.toolSwitcherMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const item = e.target.closest('[data-tool-view]');
+      if (!item) return;
+      setActiveToolView(item.dataset.toolView);
+    });
+  }
+
   // Close menus on any outside click or Escape.
-  document.addEventListener('click', () => setMenuOpen(false));
+  document.addEventListener('click', () => {
+    setMenuOpen(false);
+    closeToolSwitcherMenu();
+  });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') setMenuOpen(false);
+    if (e.key === 'Escape') {
+      setMenuOpen(false);
+      closeToolSwitcherMenu();
+    }
   });
 
   if (els.presentModeBtn) els.presentModeBtn.addEventListener('click', () => setPresentationMode(!isPresentationMode));
@@ -11647,6 +12490,719 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   });
 
   // ============================================================
+  // AGENDA FLOW
+  // Separate second tool/view. Kept in a small module so agenda state,
+  // storage, DOM queries, and helpers cannot collide with AIFlow Canvas.
+  // ============================================================
+  const AgendaFlow = (() => {
+    const AGENDA_STORAGE_KEY = 'aiflow-agenda-flow-state-v1';
+    const defaultAgendas = [
+      {
+        id: 'agenda-1',
+        title: 'KI-Workshop Vorbereitung',
+        kicker: 'Agenda & Roadmap',
+        subtitle: 'Eine kompakte Übersicht der wichtigsten Phasen, Verantwortlichkeiten und Deadlines bis zum Workshop.',
+        sectionTitle: 'Workshop-Roadmap',
+        sectionDescription: 'Von der Use-Case-Erarbeitung bis zur Durchführung beim GMI Retreat.',
+        items: [
+          {
+            id: 'item-1',
+            date: '14. - 24. April 2026',
+            phase: 'Phase 1',
+            title: 'Erste Use Cases erarbeiten',
+            description: 'Initiale Use Cases identifizieren und dokumentieren. Erste Prototypen und Beispiele vorbereiten, die als Grundlage fuer die Abteilungsgespraeche dienen.',
+            people: ['Ronny', 'Adaresh', 'Alexander'],
+            badges: ['Deadline: 24. April'],
+            status: 'deadline',
+            color: 'violet',
+            type: 'phase',
+          },
+          {
+            id: 'item-2',
+            date: '25. April - 8. Mai 2026',
+            phase: 'Phase 2',
+            title: 'Abteilungsgespraeche & Use Case Discovery',
+            description: 'Gespraeche mit den einzelnen Abteilungen fuehren, um spezifische Use Cases zu identifizieren, die im Workshop bearbeitet werden.',
+            people: ['Alexander', 'Nadine'],
+            badges: ['Deadline: 8. Mai'],
+            status: 'deadline',
+            color: 'blue',
+            type: 'phase',
+          },
+          {
+            id: 'item-3',
+            date: '9. - 22. Mai 2026',
+            phase: 'Phase 3',
+            title: 'Workshop-Vorbereitung',
+            description: 'Materialien erstellen, Workshop-Agenda finalisieren, Uebungen und Hands-on-Aufgaben vorbereiten. Technische Infrastruktur bereitstellen.',
+            people: ['Ronny', 'Adaresh', 'Alexander', 'Markus'],
+            badges: ['Zwischenstand: 15. Mai', 'Fertig: 22. Mai'],
+            status: 'in-progress',
+            color: 'green',
+            type: 'phase',
+          },
+          {
+            id: 'item-4',
+            date: '10. Juni 2026',
+            phase: 'Event',
+            title: 'KI-Workshop @ GMI Retreat',
+            description: 'Durchfuehrung des Hands-on Workshops. Teilnehmende erstellen KI-generierte Dokumente und dokumentieren abteilungsspezifische Use Cases.',
+            people: ['Ronny', 'Adaresh', 'Alexander'],
+            badges: ['Due Date'],
+            status: 'due',
+            color: 'orange',
+            type: 'event',
+          },
+        ],
+      },
+    ];
+
+    const agendaState = {
+      agendas: [],
+      activeAgendaId: '',
+      selectedItemId: null,
+      saveTimer: null,
+      initialized: false,
+    };
+
+    const agendaEls = {};
+
+    function init() {
+      if (agendaState.initialized) return;
+      const root = document.getElementById('agendaFlowView');
+      if (!root) return;
+      Object.assign(agendaEls, {
+        root,
+        agendaPreview: root.querySelector('#agendaPreview'),
+        agendaTabs: root.querySelector('#agendaTabs'),
+        inspectorForm: root.querySelector('#agendaInspectorForm'),
+        inspectorTitle: root.querySelector('#agendaInspectorTitle'),
+        currentAgendaName: root.querySelector('#agendaCurrentAgendaName'),
+        saveIndicator: root.querySelector('#agendaSaveIndicator'),
+        panelSaveIndicator: root.querySelector('#agendaPanelSaveIndicator'),
+        editAgendaButton: root.querySelector('#agendaEditAgendaButton'),
+        addItemButton: root.querySelector('#agendaAddItemButton'),
+        duplicateItemButton: root.querySelector('#agendaDuplicateItemButton'),
+        deleteItemButton: root.querySelector('#agendaDeleteItemButton'),
+        moveItemUpButton: root.querySelector('#agendaMoveItemUpButton'),
+        moveItemDownButton: root.querySelector('#agendaMoveItemDownButton'),
+        createAgendaButton: root.querySelector('#agendaCreateAgendaButton'),
+        exportHtmlButton: root.querySelector('#agendaExportHtmlButton'),
+        exportJsonButton: root.querySelector('#agendaExportJsonButton'),
+        importJsonButton: root.querySelector('#agendaImportJsonButton'),
+        jsonFileInput: root.querySelector('#agendaJsonFileInput'),
+      });
+
+      loadAgendas();
+      bindEvents();
+      renderAll();
+      agendaState.initialized = true;
+    }
+
+    function loadAgendas() {
+      const fallback = clone(defaultAgendas);
+      try {
+        const stored = localStorage.getItem(AGENDA_STORAGE_KEY);
+        if (!stored) {
+          agendaState.agendas = fallback;
+          agendaState.activeAgendaId = fallback[0].id;
+          return;
+        }
+        const parsed = JSON.parse(stored);
+        const loadedAgendas = Array.isArray(parsed) ? parsed : parsed.agendas;
+        const activeAgendaId = Array.isArray(parsed) ? loadedAgendas?.[0]?.id : parsed.activeAgendaId;
+        agendaState.agendas = normalizeAgendas(loadedAgendas);
+        agendaState.activeAgendaId = agendaState.agendas.some(agenda => agenda.id === activeAgendaId)
+          ? activeAgendaId
+          : agendaState.agendas[0].id;
+      } catch (error) {
+        console.warn('[Agenda Flow] Saved agenda data could not be loaded. Default data is used.', error);
+        agendaState.agendas = fallback;
+        agendaState.activeAgendaId = fallback[0].id;
+      }
+    }
+
+    function normalizeAgendas(input) {
+      const agendas = Array.isArray(input) && input.length ? input : clone(defaultAgendas);
+      return agendas.map((agenda, agendaIndex) => ({
+        id: agenda.id || createAgendaId('agenda'),
+        title: agenda.title || `Agenda ${agendaIndex + 1}`,
+        kicker: agenda.kicker || 'Agenda & Roadmap',
+        subtitle: agenda.subtitle || '',
+        sectionTitle: agenda.sectionTitle || 'Workshop-Roadmap',
+        sectionDescription: agenda.sectionDescription || '',
+        items: Array.isArray(agenda.items)
+          ? agenda.items.map((item, itemIndex) => ({
+              id: item.id || createAgendaId('item'),
+              date: item.date || '',
+              phase: item.phase || `Phase ${itemIndex + 1}`,
+              title: item.title || 'Neuer Agenda-Punkt',
+              description: item.description || '',
+              people: Array.isArray(item.people) ? item.people : parseAgendaList(item.people || ''),
+              badges: Array.isArray(item.badges) ? item.badges : parseAgendaList(item.badges || ''),
+              status: item.status || 'planned',
+              color: ['violet', 'blue', 'green', 'orange'].includes(item.color) ? item.color : 'violet',
+              type: item.type === 'event' ? 'event' : 'phase',
+            }))
+          : [],
+      }));
+    }
+
+    function persist() {
+      setSaveIndicator('Saving');
+      window.clearTimeout(agendaState.saveTimer);
+      try {
+        localStorage.setItem(AGENDA_STORAGE_KEY, JSON.stringify({
+          version: 1,
+          activeAgendaId: agendaState.activeAgendaId,
+          agendas: agendaState.agendas,
+        }));
+      } catch (error) {
+        console.warn('[Agenda Flow] Save failed', error);
+        setSaveIndicator('Save error');
+        return;
+      }
+      agendaState.saveTimer = window.setTimeout(() => setSaveIndicator('Saved'), 280);
+    }
+
+    function setSaveIndicator(text) {
+      if (agendaEls.saveIndicator) agendaEls.saveIndicator.textContent = text;
+      if (agendaEls.panelSaveIndicator) agendaEls.panelSaveIndicator.textContent = text;
+    }
+
+    function bindEvents() {
+      agendaEls.agendaPreview?.addEventListener('click', handlePreviewSelection);
+      agendaEls.agendaPreview?.addEventListener('keydown', handlePreviewKeydown);
+      agendaEls.inspectorForm?.addEventListener('input', handleInspectorInput);
+      agendaEls.inspectorForm?.addEventListener('change', handleInspectorInput);
+      agendaEls.agendaTabs?.addEventListener('click', handleAgendaTabClick);
+      agendaEls.agendaTabs?.addEventListener('keydown', handleAgendaTabKeydown);
+      agendaEls.editAgendaButton?.addEventListener('click', selectAgendaSettings);
+      agendaEls.addItemButton?.addEventListener('click', createAgendaItem);
+      agendaEls.duplicateItemButton?.addEventListener('click', duplicateSelectedItem);
+      agendaEls.deleteItemButton?.addEventListener('click', deleteSelectedItem);
+      agendaEls.moveItemUpButton?.addEventListener('click', () => moveSelectedItem(-1));
+      agendaEls.moveItemDownButton?.addEventListener('click', () => moveSelectedItem(1));
+      agendaEls.createAgendaButton?.addEventListener('click', createAgenda);
+      agendaEls.exportHtmlButton?.addEventListener('click', exportCurrentAgendaHtml);
+      agendaEls.exportJsonButton?.addEventListener('click', exportAgendasJson);
+      agendaEls.importJsonButton?.addEventListener('click', () => agendaEls.jsonFileInput?.click());
+      agendaEls.jsonFileInput?.addEventListener('change', importAgendasJson);
+    }
+
+    function renderAll() {
+      renderAgendaPreview();
+      renderInspector();
+      renderAgendaTabs();
+      updateTopbar();
+      updateItemActionButtons();
+    }
+
+    function renderAgendaPreview() {
+      const agenda = getActiveAgenda();
+      if (agendaEls.agendaPreview) {
+        agendaEls.agendaPreview.innerHTML = buildAgendaPreviewHtml(agenda, agendaState.selectedItemId, true);
+      }
+    }
+
+    function buildAgendaPreviewHtml(agenda, selectedItemId = null, interactive = false) {
+      const itemsHtml = agenda.items.length
+        ? agenda.items.map(item => buildAgendaItemHtml(item, selectedItemId, interactive)).join('')
+        : '<li class="agenda-empty">Noch keine Agenda-Punkte vorhanden. Erstelle im Inspector einen neuen Punkt.</li>';
+
+      return `
+        <main class="agenda-page">
+          <header class="agenda-page__header">
+            <p class="agenda-page__kicker">${agendaEscapeHtml(agenda.kicker)}</p>
+            <h1>${agendaEscapeHtml(agenda.title)}</h1>
+            <p class="agenda-page__subtitle">${agendaEscapeHtml(agenda.subtitle)}</p>
+          </header>
+          <section class="agenda-section" aria-labelledby="agenda-title">
+            <div class="agenda-section__heading">
+              <h2 id="agenda-title">${agendaEscapeHtml(agenda.sectionTitle)}</h2>
+              <p>${agendaEscapeHtml(agenda.sectionDescription)}</p>
+            </div>
+            <ol class="agenda-list" aria-label="${agendaEscapeHtml(agenda.sectionTitle)}">${itemsHtml}</ol>
+          </section>
+        </main>
+      `;
+    }
+
+    function buildAgendaItemHtml(item, selectedItemId, interactive) {
+      const selectedClass = item.id === selectedItemId ? ' is-selected' : '';
+      const typeClass = item.type === 'event' ? ' agenda-item--event' : '';
+      const roleAttributes = interactive ? ' role="button" tabindex="0"' : '';
+      const peopleHtml = item.people.map(person => `<span>${agendaEscapeHtml(person)}</span>`).join('');
+      const badgesHtml = item.badges.map(badge =>
+        `<span class="agenda-badge ${getBadgeClass(item.status)}">${agendaEscapeHtml(badge)}</span>`
+      ).join('');
+
+      return `
+        <li class="agenda-item agenda-item--${agendaEscapeHtml(item.color)}${typeClass}${selectedClass}"
+            data-item-id="${agendaEscapeHtml(item.id)}"
+            data-status="${agendaEscapeHtml(item.status)}"
+            data-owners="${agendaEscapeHtml(item.people.join(','))}"${roleAttributes}>
+          <div class="agenda-marker" aria-hidden="true"></div>
+          <article class="agenda-card">
+            <div class="agenda-meta">
+              <p class="agenda-date">${agendaEscapeHtml(item.date)}</p>
+              <span class="agenda-phase">${agendaEscapeHtml(item.phase)}</span>
+            </div>
+            <h3 class="agenda-title">${agendaEscapeHtml(item.title)}</h3>
+            <p class="agenda-description">${agendaEscapeHtml(item.description)}</p>
+            <div class="agenda-footer">
+              <p class="agenda-people" aria-label="Responsible people">${peopleHtml}</p>
+              <div class="agenda-badges" aria-label="Status and deadlines">${badgesHtml}</div>
+            </div>
+          </article>
+        </li>
+      `;
+    }
+
+    function renderInspector() {
+      const agenda = getActiveAgenda();
+      const item = getSelectedItem();
+      if (agendaEls.inspectorTitle) agendaEls.inspectorTitle.textContent = item ? 'Edit agenda item' : 'Edit agenda';
+      if (agendaEls.inspectorForm) {
+        agendaEls.inspectorForm.innerHTML = item ? buildItemInspectorHtml(item) : buildAgendaInspectorHtml(agenda);
+      }
+      updateItemActionButtons();
+    }
+
+    function buildAgendaInspectorHtml(agenda) {
+      return `
+        <section class="agenda-flow__form-section" aria-label="Agenda settings">
+          <p class="agenda-flow__form-title">Agenda level</p>
+          ${inputField('Agenda title', 'title', agenda.title, 'agenda')}
+          ${inputField('Kicker / label', 'kicker', agenda.kicker, 'agenda')}
+          ${textareaField('Subtitle', 'subtitle', agenda.subtitle, 'agenda', 4)}
+          ${inputField('Section heading', 'sectionTitle', agenda.sectionTitle, 'agenda')}
+          ${textareaField('Section description', 'sectionDescription', agenda.sectionDescription, 'agenda', 3)}
+        </section>
+      `;
+    }
+
+    function buildItemInspectorHtml(item) {
+      return `
+        <section class="agenda-flow__form-section" aria-label="Agenda item settings">
+          <p class="agenda-flow__form-title">Item level</p>
+          ${inputField('Date', 'date', item.date, 'item')}
+          ${inputField('Phase label', 'phase', item.phase, 'item')}
+          ${inputField('Title', 'title', item.title, 'item')}
+          ${textareaField('Description', 'description', item.description, 'item', 6)}
+          ${inputField('People / owners', 'people', item.people.join(', '), 'item')}
+          ${inputField('Badges', 'badges', item.badges.join(', '), 'item')}
+          ${selectField('Status', 'status', item.status, 'item', [
+            ['planned', 'Planned'],
+            ['in-progress', 'In progress'],
+            ['deadline', 'Deadline'],
+            ['due', 'Due'],
+            ['done', 'Done'],
+          ])}
+          ${selectField('Color theme', 'color', item.color, 'item', [
+            ['violet', 'Violet'],
+            ['blue', 'Blue'],
+            ['green', 'Green'],
+            ['orange', 'Orange'],
+          ])}
+          ${selectField('Item type', 'type', item.type, 'item', [
+            ['phase', 'Phase'],
+            ['event', 'Event'],
+          ])}
+        </section>
+      `;
+    }
+
+    function renderAgendaTabs() {
+      if (!agendaEls.agendaTabs) return;
+      agendaEls.agendaTabs.innerHTML = agendaState.agendas.map(agenda => {
+        const isActive = agenda.id === agendaState.activeAgendaId ? ' is-active' : '';
+        const itemLabel = agenda.items.length === 1 ? '1 Punkt' : `${agenda.items.length} Punkte`;
+        return `
+          <article class="agenda-flow__tab${isActive}" data-agenda-id="${agendaEscapeHtml(agenda.id)}" role="button" tabindex="0">
+            <div>
+              <p class="agenda-flow__tab-title">${agendaEscapeHtml(agenda.title)}</p>
+              <p class="agenda-flow__tab-meta">${agendaEscapeHtml(itemLabel)} · ${agendaEscapeHtml(agenda.kicker)}</p>
+            </div>
+            <div class="agenda-flow__tab-actions" aria-label="Agenda actions">
+              <button class="agenda-flow__mini-button" type="button" data-action="duplicate-agenda" data-agenda-id="${agendaEscapeHtml(agenda.id)}">Duplicate</button>
+              <button class="agenda-flow__mini-button agenda-flow__mini-button--danger" type="button" data-action="delete-agenda" data-agenda-id="${agendaEscapeHtml(agenda.id)}">Delete</button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function handlePreviewSelection(event) {
+      const itemElement = event.target.closest('.agenda-item[data-item-id]');
+      if (!itemElement) return;
+      agendaState.selectedItemId = itemElement.dataset.itemId;
+      renderAgendaPreview();
+      renderInspector();
+    }
+
+    function handlePreviewKeydown(event) {
+      if (!['Enter', ' '].includes(event.key)) return;
+      const itemElement = event.target.closest('.agenda-item[data-item-id]');
+      if (!itemElement) return;
+      event.preventDefault();
+      agendaState.selectedItemId = itemElement.dataset.itemId;
+      renderAgendaPreview();
+      renderInspector();
+    }
+
+    function handleInspectorInput(event) {
+      const field = event.target;
+      if (!field.name || !field.dataset.scope) return;
+      const item = getSelectedItem();
+      const agenda = getActiveAgenda();
+      if (field.dataset.scope === 'item' && item) {
+        item[field.name] = ['people', 'badges'].includes(field.name) ? parseAgendaList(field.value) : field.value;
+      }
+      if (field.dataset.scope === 'agenda') {
+        agenda[field.name] = field.value;
+      }
+      renderAgendaPreview();
+      renderAgendaTabs();
+      updateTopbar();
+      updateItemActionButtons();
+      persist();
+    }
+
+    function handleAgendaTabClick(event) {
+      const actionButton = event.target.closest('[data-action]');
+      if (actionButton) {
+        const agendaId = actionButton.dataset.agendaId;
+        if (actionButton.dataset.action === 'duplicate-agenda') duplicateAgenda(agendaId);
+        if (actionButton.dataset.action === 'delete-agenda') deleteAgenda(agendaId);
+        return;
+      }
+      const tab = event.target.closest('.agenda-flow__tab[data-agenda-id]');
+      if (tab) selectAgenda(tab.dataset.agendaId);
+    }
+
+    function handleAgendaTabKeydown(event) {
+      if (event.target.closest('[data-action]')) return;
+      if (!['Enter', ' '].includes(event.key)) return;
+      const tab = event.target.closest('.agenda-flow__tab[data-agenda-id]');
+      if (!tab) return;
+      event.preventDefault();
+      selectAgenda(tab.dataset.agendaId);
+    }
+
+    function selectAgenda(agendaId) {
+      if (!agendaState.agendas.some(agenda => agenda.id === agendaId)) return;
+      agendaState.activeAgendaId = agendaId;
+      agendaState.selectedItemId = null;
+      persist();
+      renderAll();
+    }
+
+    function selectAgendaSettings() {
+      agendaState.selectedItemId = null;
+      renderAgendaPreview();
+      renderInspector();
+    }
+
+    function createAgenda() {
+      const agendaNumber = agendaState.agendas.length + 1;
+      const agenda = {
+        id: createAgendaId('agenda'),
+        title: `Neue Agenda ${agendaNumber}`,
+        kicker: 'Agenda & Roadmap',
+        subtitle: 'Kurze Beschreibung dieser Agenda.',
+        sectionTitle: 'Roadmap',
+        sectionDescription: 'Kurzer Kontext zur Timeline.',
+        items: [],
+      };
+      agendaState.agendas.push(agenda);
+      agendaState.activeAgendaId = agenda.id;
+      agendaState.selectedItemId = null;
+      persist();
+      renderAll();
+    }
+
+    function duplicateAgenda(agendaId) {
+      const agenda = agendaState.agendas.find(entry => entry.id === agendaId);
+      if (!agenda) return;
+      const copy = clone(agenda);
+      copy.id = createAgendaId('agenda');
+      copy.title = `${agenda.title} Kopie`;
+      copy.items = copy.items.map(item => ({ ...item, id: createAgendaId('item') }));
+      const index = agendaState.agendas.findIndex(entry => entry.id === agendaId);
+      agendaState.agendas.splice(index + 1, 0, copy);
+      agendaState.activeAgendaId = copy.id;
+      agendaState.selectedItemId = null;
+      persist();
+      renderAll();
+    }
+
+    function deleteAgenda(agendaId) {
+      const agenda = agendaState.agendas.find(entry => entry.id === agendaId);
+      if (!agenda) return;
+      if (!window.confirm(`Agenda "${agenda.title}" wirklich loeschen?`)) return;
+      agendaState.agendas = agendaState.agendas.filter(entry => entry.id !== agendaId);
+      if (!agendaState.agendas.length) {
+        agendaState.agendas = [{
+          id: createAgendaId('agenda'),
+          title: 'Neue Agenda',
+          kicker: 'Agenda & Roadmap',
+          subtitle: '',
+          sectionTitle: 'Roadmap',
+          sectionDescription: '',
+          items: [],
+        }];
+      }
+      agendaState.activeAgendaId = agendaState.agendas[0].id;
+      agendaState.selectedItemId = null;
+      persist();
+      renderAll();
+    }
+
+    function createAgendaItem() {
+      const agenda = getActiveAgenda();
+      const insertIndex = getSelectedItemIndex();
+      const itemNumber = agenda.items.length + 1;
+      const item = {
+        id: createAgendaId('item'),
+        date: 'Neues Datum',
+        phase: `Phase ${itemNumber}`,
+        title: 'Neuer Agenda-Punkt',
+        description: 'Beschreibung des Agenda-Punkts.',
+        people: [],
+        badges: ['Planned'],
+        status: 'planned',
+        color: 'violet',
+        type: 'phase',
+      };
+      if (insertIndex >= 0) agenda.items.splice(insertIndex + 1, 0, item);
+      else agenda.items.push(item);
+      agendaState.selectedItemId = item.id;
+      persist();
+      renderAll();
+    }
+
+    function duplicateSelectedItem() {
+      const agenda = getActiveAgenda();
+      const index = getSelectedItemIndex();
+      if (index < 0) return;
+      const source = agenda.items[index];
+      const copy = clone(source);
+      copy.id = createAgendaId('item');
+      copy.title = `${source.title} Kopie`;
+      agenda.items.splice(index + 1, 0, copy);
+      agendaState.selectedItemId = copy.id;
+      persist();
+      renderAll();
+    }
+
+    function deleteSelectedItem() {
+      const agenda = getActiveAgenda();
+      const item = getSelectedItem();
+      const index = getSelectedItemIndex();
+      if (!item || index < 0) return;
+      if (!window.confirm(`Agenda-Punkt "${item.title}" wirklich loeschen?`)) return;
+      agenda.items.splice(index, 1);
+      agendaState.selectedItemId = agenda.items[index]?.id || agenda.items[index - 1]?.id || null;
+      persist();
+      renderAll();
+    }
+
+    function moveSelectedItem(direction) {
+      const agenda = getActiveAgenda();
+      const index = getSelectedItemIndex();
+      const targetIndex = index + direction;
+      if (index < 0 || targetIndex < 0 || targetIndex >= agenda.items.length) return;
+      const [item] = agenda.items.splice(index, 1);
+      agenda.items.splice(targetIndex, 0, item);
+      persist();
+      renderAll();
+    }
+
+    function exportCurrentAgendaHtml() {
+      const agenda = getActiveAgenda();
+      const inlineCss = getInlineStylesheet();
+      const standaloneHtml = `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${agendaEscapeHtml(agenda.title)}</title>
+  <style>
+${inlineCss}
+body { background: #070a12; overflow: auto; }
+.tool-switcher, .app, .help-overlay { display: none !important; }
+.agenda-flow { min-height: 100vh; height: auto; overflow: visible; }
+.agenda-flow__topbar, .agenda-flow__inspector, .agenda-flow__sidebar, .agenda-flow__preview-toolbar { display: none !important; }
+.agenda-flow__workspace { display: block; }
+.agenda-flow__preview { padding: 0; overflow: visible; }
+.agenda-flow__preview-surface { max-width: none; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+  </style>
+</head>
+<body>
+  <section class="agenda-flow">
+    <main class="agenda-flow__workspace">
+      <section class="agenda-flow__preview">
+        <div class="agenda-flow__preview-surface">${buildAgendaPreviewHtml(agenda, null, false)}</div>
+      </section>
+    </main>
+  </section>
+</body>
+</html>`;
+      downloadFile(`${agendaSlugify(agenda.title)}.html`, standaloneHtml, 'text/html');
+    }
+
+    function exportAgendasJson() {
+      downloadFile('agendas.json', JSON.stringify({
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        agendas: agendaState.agendas,
+      }, null, 2), 'application/json');
+    }
+
+    function importAgendasJson(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        try {
+          const parsed = JSON.parse(String(reader.result));
+          const importedAgendas = Array.isArray(parsed) ? parsed : parsed.agendas;
+          if (!Array.isArray(importedAgendas)) throw new Error('Imported JSON must include agendas.');
+          const normalized = normalizeAgendas(importedAgendas);
+          agendaState.agendas = normalized;
+          agendaState.activeAgendaId = normalized[0].id;
+          agendaState.selectedItemId = null;
+          persist();
+          renderAll();
+        } catch (error) {
+          window.alert('Die JSON-Datei konnte nicht importiert werden.');
+          console.error(error);
+        } finally {
+          if (agendaEls.jsonFileInput) agendaEls.jsonFileInput.value = '';
+        }
+      });
+      reader.readAsText(file);
+    }
+
+    function getActiveAgenda() {
+      return agendaState.agendas.find(agenda => agenda.id === agendaState.activeAgendaId) || agendaState.agendas[0];
+    }
+
+    function getSelectedItem() {
+      const agenda = getActiveAgenda();
+      return agenda?.items?.find(item => item.id === agendaState.selectedItemId) || null;
+    }
+
+    function getSelectedItemIndex() {
+      const agenda = getActiveAgenda();
+      return agenda?.items?.findIndex(item => item.id === agendaState.selectedItemId) ?? -1;
+    }
+
+    function updateTopbar() {
+      if (agendaEls.currentAgendaName) agendaEls.currentAgendaName.textContent = getActiveAgenda()?.title || 'Agenda';
+    }
+
+    function updateItemActionButtons() {
+      const selectedIndex = getSelectedItemIndex();
+      const agenda = getActiveAgenda();
+      const hasSelection = selectedIndex >= 0;
+      if (agendaEls.duplicateItemButton) agendaEls.duplicateItemButton.disabled = !hasSelection;
+      if (agendaEls.deleteItemButton) agendaEls.deleteItemButton.disabled = !hasSelection;
+      if (agendaEls.moveItemUpButton) agendaEls.moveItemUpButton.disabled = !hasSelection || selectedIndex === 0;
+      if (agendaEls.moveItemDownButton) agendaEls.moveItemDownButton.disabled = !hasSelection || selectedIndex === (agenda?.items?.length || 0) - 1;
+    }
+
+    function getBadgeClass(status) {
+      if (status === 'deadline') return 'agenda-badge--deadline';
+      if (status === 'done') return 'agenda-badge--done';
+      if (status === 'due') return 'agenda-badge--due';
+      return 'agenda-badge--status';
+    }
+
+    function inputField(label, name, value, scope) {
+      return `
+        <label class="agenda-flow__field">
+          <span>${agendaEscapeHtml(label)}</span>
+          <input type="text" name="${agendaEscapeHtml(name)}" data-scope="${agendaEscapeHtml(scope)}" value="${agendaEscapeHtml(value)}">
+        </label>
+      `;
+    }
+
+    function textareaField(label, name, value, scope, rows) {
+      return `
+        <label class="agenda-flow__field">
+          <span>${agendaEscapeHtml(label)}</span>
+          <textarea name="${agendaEscapeHtml(name)}" data-scope="${agendaEscapeHtml(scope)}" rows="${rows}">${agendaEscapeHtml(value)}</textarea>
+        </label>
+      `;
+    }
+
+    function selectField(label, name, value, scope, options) {
+      const optionsHtml = options.map(([optionValue, optionLabel]) => {
+        const selected = optionValue === value ? ' selected' : '';
+        return `<option value="${agendaEscapeHtml(optionValue)}"${selected}>${agendaEscapeHtml(optionLabel)}</option>`;
+      }).join('');
+      return `
+        <label class="agenda-flow__field">
+          <span>${agendaEscapeHtml(label)}</span>
+          <select name="${agendaEscapeHtml(name)}" data-scope="${agendaEscapeHtml(scope)}">${optionsHtml}</select>
+        </label>
+      `;
+    }
+
+    function parseAgendaList(value) {
+      if (Array.isArray(value)) return value;
+      return String(value).split(',').map(entry => entry.trim()).filter(Boolean);
+    }
+
+    function createAgendaId(prefix) {
+      return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function agendaEscapeHtml(value) {
+      return String(value ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function agendaSlugify(value) {
+      return String(value || 'agenda')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '') || 'agenda';
+    }
+
+    function getInlineStylesheet() {
+      try {
+        return Array.from(document.styleSheets)
+          .map(sheet => {
+            try {
+              return Array.from(sheet.cssRules).map(rule => rule.cssText).join('\n');
+            } catch (_) {
+              return '';
+            }
+          })
+          .filter(Boolean)
+          .join('\n');
+      } catch (_) {
+        return '';
+      }
+    }
+
+    return { init };
+  })();
+
+  // ============================================================
   // MIGRATION
   // Runs once on every boot. Adds new fields safely without
   // destroying existing data. Migrations should be idempotent —
@@ -11824,8 +13380,11 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       });
     } catch (_) { /* ignore */ }
 
+    AgendaFlow.init();
+    activeToolView = loadActiveToolViewPreference();
     refreshToolLogoToggleUi();
     fullRender();
+    setActiveToolView(activeToolView, { silent: true });
 
     // Hide loading veil
     requestAnimationFrame(() => {

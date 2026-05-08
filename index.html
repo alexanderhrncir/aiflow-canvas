@@ -4803,6 +4803,158 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   white-space: nowrap;
   border: 0;
 }
+.agenda-print-view {
+  display: none;
+}
+@page {
+  size: A4;
+  margin: 16mm 14mm;
+}
+@media print {
+  html,
+  body.is-printing-agenda {
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    color: #17352a !important;
+  }
+  body.is-printing-agenda > :not(#agendaPrintView) {
+    display: none !important;
+  }
+  body.is-printing-agenda #agendaPrintView {
+    display: block !important;
+  }
+  .agenda-print-view,
+  .agenda-print-view * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  .agenda-print-view {
+    font-family: 'Brandon Grotesque', var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: #17352a;
+    background: #ffffff;
+  }
+  .agenda-print-header {
+    padding-bottom: 10mm;
+    border-bottom: 2px solid rgba(5, 119, 77, 0.18);
+    break-after: avoid;
+  }
+  .agenda-print-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5mm;
+    color: #05774d;
+    font-size: 9pt;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .agenda-print-eyebrow::before {
+    content: "";
+    width: 16mm;
+    height: 1.5pt;
+    background: #05774d;
+  }
+  .agenda-print-title {
+    margin: 0;
+    color: #10231b;
+    font-size: 28pt;
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .agenda-print-subtitle {
+    max-width: 165mm;
+    margin: 6mm 0 0;
+    color: #46584f;
+    font-size: 12pt;
+    line-height: 1.45;
+  }
+  .agenda-print-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3mm 6mm;
+    margin-top: 6mm;
+    color: #52665c;
+    font-size: 9.5pt;
+  }
+  .agenda-print-section {
+    margin-top: 10mm;
+  }
+  .agenda-print-section-title {
+    margin: 0 0 7mm;
+    color: #10231b;
+    font-size: 15pt;
+    line-height: 1.25;
+  }
+  .agenda-print-section-description {
+    margin: 2.5mm 0 7mm;
+    color: #52665c;
+    font-size: 10pt;
+    line-height: 1.45;
+  }
+  .agenda-print-list {
+    display: grid;
+    gap: 5mm;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .agenda-print-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    padding: 5mm 0 0 5mm;
+    border-top: 1px solid rgba(5, 119, 77, 0.20);
+    border-left: 3px solid #05774d;
+  }
+  .agenda-print-item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5mm 5mm;
+    margin-bottom: 2.5mm;
+    color: #05774d;
+    font-size: 8.5pt;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+  .agenda-print-item-title {
+    margin: 0;
+    color: #10231b;
+    font-size: 14pt;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+  .agenda-print-description {
+    margin: 2.5mm 0 0;
+    color: #243b31;
+    font-size: 10pt;
+    line-height: 1.45;
+    white-space: pre-wrap;
+  }
+  .agenda-print-notes {
+    margin-top: 3mm;
+    padding: 3mm 4mm;
+    border-left: 2px solid rgba(5, 119, 77, 0.24);
+    color: #46584f;
+    background: #f6f8f4;
+    font-size: 9pt;
+    line-height: 1.45;
+    white-space: pre-wrap;
+  }
+  .agenda-print-footer {
+    margin-top: 10mm;
+    padding-top: 4mm;
+    border-top: 1px solid rgba(5, 119, 77, 0.16);
+    color: #6b7c74;
+    font-size: 8pt;
+  }
+}
 @media (max-width: 1180px) {
   .agenda-flow {
     overflow-x: hidden;
@@ -7259,6 +7411,7 @@ html[data-theme="gmi"] .agenda-people span {
       <button class="agenda-flow__button agenda-flow__button--soft" type="button" id="agendaPresentButton" aria-pressed="false">Present</button>
       <button class="agenda-flow__button agenda-flow__button--primary" type="button" id="agendaExitPresentButton" aria-pressed="true" hidden>Exit Presentation</button>
       <button class="agenda-flow__button" type="button" id="agendaExportHtmlButton">Export HTML</button>
+      <button class="agenda-flow__button" type="button" id="agendaExportPdfButton">Export PDF</button>
       <button class="agenda-flow__button" type="button" id="agendaExportJsonButton">Export JSON</button>
       <button class="agenda-flow__button agenda-flow__button--primary" type="button" id="agendaImportJsonButton">Import JSON</button>
       <input class="agenda-flow__visually-hidden" type="file" id="agendaJsonFileInput" accept="application/json,.json">
@@ -15631,6 +15784,7 @@ Bezug zum Retreat-Kontext:
         presentButton: root.querySelector('#agendaPresentButton'),
         exitPresentButton: root.querySelector('#agendaExitPresentButton'),
         exportHtmlButton: root.querySelector('#agendaExportHtmlButton'),
+        exportPdfButton: root.querySelector('#agendaExportPdfButton'),
         exportJsonButton: root.querySelector('#agendaExportJsonButton'),
         importJsonButton: root.querySelector('#agendaImportJsonButton'),
         jsonFileInput: root.querySelector('#agendaJsonFileInput'),
@@ -15926,6 +16080,7 @@ Bezug zum Retreat-Kontext:
       agendaEls.presentButton?.addEventListener('click', () => setAgendaPresentationMode(true));
       agendaEls.exitPresentButton?.addEventListener('click', () => setAgendaPresentationMode(false));
       agendaEls.exportHtmlButton?.addEventListener('click', exportCurrentAgendaHtml);
+      agendaEls.exportPdfButton?.addEventListener('click', exportCurrentAgendaPdf);
       agendaEls.exportJsonButton?.addEventListener('click', exportAgendasJson);
       agendaEls.importJsonButton?.addEventListener('click', () => agendaEls.jsonFileInput?.click());
       agendaEls.jsonFileInput?.addEventListener('change', importAgendasJson);
@@ -16741,6 +16896,93 @@ body { background: #070a12; overflow: auto; }
 </body>
 </html>`;
       downloadFile(`${agendaSlugify(agenda.title)}.html`, standaloneHtml, 'text/html');
+    }
+
+    function exportCurrentAgendaPdf() {
+      const agenda = getActiveAgenda();
+      if (!agenda) {
+        showToast('No agenda to print');
+        return;
+      }
+      cleanupAgendaPrintView();
+      const printView = document.createElement('div');
+      printView.id = 'agendaPrintView';
+      printView.className = 'agenda-print-view';
+      printView.innerHTML = buildAgendaPrintViewHtml(agenda, { includeNotes: true });
+      document.body.appendChild(printView);
+      document.body.classList.add('is-printing-agenda');
+
+      let cleaned = false;
+      const cleanup = () => {
+        if (cleaned) return;
+        cleaned = true;
+        window.removeEventListener('afterprint', cleanup);
+        cleanupAgendaPrintView();
+      };
+      window.addEventListener('afterprint', cleanup, { once: true });
+
+      try {
+        window.print();
+      } catch (error) {
+        console.warn('[Agenda Flow] PDF print failed', error);
+        window.alert('The print dialog could not be opened. Please try again.');
+        cleanup();
+        return;
+      }
+      window.setTimeout(cleanup, 60000);
+    }
+
+    function cleanupAgendaPrintView() {
+      document.body.classList.remove('is-printing-agenda');
+      document.getElementById('agendaPrintView')?.remove();
+    }
+
+    function buildAgendaPrintViewHtml(agenda, options = {}) {
+      const includeNotes = options.includeNotes !== false;
+      const generatedAt = new Date().toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      const metaParts = [
+        agenda.sectionDescription,
+      ].filter(value => String(value || '').trim());
+      const items = Array.isArray(agenda.items) ? agenda.items : [];
+      const itemsHtml = items.map((item, index) => buildAgendaPrintItemHtml(item, index, includeNotes)).join('');
+      return `
+        <article aria-label="${agendaEscapeHtml(agenda.title)}">
+          <header class="agenda-print-header">
+            <div class="agenda-print-eyebrow">${agendaEscapeHtml(agenda.kicker || 'Agenda & Roadmap')}</div>
+            <h1 class="agenda-print-title">${agendaEscapeHtml(agenda.title)}</h1>
+            ${agenda.subtitle ? `<p class="agenda-print-subtitle">${agendaEscapeHtml(agenda.subtitle)}</p>` : ''}
+            ${metaParts.length ? `<div class="agenda-print-meta">${metaParts.map(part => `<span>${agendaEscapeHtml(part)}</span>`).join('')}</div>` : ''}
+          </header>
+          <main class="agenda-print-section">
+            <h2 class="agenda-print-section-title">${agendaEscapeHtml(agenda.sectionTitle || 'Agenda')}</h2>
+            <ol class="agenda-print-list">${itemsHtml || '<li class="agenda-print-item">No agenda items.</li>'}</ol>
+          </main>
+          <footer class="agenda-print-footer">Generated ${agendaEscapeHtml(generatedAt)} · AIFlow Canvas / Agenda Flow</footer>
+        </article>
+      `;
+    }
+
+    function buildAgendaPrintItemHtml(item, index, includeNotes) {
+      const notes = String(item.notes || '').trim();
+      const meta = [
+        item.date,
+        item.phase || `Item ${index + 1}`,
+        item.people?.length ? item.people.join(', ') : '',
+      ].filter(value => String(value || '').trim());
+      return `
+        <li class="agenda-print-item">
+          ${meta.length ? `<div class="agenda-print-item-meta">${meta.map(part => `<span>${agendaEscapeHtml(part)}</span>`).join('')}</div>` : ''}
+          <h3 class="agenda-print-item-title">${agendaEscapeHtml(item.title || 'Untitled item')}</h3>
+          ${item.description ? `<p class="agenda-print-description">${agendaEscapeHtml(item.description)}</p>` : ''}
+          ${includeNotes && notes ? `<div class="agenda-print-notes">${agendaEscapeHtml(notes)}</div>` : ''}
+        </li>
+      `;
     }
 
     function exportAgendasJson() {

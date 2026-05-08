@@ -14432,6 +14432,8 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
   // ============================================================
   const AgendaFlow = (() => {
     const AGENDA_STORAGE_KEY = 'aiflow-agenda-flow-state-v1';
+    const AGENDA_SEED_VERSION = 'gmi-retreat-2026-v1';
+    const AGENDA_SEED_VERSION_KEY = 'aiflow-agenda-seed-version';
     const defaultAgendas = [
       {
         id: 'agenda-1',
@@ -14720,9 +14722,27 @@ Bezug zum Retreat-Kontext:
       });
 
       loadAgendas();
+      exposeAgendaResetHelper();
+      exposeAgendaJsonExportHelper();
       bindEvents();
       renderAll();
       agendaState.initialized = true;
+    }
+
+    function exposeAgendaResetHelper() {
+      window.resetAgendaToDefault = function resetAgendaToDefault() {
+        try {
+          localStorage.removeItem(AGENDA_STORAGE_KEY);
+          localStorage.removeItem(AGENDA_SEED_VERSION_KEY);
+        } catch (_) { /* ignore reset storage failures */ }
+        window.location.reload();
+      };
+    }
+
+    function exposeAgendaJsonExportHelper() {
+      window.exportAgendaFlowJson = function () {
+        downloadAgendaJsonFile(getAgendaExportPayload(), 'agenda-flow-export.json');
+      };
     }
 
     function loadAgendas() {
@@ -14732,10 +14752,17 @@ Bezug zum Retreat-Kontext:
         if (!stored) {
           agendaState.agendas = fallback;
           agendaState.activeAgendaId = fallback[0].id;
+          saveAgendaSeedState(fallback, fallback[0].id);
           return;
         }
         const parsed = JSON.parse(stored);
         const loadedAgendas = Array.isArray(parsed) ? parsed : parsed.agendas;
+        if (shouldReplaceOldAgendaSeed(loadedAgendas)) {
+          agendaState.agendas = fallback;
+          agendaState.activeAgendaId = fallback[0].id;
+          saveAgendaSeedState(fallback, fallback[0].id);
+          return;
+        }
         const activeAgendaId = Array.isArray(parsed) ? loadedAgendas?.[0]?.id : parsed.activeAgendaId;
         agendaState.agendas = normalizeAgendas(loadedAgendas);
         agendaState.activeAgendaId = agendaState.agendas.some(agenda => agenda.id === activeAgendaId)
@@ -14745,7 +14772,58 @@ Bezug zum Retreat-Kontext:
         console.warn('[Agenda Flow] Saved agenda data could not be loaded. Default data is used.', error);
         agendaState.agendas = fallback;
         agendaState.activeAgendaId = fallback[0].id;
+        saveAgendaSeedVersion();
       }
+    }
+
+    function getAgendaSeedVersion() {
+      try {
+        return localStorage.getItem(AGENDA_SEED_VERSION_KEY) || '';
+      } catch (_) {
+        return '';
+      }
+    }
+
+    function saveAgendaSeedVersion() {
+      try {
+        localStorage.setItem(AGENDA_SEED_VERSION_KEY, AGENDA_SEED_VERSION);
+      } catch (_) { /* ignore seed-version storage failures */ }
+    }
+
+    function saveAgendaSeedState(agendas, activeAgendaId) {
+      try {
+        localStorage.setItem(AGENDA_STORAGE_KEY, JSON.stringify({
+          version: 1,
+          activeAgendaId,
+          agendas,
+        }));
+        saveAgendaSeedVersion();
+      } catch (_) {
+        saveAgendaSeedVersion();
+      }
+    }
+
+    function shouldReplaceOldAgendaSeed(agendas) {
+      if (getAgendaSeedVersion() === AGENDA_SEED_VERSION) return false;
+      if (!Array.isArray(agendas) || agendas.length !== 1) return false;
+
+      const agenda = agendas[0] || {};
+      const title = String(agenda.title || '').trim();
+      const itemTitles = Array.isArray(agenda.items)
+        ? agenda.items.map(item => String(item?.title || '').trim())
+        : [];
+      const oldSeedTitles = new Set([
+        'Erste Use Cases erarbeiten',
+        'Abteilungsgespraeche & Use Case Discovery',
+        'Abteilungsgespräche & Use Case Discovery',
+        'Workshop-Vorbereitung',
+        'KI-Workshop @ GMI Retreat',
+      ]);
+      const oldItemMatches = itemTitles.filter(itemTitle => oldSeedTitles.has(itemTitle)).length;
+
+      return title === 'KI-Workshop Vorbereitung'
+        && itemTitles.length <= 4
+        && oldItemMatches >= 3;
     }
 
     function normalizeAgendas(input) {
@@ -15503,11 +15581,28 @@ body { background: #070a12; overflow: auto; }
     }
 
     function exportAgendasJson() {
-      downloadFile('agendas.json', JSON.stringify({
+      downloadAgendaJsonFile(getAgendaExportPayload(), 'agenda-flow-export.json');
+      showToast('Agenda JSON exported');
+    }
+
+    function downloadAgendaJsonFile(payload, filename) {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      const objectUrl = URL.createObjectURL(blob);
+      link.href = objectUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+    }
+
+    function getAgendaExportPayload() {
+      return {
         version: 1,
-        exportedAt: new Date().toISOString(),
+        activeAgendaId: agendaState.activeAgendaId,
         agendas: agendaState.agendas,
-      }, null, 2), 'application/json');
+      };
     }
 
     function importAgendasJson(event) {
@@ -15517,21 +15612,36 @@ body { background: #070a12; overflow: auto; }
       reader.addEventListener('load', () => {
         try {
           const parsed = JSON.parse(String(reader.result));
-          const importedAgendas = Array.isArray(parsed) ? parsed : parsed.agendas;
-          if (!Array.isArray(importedAgendas)) throw new Error('Imported JSON must include agendas.');
+          if (!parsed || typeof parsed !== 'object') throw new Error('Imported JSON must be an Agenda Flow object.');
+          const importedAgendas = parsed.agendas;
+          if (!Array.isArray(importedAgendas)) throw new Error('Imported Agenda JSON must include an agendas array.');
           const normalized = normalizeAgendas(importedAgendas);
+          if (!normalized.length) throw new Error('Imported Agenda JSON must include at least one agenda.');
+          const importedActiveAgendaId = typeof parsed.activeAgendaId === 'string' ? parsed.activeAgendaId : '';
           pushAgendaUndoSnapshot();
           agendaState.agendas = normalized;
-          agendaState.activeAgendaId = normalized[0].id;
+          agendaState.activeAgendaId = normalized.some(agenda => agenda.id === importedActiveAgendaId)
+            ? importedActiveAgendaId
+            : normalized[0].id;
           agendaState.selectedItemId = null;
+          ensureValidAgendaSelection();
           persist();
           renderAll();
+          showToast('Agenda JSON imported');
         } catch (error) {
-          window.alert('Die JSON-Datei konnte nicht importiert werden.');
-          console.error(error);
+          const isSyntaxError = error instanceof SyntaxError;
+          window.alert(isSyntaxError
+            ? 'Invalid JSON. Please choose a valid JSON file.'
+            : 'Invalid Agenda JSON. Please choose a valid Agenda Flow export.');
+          console.warn('[Agenda Flow] JSON import failed', error);
         } finally {
           if (agendaEls.jsonFileInput) agendaEls.jsonFileInput.value = '';
         }
+      });
+      reader.addEventListener('error', () => {
+        window.alert('Agenda JSON could not be read. Please try again.');
+        console.warn('[Agenda Flow] JSON file read failed', reader.error);
+        if (agendaEls.jsonFileInput) agendaEls.jsonFileInput.value = '';
       });
       reader.readAsText(file);
     }

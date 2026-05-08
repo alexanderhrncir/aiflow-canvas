@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "activeAgendaId": "agenda-1",
+  "agendas": [
+    {
+      "id": "agenda-1",
+      "title": "GMI Retreat 2026: KI im Arbeitsalltag",
+      "titleSize": 76,
+      "kicker": "Agenda & Roadmap",
+      "subtitle": "Hands-on Workshop zur praktischen Integration von KI in wiederkehrende Arbeitsprozesse.",
+      "sectionTitle": "AI Workshop Roadmap",
+      "sectionDescription": "GMI Retreat · 10.–12. Juni 2026 · Steinschaler Dörfl · Theme: Artificial Intelligence in the workplace.",
+      "items": [
+        {
+          "id": "item-1",
+          "date": "10. Juni 2026",
+          "phase": "Orientation",
+          "title": "Recap 2025 & Kernbegriffe",
+          "description": "Kurzer Rückblick auf das letzte Jahr: Wo wir mit Chat-basierten KI-Systemen gestartet sind und warum wir uns heute in Richtung vernetzter, agentischer Workflows bewegen.",
+          "notes": "Zum Einstieg die Evolutionspyramide zeigen.\n\nEinordnung:\n- Letztes Jahr lag der Fokus auf Reactive AI: einzelne Prompts, Chat-Interaktion, direkte Antworten.\n- Heute bewegen wir uns stärker in Richtung Multi-Agent Systems: mehrere spezialisierte KI-Komponenten arbeiten gemeinsam an einem Ziel.\n- Das Ziel ist nicht, sofort „Superintelligence“ oder AGI zu erreichen, sondern konkrete Arbeitsabläufe schrittweise mit KI zu unterstützen.\n\nBegriffe kurz erklären:\n- LLM:\n  Ein Sprachmodell, das Text versteht, erzeugt und strukturiert verarbeitet.\n- Harness:\n  Die Umgebung oder Anwendung, die ein Modell nutzbar macht, z. B. mit Tools, Datenquellen, Regeln und Workflows.\n- MCP Connector:\n  Eine standardisierte Verbindung zwischen KI-System und externen Tools oder Datenquellen. Ein MCP Connector kann z. B. ermöglichen, dass die KI auf bestimmte Systeme, Dateien, Wissensspeicher oder Aktionen zugreifen kann — kontrolliert, strukturiert und mit klar definierten Schnittstellen.\n- Agent:\n  Ein KI-System, das nicht nur antwortet, sondern Schritte plant, Tools nutzt und Aufgaben teilweise selbstständig ausführt.\n- Skills:\n  Wiederverwendbare Fähigkeiten oder strukturierte Arbeitsabläufe, mit denen KI bestimmte Aufgaben zuverlässiger erledigen kann.\n- Multi-Agent System:\n  Mehrere spezialisierte Agenten oder Rollen arbeiten zusammen, z. B. Recherche, Prüfung, Erstellung und Review.\n\nKernaussage:\nWir wollen uns langsam und kontrolliert von einfachen Chat-Anfragen hin zu unterstützten Workflows bewegen.",
+          "people": [
+            "Ronny Zimmermann",
+            "Alexander Hrncir"
+          ],
+          "badges": [
+            "AI Evolution",
+            "Terminology"
+          ],
+          "status": "planned",
+          "color": "violet",
+          "type": "phase"
+        },
+        {
+          "id": "item-2",
+          "date": "10. Juni 2026",
+          "phase": "Tool Introduction",
+          "title": "Abacus AI als Arbeitsumgebung",
+          "description": "Einführung in Abacus als zentrale Umgebung für praktische KI-Anwendungen: Chatten, Dateien einbinden, Arbeitskontexte nutzen und Ergebnisse verwertbar machen.",
+          "notes": "Abacus nicht als „noch ein Tool“ vorstellen, sondern als Arbeitsumgebung für konkrete Aufgaben.\n\nMögliche Punkte:\n- Wie starte ich eine Anfrage?\n- Wie gebe ich Kontext mit?\n- Wie lade ich Dateien hoch?\n- Wie arbeite ich mit längeren Aufgaben?\n- Wann ist Abacus hilfreich, wann brauche ich weiterhin Fachprüfung?\n- Welche Rolle spielen Datenschutz, Vertraulichkeit und interne Informationen?\n- Zugang prüfen: Wer noch keinen Zugang hat, soll rechtzeitig ein IT-Ticket erstellen.\n\nPraktischer Fokus:\nDie Teilnehmer sollen verstehen, dass Abacus nicht nur Antworten liefert, sondern beim Strukturieren, Formulieren, Prüfen und Automatisieren von wiederkehrenden Aufgaben helfen kann.\n\nBeispiele aus dem Retreat-Kontext:\n- Outlook-Suche mit Abacus vorbereiten\n- Meeting Minutes erstellen\n- Texte für wiederkehrende Mails anpassen\n- Dokumente zusammenfassen oder prüfen\n- Ideen für eigene Workflows testen",
+          "people": [
+            "Ronny Zimmermann",
+            "Team"
+          ],
+          "badges": [
+            "Abacus AI",
+            "Hands-on"
+          ],
+          "status": "planned",
+          "color": "green",
+          "type": "phase"
+        },
+        {
+          "id": "item-3",
+          "date": "10. Juni 2026",
+          "phase": "Prompt Engineering",
+          "title": "Die 6 plus 1 Bausteine guter Prompts",
+          "description": "Ein praktisches Prompting-Modell für bessere Ergebnisse: Rolle, Aufgabe, Kontext, Vorgehen, negative Regeln und gewünschtes Ausgabeformat.",
+          "notes": "Die sechs Bausteine als einfache Checkliste erklären.\n\n1. Rolle\nDie KI soll wissen, durch welche „Brille“ sie auf die Aufgabe schauen soll.\nBeispiel:\n„Du bist eine erfahrene HR-Kommunikationsexpertin.“\nHinweis:\nNicht übertreiben. Zu stark formulierte Rollen können dazu führen, dass die KI zu selbstsicher klingt.\n\n2. Aufgabe\nMit einem klaren Verb starten.\nBeispiel:\n„Erstelle eine kurze E-Mail, um die Belegschaft an die Deadline zu erinnern.“\nWichtig:\nZiel der Aufgabe nennen.\n\n3. Kontext\nJe mehr relevanter Kontext, desto besser.\nBeispiele:\nZielgruppe, Anlass, vorhandene Dokumente, Fristen, Tonalität, interne Regeln.\n\n4. Vorgehen\nBei komplexen Aufgaben konkrete Schritte verlangen.\nBeispiel:\n„Prüfe zuerst die Fristen, erstelle dann eine Tabelle und formuliere danach eine E-Mail.“\n\n5. Negative Regeln\nSagen, was die KI nicht tun soll.\nBeispiele:\n„Erfinde keine Daten.“\n„Verändere keine rechtlichen Formulierungen.“\n„Fasse dich kurz.“\n„Nutze keine Informationen, die nicht im Dokument stehen.“\n\n6. Ergebnisformat\nGenau sagen, wie das Ergebnis aussehen soll.\nBeispiele:\n- Ready-to-copy Text\n- Tabelle\n- Stichpunkte\n- Markdown\n- ZIP zum Download\n- E-Mail-Entwurf\n- Word-kompatibler Text\n\nAbschlussprompt:\n„Bevor du loslegst, frage mich alles, was du wissen musst, um deine Aufgabe bestmöglich zu erfüllen.“\n\nKernaussage:\nGute Prompts sind keine Magie. Sie sind klare Arbeitsaufträge mit Ziel, Kontext und gewünschtem Ergebnis.",
+          "people": [
+            "Alexander Hrncir"
+          ],
+          "badges": [
+            "Prompting",
+            "Checkliste"
+          ],
+          "status": "planned",
+          "color": "orange",
+          "type": "phase"
+        },
+        {
+          "id": "item-4",
+          "date": "10./11. Juni 2026",
+          "phase": "Hands-on Exercise",
+          "title": "Plaude: protokollieren, zusammenfassen",
+          "description": "Hands-on Übung: Wie KI aus Gesprächen, Stichworten oder Rohnotizen strukturierte Meeting Minutes und verwertbare Zusammenfassungen erstellt.",
+          "notes": "Der Titel kann gerne als „Plaude / Minute Meetings“ oder professioneller als „Meeting Minutes mit KI“ erscheinen.\n\nWorkshop-Idee:\nDie Teilnehmer testen, wie aus unstrukturierten Notizen oder gesprochenem Input ein brauchbares Protokoll entsteht.\n\nMögliche Übung:\n- Rohnotizen oder Transkript bereitstellen.\n- KI erstellt Meeting Minutes.\n- KI extrahiert Entscheidungen, offene Punkte und Verantwortlichkeiten.\n- KI formuliert Follow-up-Mail.\n- Ergebnis gemeinsam kritisch prüfen.\n\nWichtige Lernpunkte:\n- KI kann Struktur schaffen, aber sie muss geprüft werden.\n- Gute Meeting Minutes brauchen klare Vorgaben:\n  - Was wurde entschieden?\n  - Wer macht was?\n  - Bis wann?\n  - Welche Punkte bleiben offen?\n- Datenschutz und Vertraulichkeit beachten.\n\nBezug zu eingereichten Ideen:\n„Erstellen von Meeting Minutes“ ist ein konkreter wiederkehrender Workflow, der sich gut für KI-Unterstützung eignet.",
+          "people": [
+            "Ronny Zimmermann",
+            "Team"
+          ],
+          "badges": [
+            "Meeting Minutes",
+            "Übung"
+          ],
+          "status": "planned",
+          "color": "blue",
+          "type": "phase"
+        },
+        {
+          "id": "item-5",
+          "date": "10./11. Juni 2026",
+          "phase": "Knowledge Work",
+          "title": "Confluence als Wissensspeicher verstehen",
+          "description": "Wie KI mit internem Wissen arbeiten kann: nicht nur Inhalte aufnehmen, sondern Strukturen, Policies und Zusammenhänge auffindbar und prüfbar machen.",
+          "notes": "Kernaussage:\nConfluence soll nicht nur ein Ablageort sein. Es soll als Wissensspeicher verstanden werden, aus dem KI relevante Informationen finden, einordnen und für Aufgaben nutzbar machen kann.\n\nMögliche Punkte:\n- Was macht gute Wissensdokumentation aus?\n- Warum klare Seitenstruktur wichtig ist.\n- Wie Policies, Vertragsinformationen oder Prozessbeschreibungen KI-tauglicher werden.\n- Unterschied zwischen „Information speichern“ und „Wissen nutzbar machen“.\n- Beispiel: Policy Checker oder Contract Checker.\n- Beispiel: bessere Suche in Confluence und Laufwerken.\n- Beispiel: wiederkehrende Standardtexte mit aktuellen Daten prüfen und anpassen.\n\nWorkshop-Perspektive:\nDie Teilnehmer sollen überlegen, welche Informationen in ihrem Bereich wiederholt gesucht, geprüft oder formuliert werden müssen.\n\nLeitfragen:\n- Welche Dokumente werden immer wieder benötigt?\n- Welche Entscheidungen hängen von Policies oder Regeln ab?\n- Wo entstehen Fehler, weil Informationen schwer auffindbar sind?\n- Welche Inhalte müssten besser strukturiert werden, damit KI sie zuverlässig nutzen kann?",
+          "people": [
+            "Ronny Zimmermann",
+            "Alexander Hrncir"
+          ],
+          "badges": [
+            "Confluence",
+            "Knowledge Base"
+          ],
+          "status": "planned",
+          "color": "amber",
+          "type": "phase"
+        },
+        {
+          "id": "item-6",
+          "date": "10./11. Juni 2026",
+          "phase": "Search & Retrieval",
+          "title": "Outlook-Suche mit KI",
+          "description": "Wie KI dabei helfen kann, relevante E-Mails, Termine und Zusammenhänge in Outlook schneller zu finden und für Aufgaben nutzbar zu machen.",
+          "notes": "Outlook ist für viele Arbeitsbereiche ein zentraler Informationsspeicher, aber Informationen sind oft schwer auffindbar: alte E-Mail-Verläufe, Anhänge, Termine, Absprachen oder Fristen.\n\nIn diesem Block soll gezeigt werden, wie KI bei der Suche und Einordnung helfen kann.\n\nMögliche Beispiele:\n- relevante E-Mails zu einem Thema finden\n- lange E-Mail-Verläufe zusammenfassen\n- Anhänge oder Informationen aus Mails strukturieren\n- offene Punkte aus E-Mail-Konversationen extrahieren\n- Fristen oder wiederkehrende Termine erkennen\n- Suchanfragen besser formulieren\n- Ergebnisse in eine Zusammenfassung oder Aufgabenliste überführen\n\nWichtige Botschaft:\nKI ersetzt nicht die eigene Prüfung, kann aber helfen, schneller von verstreuter Information zu einer verwertbaren Übersicht zu kommen.\n\nBezug zum Retreat-Kontext:\n„Searches in Outlook mit Abacus“ war ein konkretes Beispiel für einen wiederkehrenden Workflow, der mit KI unterstützt werden kann.",
+          "people": [
+            "Alexander Hrncir"
+          ],
+          "badges": [
+            "Outlook",
+            "Search"
+          ],
+          "status": "planned",
+          "color": "pink",
+          "type": "phase"
+        }
+      ]
+    }
+  ]
+}

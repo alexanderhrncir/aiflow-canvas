@@ -2860,6 +2860,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   gap: 2px;
   z-index: 40;
 }
+.tbtn-menu--wide {
+  min-width: 260px;
+}
 .tbtn-menu.is-open { display: flex; }
 .tbtn-menu button {
   padding: 9px 11px;
@@ -2905,6 +2908,31 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+.tbtn-menu .menu-divider {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--stroke-subtle);
+}
+.tbtn-menu .menu-status {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.028);
+}
+.tbtn-menu .menu-status__label {
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+.tbtn-menu .menu-status__helper {
+  color: var(--text-faint);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
 }
 .tbtn-menu button.is-active {
   background: rgba(34, 211, 238, 0.08);
@@ -3830,19 +3858,19 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   height: 100vh;
   width: 100vw;
   display: grid;
-  grid-template-rows: 64px auto;
+  grid-template-rows: 64px minmax(0, 1fr);
   color: var(--agenda-text);
   background:
     radial-gradient(circle at 10% 0%, rgba(124, 58, 237, 0.18), transparent 34%),
     radial-gradient(circle at 82% 12%, rgba(34, 211, 238, 0.12), transparent 32%),
     linear-gradient(180deg, #0a0d16, var(--agenda-bg));
-  overflow-x: hidden;
-  overflow-y: scroll;
+  overflow: hidden;
   scrollbar-gutter: stable;
 }
 .agenda-flow,
 #agendaFlowView {
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
   width: 100vw;
   scrollbar-color: rgba(150, 154, 171, 0.42) rgba(255,255,255,0.035);
   scrollbar-width: thin;
@@ -4055,8 +4083,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .agenda-flow__workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 360px 280px;
-  min-height: calc(100vh - 64px);
-  overflow: visible;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 #agendaFlowView.agenda-flow--presenting {
   width: 100vw;
@@ -4079,6 +4108,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 #agendaFlowView.agenda-flow--presenting .agenda-flow__workspace {
   width: 100%;
   min-height: calc(100vh - 64px);
+  height: auto;
   grid-template-columns: minmax(0, 1120px);
   justify-content: center;
   overflow: visible;
@@ -4100,12 +4130,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .agenda-flow__inspector,
 .agenda-flow__sidebar {
   min-height: 0;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .agenda-flow__preview {
   padding: 24px;
   min-height: 0;
-  overflow: visible;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 .agenda-flow__preview-toolbar {
   display: flex;
@@ -4134,6 +4166,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .agenda-flow__inspector,
 .agenda-flow__sidebar {
+  align-self: stretch;
+  max-height: none;
   padding: 16px;
   border-left: 1px solid var(--stroke-subtle);
   background: rgba(8, 10, 18, 0.74);
@@ -4596,6 +4630,18 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   line-height: 1.15;
   transition: font-size 240ms ease, line-height 240ms ease;
 }
+.agenda-title[contenteditable="true"],
+.agenda-description[contenteditable="true"] {
+  cursor: text;
+  border-radius: 8px;
+  outline: 0;
+  transition: background 150ms ease, box-shadow 150ms ease;
+}
+.agenda-title[contenteditable="true"]:focus,
+.agenda-description[contenteditable="true"]:focus {
+  background: rgba(255,255,255,0.055);
+  box-shadow: 0 0 0 3px rgba(68, 215, 245, 0.14);
+}
 .agenda-description {
   color: var(--agenda-muted);
   line-height: 1.55;
@@ -4767,6 +4813,10 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .agenda-flow__workspace {
     grid-template-columns: 1fr;
   }
+  .agenda-flow__workspace {
+    height: auto;
+    overflow: visible;
+  }
   .agenda-flow__topbar {
     padding-top: 12px;
     padding-bottom: 12px;
@@ -4779,6 +4829,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .agenda-flow__inspector,
   .agenda-flow__sidebar {
     overflow: visible;
+    position: static;
+    max-height: none;
   }
   .agenda-flow__inspector,
   .agenda-flow__sidebar {
@@ -6149,6 +6201,11 @@ html[data-theme="gmi"] .agenda-flow__menu button.is-active {
   color: #05774d;
   background: rgba(5, 119, 77, 0.08);
 }
+html[data-theme="gmi"] .agenda-title[contenteditable="true"]:focus,
+html[data-theme="gmi"] .agenda-description[contenteditable="true"]:focus {
+  background: rgba(5, 119, 77, 0.055);
+  box-shadow: 0 0 0 3px rgba(5, 119, 77, 0.14);
+}
 
 /* Agenda inspector form */
 html[data-theme="gmi"] .agenda-flow__form-section {
@@ -6300,6 +6357,7 @@ html[data-theme="gmi"] .agenda-page__kicker {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 16px;
   color: #05553a;
 }
 html[data-theme="gmi"] .agenda-page__kicker::before {
@@ -6820,7 +6878,56 @@ html[data-theme="gmi"] .agenda-people span {
           </svg>
           Workspace ▾
         </button>
-        <div class="tbtn-menu" id="workspaceMenu" role="menu">
+        <div class="tbtn-menu tbtn-menu--wide" id="workspaceMenu" role="menu">
+          <div class="menu-status" role="status" aria-live="polite">
+            <span class="menu-status__label" id="workspaceFileStatus">Local only</span>
+            <span class="menu-status__helper" id="workspaceFileDetail">Browser localStorage fallback active</span>
+          </div>
+          <div class="menu-divider" role="separator"></div>
+          <button id="connectWorkspaceFileMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Connect Workspace File</span>
+              <span class="menu-helper">Select a synced JSON file</span>
+            </span>
+          </button>
+          <button id="createWorkspaceFileMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Create Workspace File</span>
+              <span class="menu-helper">Save current app state to a file</span>
+            </span>
+          </button>
+          <button id="saveWorkspaceFileMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Save to Connected File</span>
+              <span class="menu-helper">Write latest state now</span>
+            </span>
+          </button>
+          <button id="loadWorkspaceFileMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Load from Connected File</span>
+              <span class="menu-helper">Reload the synced JSON file</span>
+            </span>
+          </button>
+          <button id="disconnectWorkspaceFileMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Disconnect Workspace File</span>
+              <span class="menu-helper">Keep local cache, forget file handle</span>
+            </span>
+          </button>
+          <div class="menu-divider" role="separator"></div>
+          <button id="exportWorkspaceJsonMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Export Workspace JSON</span>
+              <span class="menu-helper">AI Flow + Agenda Flow</span>
+            </span>
+          </button>
+          <button id="importWorkspaceJsonMenuItem" type="button" role="menuitem">
+            <span class="menu-copy">
+              <span class="menu-label">Import Workspace JSON</span>
+              <span class="menu-helper">Load AI Flow + Agenda Flow</span>
+            </span>
+          </button>
+          <div class="menu-divider" role="separator"></div>
           <button id="downloadJsonMenuItem" type="button" role="menuitem">
             <span class="menu-copy">
               <span class="menu-label">Download JSON</span>
@@ -6847,6 +6954,7 @@ html[data-theme="gmi"] .agenda-people span {
             <span class="menu-state" data-tool-logo-state>On</span>
           </button>
         </div>
+        <input class="agenda-flow__visually-hidden" type="file" id="workspaceJsonFileInput" accept="application/json,.json">
       </div>
     </div>
   </header>
@@ -7584,6 +7692,16 @@ html[data-theme="gmi"] .agenda-people span {
     reloadPublishedJsonBtn: document.getElementById('reloadPublishedJsonBtn'),
     workspaceMenuBtn: document.getElementById('workspaceMenuBtn'),
     workspaceMenu: document.getElementById('workspaceMenu'),
+    workspaceFileStatus: document.getElementById('workspaceFileStatus'),
+    workspaceFileDetail: document.getElementById('workspaceFileDetail'),
+    connectWorkspaceFileMenuItem: document.getElementById('connectWorkspaceFileMenuItem'),
+    createWorkspaceFileMenuItem: document.getElementById('createWorkspaceFileMenuItem'),
+    saveWorkspaceFileMenuItem: document.getElementById('saveWorkspaceFileMenuItem'),
+    loadWorkspaceFileMenuItem: document.getElementById('loadWorkspaceFileMenuItem'),
+    disconnectWorkspaceFileMenuItem: document.getElementById('disconnectWorkspaceFileMenuItem'),
+    exportWorkspaceJsonMenuItem: document.getElementById('exportWorkspaceJsonMenuItem'),
+    importWorkspaceJsonMenuItem: document.getElementById('importWorkspaceJsonMenuItem'),
+    workspaceJsonFileInput: document.getElementById('workspaceJsonFileInput'),
     downloadJsonMenuItem: document.getElementById('downloadJsonMenuItem'),
     resetLocalViewMenuItem: document.getElementById('resetLocalViewMenuItem'),
     downloadHtmlMenuItem: document.getElementById('downloadHtmlMenuItem'),
@@ -8167,6 +8285,7 @@ html[data-theme="gmi"] .agenda-people span {
     saveTimer = setTimeout(async () => {
       const ok = await persist.save(workspace);
       setSaveState(ok ? 'saved' : 'error');
+      if (ok) scheduleWorkspaceFileAutosave();
     }, 350);
   }
 
@@ -8287,6 +8406,504 @@ html[data-theme="gmi"] .agenda-people span {
       console.error('[download-json]', err);
       showToast('Could not download JSON');
     }
+  }
+
+  const WORKSPACE_FILE_APP = 'aiflow-canvas';
+  const WORKSPACE_FILE_VERSION = 1;
+  const WORKSPACE_HANDLE_DB = 'aiflow-canvas-workspace';
+  const WORKSPACE_HANDLE_STORE = 'handles';
+  const WORKSPACE_HANDLE_KEY = 'workspaceFile';
+  const WORKSPACE_FILE_SAVE_DELAY = 1200;
+  const workspaceFileState = {
+    handle: null,
+    name: '',
+    status: 'Local only',
+    detail: 'Browser localStorage fallback active',
+    lastLoadedSavedAt: '',
+    lastLoadedSaveId: '',
+    saveTimer: null,
+    saveInFlight: false,
+    pendingSave: false,
+    applying: false,
+  };
+
+  function fileSystemAccessSupported() {
+    return typeof window.showOpenFilePicker === 'function'
+      && typeof window.showSaveFilePicker === 'function'
+      && typeof indexedDB !== 'undefined';
+  }
+
+  function setWorkspaceFileStatus(status, detail = '') {
+    workspaceFileState.status = status;
+    workspaceFileState.detail = detail;
+    if (els.workspaceFileStatus) els.workspaceFileStatus.textContent = status;
+    if (els.workspaceFileDetail) els.workspaceFileDetail.textContent = detail || '';
+    refreshWorkspaceFileMenuState();
+  }
+
+  function refreshWorkspaceFileMenuState() {
+    const supported = fileSystemAccessSupported();
+    const connected = !!workspaceFileState.handle;
+    [
+      els.connectWorkspaceFileMenuItem,
+      els.createWorkspaceFileMenuItem,
+      els.exportWorkspaceJsonMenuItem,
+      els.importWorkspaceJsonMenuItem,
+    ].forEach(button => {
+      if (button) button.disabled = false;
+    });
+    [
+      els.saveWorkspaceFileMenuItem,
+      els.loadWorkspaceFileMenuItem,
+      els.disconnectWorkspaceFileMenuItem,
+    ].forEach(button => {
+      if (button) button.disabled = !connected;
+    });
+    if (!supported) {
+      [els.connectWorkspaceFileMenuItem, els.createWorkspaceFileMenuItem].forEach(button => {
+        if (button) button.disabled = true;
+      });
+    }
+  }
+
+  function workspaceFileDetailName() {
+    return workspaceFileState.name ? `Connected to ${workspaceFileState.name}` : 'Connected workspace file';
+  }
+
+  function openWorkspaceHandleDb() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(WORKSPACE_HANDLE_DB, 1);
+      request.onupgradeneeded = () => {
+        request.result.createObjectStore(WORKSPACE_HANDLE_STORE);
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error('IndexedDB open failed.'));
+    });
+  }
+
+  async function withWorkspaceHandleStore(mode, callback) {
+    const db = await openWorkspaceHandleDb();
+    try {
+      return await new Promise((resolve, reject) => {
+        const tx = db.transaction(WORKSPACE_HANDLE_STORE, mode);
+        const store = tx.objectStore(WORKSPACE_HANDLE_STORE);
+        let callbackResult;
+        tx.oncomplete = () => resolve(callbackResult);
+        tx.onerror = () => reject(tx.error || new Error('IndexedDB transaction failed.'));
+        tx.onabort = () => reject(tx.error || new Error('IndexedDB transaction aborted.'));
+        callbackResult = callback(store);
+      });
+    } finally {
+      db.close();
+    }
+  }
+
+  async function storeWorkspaceFileHandle(handle) {
+    if (!fileSystemAccessSupported()) return;
+    await withWorkspaceHandleStore('readwrite', store => store.put(handle, WORKSPACE_HANDLE_KEY));
+  }
+
+  async function getStoredWorkspaceFileHandle() {
+    if (!fileSystemAccessSupported()) return null;
+    return await withWorkspaceHandleStore('readonly', store => {
+      return new Promise((resolve, reject) => {
+        const request = store.get(WORKSPACE_HANDLE_KEY);
+        request.onsuccess = () => resolve(request.result || null);
+        request.onerror = () => reject(request.error || new Error('IndexedDB read failed.'));
+      });
+    });
+  }
+
+  async function clearStoredWorkspaceFileHandle() {
+    if (!fileSystemAccessSupported()) return;
+    await withWorkspaceHandleStore('readwrite', store => store.delete(WORKSPACE_HANDLE_KEY));
+  }
+
+  async function verifyFilePermission(fileHandle, readWrite = true) {
+    const options = readWrite ? { mode: 'readwrite' } : { mode: 'read' };
+    try {
+      if (typeof fileHandle.queryPermission !== 'function' || typeof fileHandle.requestPermission !== 'function') {
+        return true;
+      }
+      if ((await fileHandle.queryPermission(options)) === 'granted') return true;
+      if ((await fileHandle.requestPermission(options)) === 'granted') return true;
+      return false;
+    } catch (err) {
+      console.warn('[workspace-file.permission]', err);
+      return false;
+    }
+  }
+
+  function getWorkspaceFileMetadata(payload) {
+    return {
+      savedAt: typeof payload?.savedAt === 'string' ? payload.savedAt : '',
+      saveId: typeof payload?.saveId === 'string' ? payload.saveId : '',
+    };
+  }
+
+  function buildWorkspaceFilePayload() {
+    return {
+      version: WORKSPACE_FILE_VERSION,
+      app: WORKSPACE_FILE_APP,
+      savedAt: new Date().toISOString(),
+      saveId: uid('save'),
+      aiFlow: cloneWorkspace(workspace),
+      agendaFlow: AgendaFlow.getExportPayload(),
+    };
+  }
+
+  function validateWorkspaceFilePayload(payload) {
+    if (!payload || typeof payload !== 'object') {
+      throw new Error('Workspace JSON must be an object.');
+    }
+    if (payload.app !== WORKSPACE_FILE_APP) {
+      throw new Error('Workspace JSON must have app: "aiflow-canvas".');
+    }
+    if (!payload.version) {
+      throw new Error('Workspace JSON must include a version.');
+    }
+    if (payload.aiFlow !== undefined && !isValidWorkspaceData(payload.aiFlow)) {
+      throw new Error('Workspace JSON has invalid AI Flow data.');
+    }
+    if (payload.agendaFlow !== undefined && !AgendaFlow.isValidExportPayload(payload.agendaFlow)) {
+      throw new Error('Workspace JSON has invalid Agenda Flow data.');
+    }
+    if (payload.aiFlow === undefined && payload.agendaFlow === undefined) {
+      throw new Error('Workspace JSON must include aiFlow or agendaFlow data.');
+    }
+    return payload;
+  }
+
+  async function applyWorkspaceFilePayload(payload, options = {}) {
+    const { persistCache = true, render = true, source = 'workspace file' } = options;
+    validateWorkspaceFilePayload(payload);
+    workspaceFileState.applying = true;
+    try {
+      const loadedParts = [];
+      if (payload.aiFlow !== undefined) {
+        workspace = cloneWorkspace(payload.aiFlow);
+        migrateWorkspace(workspace);
+        if (!workspace.boards.find(b => b.id === workspace.activeBoardId)) {
+          workspace.activeBoardId = workspace.boards[0]?.id;
+        }
+        _resetSelectionState();
+        undoStack.length = 0;
+        redoStack.length = 0;
+        loadedParts.push('AI Flow');
+        if (persistCache) await persist.save(workspace);
+      }
+      if (payload.agendaFlow !== undefined) {
+        AgendaFlow.applyExportPayload(payload.agendaFlow, { persist: persistCache, render });
+        loadedParts.push('Agenda Flow');
+      }
+      const metadata = getWorkspaceFileMetadata(payload);
+      workspaceFileState.lastLoadedSavedAt = metadata.savedAt;
+      workspaceFileState.lastLoadedSaveId = metadata.saveId;
+      if (render) {
+        fullRender();
+        AgendaFlow.renderAll();
+      }
+      if (loadedParts.length < 2) {
+        showToast(`${loadedParts.join(' + ')} loaded; missing section kept as-is`);
+      } else {
+        showToast(`Loaded ${source}`);
+      }
+    } finally {
+      workspaceFileState.applying = false;
+    }
+  }
+
+  async function readWorkspacePayloadFromHandle(handle) {
+    const file = await handle.getFile();
+    const text = await file.text();
+    if (!text.trim()) return null;
+    return validateWorkspaceFilePayload(JSON.parse(text));
+  }
+
+  async function writeWorkspacePayloadToHandle(handle, payload) {
+    const writable = await handle.createWritable();
+    await writable.write(JSON.stringify(payload, null, 2) + '\n');
+    await writable.close();
+  }
+
+  function updateWorkspaceFileMetadataFromPayload(payload) {
+    const metadata = getWorkspaceFileMetadata(payload);
+    workspaceFileState.lastLoadedSavedAt = metadata.savedAt;
+    workspaceFileState.lastLoadedSaveId = metadata.saveId;
+  }
+
+  function hasWorkspaceFileChangedExternally(payload) {
+    if (!payload) return false;
+    const metadata = getWorkspaceFileMetadata(payload);
+    if (!workspaceFileState.lastLoadedSavedAt && !workspaceFileState.lastLoadedSaveId) return false;
+    return metadata.savedAt !== workspaceFileState.lastLoadedSavedAt
+      || metadata.saveId !== workspaceFileState.lastLoadedSaveId;
+  }
+
+  async function handleWorkspaceFileConflict(currentPayload) {
+    setWorkspaceFileStatus('File changed externally', 'Reload from file or overwrite it');
+    const reload = confirm(
+      'This workspace file was changed outside this browser.\n\nChoose OK to reload from the file, or Cancel to choose whether to overwrite.'
+    );
+    if (reload) {
+      await applyWorkspaceFilePayload(currentPayload, { source: 'connected workspace file' });
+      setWorkspaceFileStatus('Connected file', workspaceFileDetailName());
+      return 'reloaded';
+    }
+    const overwrite = confirm('Overwrite the external changes with this browser state?');
+    return overwrite ? 'overwrite' : 'cancel';
+  }
+
+  async function saveWorkspaceToConnectedFile(options = {}) {
+    const { force = false, skipConflictCheck = false } = options;
+    if (!workspaceFileState.handle || workspaceFileState.applying) return false;
+    if (workspaceFileState.saveInFlight) {
+      workspaceFileState.pendingSave = true;
+      return false;
+    }
+    workspaceFileState.saveInFlight = true;
+    try {
+      setWorkspaceFileStatus('Saving...', workspaceFileDetailName());
+      const permitted = await verifyFilePermission(workspaceFileState.handle, true);
+      if (!permitted) {
+        setWorkspaceFileStatus('Permission needed', 'Reconnect or allow read/write access');
+        return false;
+      }
+      if (!force && !skipConflictCheck) {
+        const currentPayload = await readWorkspacePayloadFromHandle(workspaceFileState.handle);
+        if (hasWorkspaceFileChangedExternally(currentPayload)) {
+          const action = await handleWorkspaceFileConflict(currentPayload);
+          if (action !== 'overwrite') return false;
+        }
+      }
+      const payload = buildWorkspaceFilePayload();
+      await writeWorkspacePayloadToHandle(workspaceFileState.handle, payload);
+      updateWorkspaceFileMetadataFromPayload(payload);
+      setWorkspaceFileStatus('Saved', workspaceFileDetailName());
+      window.setTimeout(() => {
+        if (workspaceFileState.handle && workspaceFileState.status === 'Saved') {
+          setWorkspaceFileStatus('Connected file', workspaceFileDetailName());
+        }
+      }, 1400);
+      return true;
+    } catch (err) {
+      console.warn('[workspace-file.save]', err);
+      setWorkspaceFileStatus('Save failed', err?.message || 'Could not write connected file');
+      showToast('Workspace file save failed');
+      return false;
+    } finally {
+      workspaceFileState.saveInFlight = false;
+      if (workspaceFileState.pendingSave) {
+        workspaceFileState.pendingSave = false;
+        scheduleWorkspaceFileAutosave();
+      }
+    }
+  }
+
+  function scheduleWorkspaceFileAutosave() {
+    if (!workspaceFileState.handle || workspaceFileState.applying) return;
+    clearTimeout(workspaceFileState.saveTimer);
+    workspaceFileState.saveTimer = window.setTimeout(() => {
+      saveWorkspaceToConnectedFile();
+    }, WORKSPACE_FILE_SAVE_DELAY);
+  }
+
+  async function connectWorkspaceFile() {
+    if (!fileSystemAccessSupported()) {
+      window.alert('Direct workspace file saving is not supported in this browser. Please use Export/Import JSON.');
+      showToast('Workspace files need Chrome or Edge');
+      return;
+    }
+    try {
+      const [handle] = await window.showOpenFilePicker({
+        multiple: false,
+        types: [{
+          description: 'AIFlow Canvas workspace JSON',
+          accept: { 'application/json': ['.json'] },
+        }],
+      });
+      if (!handle) return;
+      const permitted = await verifyFilePermission(handle, true);
+      if (!permitted) {
+        setWorkspaceFileStatus('Permission needed', 'Read/write access was not granted');
+        return;
+      }
+      workspaceFileState.handle = handle;
+      workspaceFileState.name = handle.name || 'workspace.json';
+      const payload = await readWorkspacePayloadFromHandle(handle);
+      if (payload) {
+        await applyWorkspaceFilePayload(payload, { source: 'connected workspace file' });
+      } else {
+        const nextPayload = buildWorkspaceFilePayload();
+        await writeWorkspacePayloadToHandle(handle, nextPayload);
+        updateWorkspaceFileMetadataFromPayload(nextPayload);
+        showToast('Workspace file created');
+      }
+      await storeWorkspaceFileHandle(handle);
+      setWorkspaceFileStatus('Connected file', workspaceFileDetailName());
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
+      console.warn('[workspace-file.connect]', err);
+      workspaceFileState.handle = null;
+      workspaceFileState.name = '';
+      window.alert(err?.message || 'Workspace file could not be connected.');
+      setWorkspaceFileStatus('Local only', 'Workspace file connection failed');
+    }
+  }
+
+  async function createWorkspaceFile() {
+    if (!fileSystemAccessSupported()) {
+      window.alert('Direct workspace file saving is not supported in this browser. Please use Export/Import JSON.');
+      showToast('Workspace files need Chrome or Edge');
+      return;
+    }
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: 'aiflow-canvas-workspace.json',
+        types: [{
+          description: 'AIFlow Canvas workspace JSON',
+          accept: { 'application/json': ['.json'] },
+        }],
+      });
+      if (!handle) return;
+      const permitted = await verifyFilePermission(handle, true);
+      if (!permitted) {
+        setWorkspaceFileStatus('Permission needed', 'Read/write access was not granted');
+        return;
+      }
+      workspaceFileState.handle = handle;
+      workspaceFileState.name = handle.name || 'workspace.json';
+      const payload = buildWorkspaceFilePayload();
+      await writeWorkspacePayloadToHandle(handle, payload);
+      updateWorkspaceFileMetadataFromPayload(payload);
+      await storeWorkspaceFileHandle(handle);
+      setWorkspaceFileStatus('Connected file', workspaceFileDetailName());
+      showToast('Workspace file connected');
+    } catch (err) {
+      if (err?.name === 'AbortError') return;
+      console.warn('[workspace-file.create]', err);
+      workspaceFileState.handle = null;
+      workspaceFileState.name = '';
+      window.alert(err?.message || 'Workspace file could not be created.');
+      setWorkspaceFileStatus('Local only', 'Workspace file creation failed');
+    }
+  }
+
+  async function loadFromConnectedWorkspaceFile() {
+    if (!workspaceFileState.handle) return;
+    try {
+      setWorkspaceFileStatus('Loading...', workspaceFileDetailName());
+      const permitted = await verifyFilePermission(workspaceFileState.handle, false);
+      if (!permitted) {
+        setWorkspaceFileStatus('Permission needed', 'Allow file access to load');
+        return;
+      }
+      const payload = await readWorkspacePayloadFromHandle(workspaceFileState.handle);
+      if (!payload) throw new Error('Connected workspace file is empty.');
+      await applyWorkspaceFilePayload(payload, { source: 'connected workspace file' });
+      setWorkspaceFileStatus('Connected file', workspaceFileDetailName());
+    } catch (err) {
+      console.warn('[workspace-file.load]', err);
+      window.alert(err?.message || 'Workspace file could not be loaded.');
+      setWorkspaceFileStatus('Save failed', 'Could not load connected file');
+    }
+  }
+
+  async function disconnectWorkspaceFile() {
+    clearTimeout(workspaceFileState.saveTimer);
+    workspaceFileState.handle = null;
+    workspaceFileState.name = '';
+    workspaceFileState.lastLoadedSavedAt = '';
+    workspaceFileState.lastLoadedSaveId = '';
+    try {
+      await clearStoredWorkspaceFileHandle();
+    } catch (err) {
+      console.warn('[workspace-file.disconnect]', err);
+    }
+    setWorkspaceFileStatus('Local only', 'Browser localStorage fallback active');
+    showToast('Workspace file disconnected');
+  }
+
+  async function tryRestoreConnectedWorkspaceFile() {
+    refreshWorkspaceFileMenuState();
+    if (!fileSystemAccessSupported()) {
+      setWorkspaceFileStatus('Local only', 'Direct file saving unsupported; use Export/Import JSON');
+      return;
+    }
+    try {
+      const handle = await getStoredWorkspaceFileHandle();
+      if (!handle) {
+        setWorkspaceFileStatus('Local only', 'Browser localStorage fallback active');
+        return;
+      }
+      workspaceFileState.handle = handle;
+      workspaceFileState.name = handle.name || 'workspace.json';
+      setWorkspaceFileStatus('Loading...', workspaceFileDetailName());
+      const permitted = await verifyFilePermission(handle, true);
+      if (!permitted) {
+        setWorkspaceFileStatus('Permission needed', 'Open Workspace menu to reconnect or grant access');
+        return;
+      }
+      const payload = await readWorkspacePayloadFromHandle(handle);
+      if (!payload) {
+        setWorkspaceFileStatus('Connected file', `${workspaceFileDetailName()} is empty`);
+        return;
+      }
+      await applyWorkspaceFilePayload(payload, { source: 'connected workspace file' });
+      setWorkspaceFileStatus('Connected file', workspaceFileDetailName());
+    } catch (err) {
+      console.warn('[workspace-file.restore]', err);
+      workspaceFileState.handle = null;
+      workspaceFileState.name = '';
+      setWorkspaceFileStatus('Permission needed', 'Reconnect the workspace file');
+    }
+  }
+
+  function exportFullWorkspaceJson() {
+    try {
+      const payload = buildWorkspaceFilePayload();
+      const blob = new Blob([JSON.stringify(payload, null, 2) + '\n'], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'aiflow-canvas-workspace.json';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+      showToast('Workspace JSON exported');
+    } catch (err) {
+      console.warn('[workspace-json.export]', err);
+      showToast('Could not export workspace JSON');
+    }
+  }
+
+  function importFullWorkspaceJson(event) {
+    const input = event.target;
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        const payload = validateWorkspaceFilePayload(JSON.parse(String(reader.result)));
+        await applyWorkspaceFilePayload(payload, { source: 'workspace JSON import' });
+        setWorkspaceFileStatus(
+          workspaceFileState.handle ? 'Connected file' : 'Local only',
+          workspaceFileState.handle ? workspaceFileDetailName() : 'Imported to localStorage cache'
+        );
+      } catch (err) {
+        console.warn('[workspace-json.import]', err);
+        window.alert(err?.message || 'Invalid workspace JSON. Please choose an AIFlow Canvas workspace export.');
+      } finally {
+        input.value = '';
+      }
+    };
+    reader.onerror = () => {
+      input.value = '';
+      window.alert('Workspace JSON could not be read. Please try again.');
+      console.warn('[workspace-json.file-read]', reader.error);
+    };
+    reader.readAsText(file);
   }
 
   const PNG_EXPORT_PADDING = 120;
@@ -14429,6 +15046,51 @@ CRM customer profile">${escapeHtml((edge.dataItems || []).join('\n'))}</textarea
       exportBoardPdf();
     });
   }
+  if (els.connectWorkspaceFileMenuItem) {
+    els.connectWorkspaceFileMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      connectWorkspaceFile();
+    });
+  }
+  if (els.createWorkspaceFileMenuItem) {
+    els.createWorkspaceFileMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      createWorkspaceFile();
+    });
+  }
+  if (els.saveWorkspaceFileMenuItem) {
+    els.saveWorkspaceFileMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      saveWorkspaceToConnectedFile();
+    });
+  }
+  if (els.loadWorkspaceFileMenuItem) {
+    els.loadWorkspaceFileMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      loadFromConnectedWorkspaceFile();
+    });
+  }
+  if (els.disconnectWorkspaceFileMenuItem) {
+    els.disconnectWorkspaceFileMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      disconnectWorkspaceFile();
+    });
+  }
+  if (els.exportWorkspaceJsonMenuItem) {
+    els.exportWorkspaceJsonMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      exportFullWorkspaceJson();
+    });
+  }
+  if (els.importWorkspaceJsonMenuItem) {
+    els.importWorkspaceJsonMenuItem.addEventListener('click', () => {
+      setMenuOpen(false);
+      els.workspaceJsonFileInput?.click();
+    });
+  }
+  if (els.workspaceJsonFileInput) {
+    els.workspaceJsonFileInput.addEventListener('change', importFullWorkspaceJson);
+  }
   if (els.downloadJsonMenuItem) {
     els.downloadJsonMenuItem.addEventListener('click', () => {
       setMenuOpen(false);
@@ -15121,6 +15783,9 @@ Bezug zum Retreat-Kontext:
         setSaveIndicator('Save error');
         return;
       }
+      if (typeof scheduleWorkspaceFileAutosave === 'function') {
+        scheduleWorkspaceFileAutosave();
+      }
       agendaState.saveTimer = window.setTimeout(() => setSaveIndicator('Saved'), 280);
     }
 
@@ -15232,6 +15897,11 @@ Bezug zum Retreat-Kontext:
 
     function bindEvents() {
       agendaEls.agendaPreview?.addEventListener('click', handlePreviewSelection);
+      agendaEls.agendaPreview?.addEventListener('pointerdown', handleAgendaInlineEditPointerDown);
+      agendaEls.agendaPreview?.addEventListener('focusin', handleAgendaInlineEditFocus);
+      agendaEls.agendaPreview?.addEventListener('input', handleAgendaInlineEditInput);
+      agendaEls.agendaPreview?.addEventListener('keydown', handleAgendaInlineEditKeydown);
+      agendaEls.agendaPreview?.addEventListener('focusout', handleAgendaInlineEditBlur);
       agendaEls.agendaPreview?.addEventListener('keydown', handlePreviewKeydown);
       agendaEls.agendaPreview?.addEventListener('dragstart', handleAgendaDragStart);
       agendaEls.agendaPreview?.addEventListener('dragover', handleAgendaDragOver);
@@ -15478,9 +16148,15 @@ Bezug zum Retreat-Kontext:
               <p class="agenda-date">${agendaEscapeHtml(item.date)}</p>
               <span class="agenda-phase">${agendaEscapeHtml(item.phase)}</span>
             </div>
-            <h3 class="agenda-title">${agendaEscapeHtml(item.title)}</h3>
+            <h3 class="agenda-title"
+                contenteditable="${interactive ? 'true' : 'false'}"
+                spellcheck="true"
+                data-agenda-inline-field="title">${agendaEscapeHtml(item.title)}</h3>
             <div class="agenda-item__expandable">
-              <p class="agenda-description">${agendaEscapeHtml(item.description)}</p>
+              <p class="agenda-description"
+                 contenteditable="${interactive ? 'true' : 'false'}"
+                 spellcheck="true"
+                 data-agenda-inline-field="description">${agendaEscapeHtml(item.description)}</p>
               ${notesIndicator}
               <div class="agenda-footer">
                 <p class="agenda-people" aria-label="Responsible people">${peopleHtml}</p>
@@ -15575,6 +16251,7 @@ Bezug zum Retreat-Kontext:
     }
 
     function handlePreviewSelection(event) {
+      if (event.target.closest('[data-agenda-inline-field]')) return;
       const lockButton = event.target.closest('[data-action="toggle-agenda-lock"]');
       if (lockButton) {
         event.preventDefault();
@@ -15592,6 +16269,7 @@ Bezug zum Retreat-Kontext:
     }
 
     function handlePreviewKeydown(event) {
+      if (event.target.closest('[data-agenda-inline-field]')) return;
       if (event.target.closest('[data-action="toggle-agenda-lock"]')) return;
       if (!['Enter', ' '].includes(event.key)) return;
       const itemElement = event.target.closest('.agenda-item[data-item-id]');
@@ -15609,6 +16287,85 @@ Bezug zum Retreat-Kontext:
         lockedAgendaItemIds.add(itemId);
       }
       renderAgendaPreview();
+    }
+
+    function handleAgendaInlineEditPointerDown(event) {
+      if (event.target.closest('[data-agenda-inline-field]')) {
+        event.stopPropagation();
+      }
+    }
+
+    function handleAgendaInlineEditFocus(event) {
+      const editable = event.target.closest('[data-agenda-inline-field]');
+      if (!editable) return;
+      const itemElement = editable.closest('.agenda-item[data-item-id]');
+      if (!itemElement) return;
+      if (agendaState.selectedItemId !== itemElement.dataset.itemId) {
+        agendaState.selectedItemId = itemElement.dataset.itemId;
+        agendaEls.agendaPreview?.querySelectorAll('.agenda-item.is-selected')
+          .forEach(selectedItem => selectedItem.classList.remove('is-selected'));
+        itemElement.classList.add('is-selected');
+        renderInspector();
+      }
+      beginAgendaEditSession();
+    }
+
+    function handleAgendaInlineEditInput(event) {
+      const editable = event.target.closest('[data-agenda-inline-field]');
+      if (!editable) return;
+      const itemElement = editable.closest('.agenda-item[data-item-id]');
+      const item = getAgendaItemById(itemElement?.dataset.itemId);
+      if (!item) return;
+      ensureAgendaEditUndoSnapshot();
+      const value = getAgendaInlineText(editable);
+      if (editable.dataset.agendaInlineField === 'title') {
+        item.title = value || 'Untitled item';
+      } else if (editable.dataset.agendaInlineField === 'description') {
+        item.description = value;
+      }
+      renderInspector();
+      persist();
+    }
+
+    function handleAgendaInlineEditKeydown(event) {
+      const editable = event.target.closest('[data-agenda-inline-field]');
+      if (!editable) return;
+      event.stopPropagation();
+      if (editable.dataset.agendaInlineField === 'title' && event.key === 'Enter') {
+        event.preventDefault();
+        editable.blur();
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        editable.blur();
+      }
+    }
+
+    function handleAgendaInlineEditBlur(event) {
+      const editable = event.target.closest('[data-agenda-inline-field]');
+      if (!editable) return;
+      const itemElement = editable.closest('.agenda-item[data-item-id]');
+      const item = getAgendaItemById(itemElement?.dataset.itemId);
+      if (item) {
+        if (editable.dataset.agendaInlineField === 'title') {
+          if (!getAgendaInlineText(editable)) item.title = 'Untitled item';
+          editable.textContent = item.title;
+          renderInspector();
+          persist();
+        } else if (editable.dataset.agendaInlineField === 'description') {
+          editable.textContent = item.description || '';
+        }
+      }
+      finishAgendaEditSession();
+    }
+
+    function getAgendaInlineText(editable) {
+      return String(editable.innerText || editable.textContent || '').replace(/\u00a0/g, ' ').trim();
+    }
+
+    function getAgendaItemById(itemId) {
+      if (!itemId) return null;
+      return getActiveAgenda()?.items?.find(item => item.id === itemId) || null;
     }
 
     function isAgendaItemsMenuOpen() {
@@ -16011,6 +16768,41 @@ body { background: #070a12; overflow: auto; }
       };
     }
 
+    function isValidExportPayload(payload) {
+      if (!payload || typeof payload !== 'object') return false;
+      if (!Array.isArray(payload.agendas)) return false;
+      try {
+        return normalizeAgendas(payload.agendas).length > 0;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function applyExportPayload(payload, options = {}) {
+      if (!isValidExportPayload(payload)) {
+        throw new Error('Agenda Flow workspace data is invalid.');
+      }
+      const normalized = normalizeAgendas(payload.agendas);
+      const importedActiveAgendaId = typeof payload.activeAgendaId === 'string' ? payload.activeAgendaId : '';
+      agendaState.agendas = normalized;
+      agendaState.activeAgendaId = normalized.some(agenda => agenda.id === importedActiveAgendaId)
+        ? importedActiveAgendaId
+        : normalized[0].id;
+      agendaState.selectedItemId = null;
+      expandedAgendaItemIds.clear();
+      lockedAgendaItemIds.clear();
+      setAgendaTitlesOnlyMode(false);
+      ensureValidAgendaSelection();
+      agendaUndoStack.length = 0;
+      agendaRedoStack.length = 0;
+      if (options.persist !== false) {
+        saveAgendaSeedState(agendaState.agendas, agendaState.activeAgendaId);
+      }
+      if (options.render !== false) {
+        renderAll();
+      }
+    }
+
     function importAgendasJson(event) {
       const file = event.target.files?.[0];
       if (!file) return;
@@ -16182,7 +16974,13 @@ body { background: #070a12; overflow: auto; }
       }
     }
 
-    return { init, renderAll };
+    return {
+      init,
+      renderAll,
+      getExportPayload: getAgendaExportPayload,
+      isValidExportPayload,
+      applyExportPayload,
+    };
   })();
 
   // ============================================================
@@ -16368,8 +17166,10 @@ body { background: #070a12; overflow: auto; }
     AgendaFlow.init();
     activeToolView = loadActiveToolViewPreference();
     refreshToolLogoToggleUi();
+    refreshWorkspaceFileMenuState();
     fullRender();
     setActiveToolView(activeToolView, { silent: true });
+    tryRestoreConnectedWorkspaceFile();
 
     // Hide loading veil
     requestAnimationFrame(() => {

@@ -3970,6 +3970,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   padding: 0 12px;
   font-size: 12px;
   font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
 }
 .agenda-flow__button:hover,
 .agenda-flow__icon-button:hover,
@@ -3992,6 +3995,57 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: #ffe4e6;
   border-color: rgba(251, 113, 133, 0.28);
   background: rgba(251, 113, 133, 0.10);
+}
+.agenda-flow__preview-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.agenda-flow__menu-group {
+  position: relative;
+  display: inline-flex;
+}
+.agenda-flow__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  display: grid;
+  min-width: 150px;
+  padding: 6px;
+  border: 1px solid var(--agenda-line);
+  border-radius: 10px;
+  background: rgba(8, 13, 24, 0.96);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.34);
+}
+.agenda-flow__menu[hidden] {
+  display: none !important;
+}
+.agenda-flow__menu button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--agenda-text);
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: none;
+  text-align: left;
+}
+.agenda-flow__menu button:hover,
+.agenda-flow__menu button.is-active {
+  color: #d8faff;
+  background: rgba(68, 215, 245, 0.12);
 }
 .agenda-flow__icon-button {
   width: 34px;
@@ -4261,6 +4315,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   margin: 0;
   padding: 0;
   list-style: none;
+  transition: gap 240ms ease;
 }
 .agenda-list::before {
   content: "";
@@ -4279,6 +4334,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   grid-template-columns: 44px minmax(0, 1fr);
   gap: 16px;
   align-items: start;
+  transition: gap 240ms ease, grid-template-columns 240ms ease;
 }
 .agenda-item--violet { --phase-color: var(--agenda-violet); --phase-soft: rgba(139, 92, 246, 0.12); }
 .agenda-item--blue { --phase-color: var(--agenda-blue); --phase-soft: rgba(59, 130, 246, 0.11); }
@@ -4313,6 +4369,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow:
     0 0 0 6px var(--phase-soft),
     0 0 18px -6px var(--phase-color);
+  transition: width 240ms ease, height 240ms ease, margin 240ms ease, border-width 240ms ease, box-shadow 240ms ease;
 }
 .agenda-card {
   position: relative;
@@ -4324,7 +4381,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
     linear-gradient(90deg, var(--phase-soft), transparent 42%),
     rgba(255,255,255,0.038);
   box-shadow: 0 20px 55px rgba(0,0,0,0.25);
-  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease, padding 240ms ease, border-radius 240ms ease;
 }
 .agenda-item__drag {
   position: absolute;
@@ -4371,6 +4428,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .agenda-item:hover .agenda-item__affordance,
 .agenda-item:focus-within .agenda-item__affordance,
 .agenda-item.is-selected .agenda-item__affordance,
+.agenda-item.is-expanded-all .agenda-item__affordance,
 .agenda-item.is-expanded-locked .agenda-item__affordance {
   color: var(--agenda-text);
   border-color: color-mix(in srgb, var(--phase-color) 38%, rgba(148, 163, 184, 0.16));
@@ -4379,6 +4437,88 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .agenda-item.is-expanded-locked .agenda-item__affordance {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--phase-color) 20%, transparent);
+}
+#agendaFlowView.agenda-flow--transitioning-items .agenda-item,
+#agendaFlowView.agenda-flow--transitioning-items .agenda-marker,
+#agendaFlowView.agenda-flow--transitioning-items .agenda-card,
+#agendaFlowView.agenda-flow--transitioning-items .agenda-meta,
+#agendaFlowView.agenda-flow--transitioning-items .agenda-title,
+#agendaFlowView.agenda-flow--transitioning-items .agenda-item__expandable,
+#agendaFlowView.agenda-flow--transitioning-items .agenda-item__affordance,
+#agendaFlowView.agenda-flow--transitioning-items .agenda-item__drag {
+  will-change: max-height, opacity, transform, margin, padding;
+}
+#agendaFlowView.agenda-flow--expanding-from-titles .agenda-list {
+  transition-duration: 520ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+#agendaFlowView.agenda-flow--expanding-from-titles .agenda-item {
+  transition-duration: 540ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-expand-delay, 0ms);
+}
+#agendaFlowView.agenda-flow--expanding-from-titles .agenda-marker {
+  transition-duration: 520ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-expand-delay, 0ms);
+}
+#agendaFlowView.agenda-flow--expanding-from-titles .agenda-card {
+  transition-duration: 180ms, 180ms, 180ms, 540ms, 540ms;
+  transition-timing-function: ease, ease, ease, cubic-bezier(0.16, 1, 0.3, 1), cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-expand-delay, 0ms);
+}
+#agendaFlowView.agenda-flow--expanding-from-titles .agenda-meta,
+#agendaFlowView.agenda-flow--expanding-from-titles .agenda-title {
+  transition-duration: 500ms, 360ms, 500ms, 500ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1), ease, cubic-bezier(0.16, 1, 0.3, 1), cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-expand-delay, 0ms);
+}
+#agendaFlowView.agenda-flow--expanding-from-titles .agenda-item__expandable {
+  transition-duration: 560ms, 380ms, 520ms, 520ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1), ease, cubic-bezier(0.16, 1, 0.3, 1), cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-expand-delay, 0ms);
+}
+#agendaFlowView.agenda-flow--expanding-from-titles .agenda-item__affordance,
+#agendaFlowView.agenda-flow--expanding-from-titles .agenda-item__drag {
+  transition-duration: 360ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-expand-delay, 0ms);
+}
+#agendaFlowView.agenda-flow--collapsing-all .agenda-list {
+  transition-duration: 500ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+#agendaFlowView.agenda-flow--collapsing-all .agenda-item {
+  transition-duration: 520ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-collapse-delay, 0ms);
+}
+#agendaFlowView.agenda-flow--collapsing-all .agenda-marker {
+  transition-duration: 480ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-collapse-delay, 0ms);
+}
+#agendaFlowView.agenda-flow--collapsing-all .agenda-card {
+  transition-duration: 180ms, 180ms, 180ms, 500ms, 500ms;
+  transition-timing-function: ease, ease, ease, cubic-bezier(0.16, 1, 0.3, 1), cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-collapse-delay, 0ms);
+}
+#agendaFlowView.agenda-flow--collapsing-all .agenda-meta,
+#agendaFlowView.agenda-flow--collapsing-all .agenda-title {
+  transition-duration: 440ms, 300ms, 420ms, 420ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1), ease, cubic-bezier(0.16, 1, 0.3, 1), cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-collapse-delay, 0ms);
+}
+#agendaFlowView.agenda-flow--collapsing-all .agenda-item__expandable {
+  transition-duration: 500ms, 320ms, 440ms, 440ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1), ease, cubic-bezier(0.16, 1, 0.3, 1), cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-collapse-delay, 0ms);
+}
+#agendaFlowView.agenda-flow--collapsing-all .agenda-item__affordance,
+#agendaFlowView.agenda-flow--collapsing-all .agenda-item__drag {
+  transition-duration: 320ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--agenda-collapse-delay, 0ms);
 }
 .agenda-drop-indicator {
   position: absolute;
@@ -4423,9 +4563,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   justify-content: space-between;
 }
 .agenda-meta {
+  max-height: 80px;
   margin-bottom: 12px;
   padding-right: 74px;
+  overflow: hidden;
   transform: translateX(-2px);
+  transition: max-height 220ms ease, opacity 160ms ease, margin 220ms ease, transform 220ms ease;
 }
 .agenda-date {
   color: var(--phase-color);
@@ -4451,6 +4594,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .agenda-title {
   font-size: clamp(22px, 2vw, 28px);
   line-height: 1.15;
+  transition: font-size 240ms ease, line-height 240ms ease;
 }
 .agenda-description {
   color: var(--agenda-muted);
@@ -4474,12 +4618,71 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .agenda-item:hover .agenda-item__expandable,
 .agenda-item:focus-within .agenda-item__expandable,
 .agenda-item.is-selected .agenda-item__expandable,
+.agenda-item.is-expanded-all .agenda-item__expandable,
 .agenda-item.is-expanded-locked .agenda-item__expandable {
-  max-height: 460px;
+  max-height: 1200px;
   margin-top: 12px;
   opacity: 1;
   pointer-events: auto;
   transform: translateY(0);
+}
+#agendaFlowView.agenda-flow--titles-only .agenda-list {
+  gap: 8px;
+}
+#agendaFlowView.agenda-flow--titles-only .agenda-list::before {
+  top: 12px;
+  bottom: 12px;
+}
+#agendaFlowView.agenda-flow--titles-only .agenda-item {
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 8px;
+}
+#agendaFlowView.agenda-flow--titles-only .agenda-marker {
+  width: 12px;
+  height: 12px;
+  margin-top: 17px;
+  border-width: 2px;
+  box-shadow: 0 0 0 4px var(--phase-soft);
+}
+#agendaFlowView.agenda-flow--titles-only .agenda-card {
+  padding: 12px 14px;
+  border-radius: 12px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+}
+#agendaFlowView.agenda-flow--titles-only .agenda-title {
+  font-size: clamp(16px, 1.25vw, 18px);
+  line-height: 1.22;
+  padding-right: 0;
+}
+#agendaFlowView.agenda-flow--titles-only .agenda-meta,
+#agendaFlowView.agenda-flow--titles-only .agenda-item__expandable {
+  max-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+}
+#agendaFlowView.agenda-flow--titles-only .agenda-item:hover .agenda-item__expandable,
+#agendaFlowView.agenda-flow--titles-only .agenda-item:focus-within .agenda-item__expandable,
+#agendaFlowView.agenda-flow--titles-only .agenda-item.is-selected .agenda-item__expandable,
+#agendaFlowView.agenda-flow--titles-only .agenda-item.is-expanded-all .agenda-item__expandable,
+#agendaFlowView.agenda-flow--titles-only .agenda-item.is-expanded-locked .agenda-item__expandable {
+  max-height: 0;
+  margin-top: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+}
+#agendaFlowView.agenda-flow--titles-only .agenda-item__affordance,
+#agendaFlowView.agenda-flow--titles-only .agenda-item__drag {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+}
+#agendaFlowView.agenda-flow--titles-only .agenda-item.is-selected .agenda-card {
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.10), 0 10px 26px rgba(0,0,0,0.18);
 }
 .agenda-list.is-reordering .agenda-item__expandable {
   max-height: 0 !important;
@@ -4521,9 +4724,16 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: rgba(255,255,255,0.052);
 }
 @media (prefers-reduced-motion: reduce) {
+  .agenda-list,
+  .agenda-item,
+  .agenda-marker,
+  .agenda-card,
+  .agenda-meta,
+  .agenda-title,
   .agenda-item__expandable,
   .agenda-item__affordance {
     transition: none;
+    transition-delay: 0ms;
   }
 }
 .agenda-badge--deadline { color: #fecdd3; background: rgba(251, 113, 133, 0.12); }
@@ -5844,6 +6054,7 @@ html[data-theme="gmi"] .agenda-item__affordance {
 html[data-theme="gmi"] .agenda-item:hover .agenda-item__affordance,
 html[data-theme="gmi"] .agenda-item:focus-within .agenda-item__affordance,
 html[data-theme="gmi"] .agenda-item.is-selected .agenda-item__affordance,
+html[data-theme="gmi"] .agenda-item.is-expanded-all .agenda-item__affordance,
 html[data-theme="gmi"] .agenda-item.is-expanded-locked .agenda-item__affordance {
   color: #05774d;
   border-color: rgba(5, 119, 77, 0.22);
@@ -5912,6 +6123,31 @@ html[data-theme="gmi"] .agenda-flow__mini-button--danger:hover {
   background: rgba(166, 75, 75, 0.14);
   border-color: rgba(166, 75, 75, 0.45);
   box-shadow: none;
+}
+html[data-theme="gmi"] .agenda-flow__preview-actions .agenda-flow__button {
+  font-family: 'Brandon Grotesque', var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  line-height: 1;
+  text-transform: none;
+}
+html[data-theme="gmi"] .agenda-flow__menu {
+  background: #ffffff;
+  border-color: rgba(16, 35, 27, 0.14);
+  box-shadow: 0 18px 38px rgba(16, 35, 27, 0.14);
+}
+html[data-theme="gmi"] .agenda-flow__menu button {
+  color: var(--text-primary);
+  font-family: 'Brandon Grotesque', var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  line-height: 1;
+  text-transform: none;
+}
+html[data-theme="gmi"] .agenda-flow__menu button:hover,
+html[data-theme="gmi"] .agenda-flow__menu button.is-active {
+  color: #05774d;
+  background: rgba(5, 119, 77, 0.08);
 }
 
 /* Agenda inspector form */
@@ -6928,7 +7164,19 @@ html[data-theme="gmi"] .agenda-people span {
           <p class="agenda-flow__kicker">Live Preview</p>
           <h2>Agenda Preview</h2>
         </div>
-        <button class="agenda-flow__button agenda-flow__button--soft" type="button" id="agendaEditAgendaButton">Edit agenda</button>
+        <div class="agenda-flow__preview-actions" aria-label="Agenda preview actions">
+          <div class="agenda-flow__menu-group">
+            <button class="agenda-flow__button" type="button" id="agendaItemsMenuButton" aria-haspopup="true" aria-expanded="false" aria-controls="agendaItemsMenu">Items ▾</button>
+            <div class="agenda-flow__menu" id="agendaItemsMenu" role="menu" hidden>
+              <button type="button" role="menuitemcheckbox" aria-checked="false" data-agenda-items-action="titles-only">Titles Only</button>
+              <button type="button" role="menuitem" data-agenda-items-action="expand">Expand All</button>
+              <button type="button" role="menuitem" data-agenda-items-action="collapse">Collapse All</button>
+              <button type="button" role="menuitem" data-agenda-items-action="lock">Lock All</button>
+              <button type="button" role="menuitem" data-agenda-items-action="unlock">Unlock All</button>
+            </div>
+          </div>
+          <button class="agenda-flow__button agenda-flow__button--soft" type="button" id="agendaEditAgendaButton">Edit agenda</button>
+        </div>
       </div>
 
       <div class="agenda-flow__preview-surface" id="agendaPreview"></div>
@@ -14689,6 +14937,9 @@ Bezug zum Retreat-Kontext:
     let agendaDragItemId = null;
     let agendaDropIndex = null;
     let agendaPresentationMode = false;
+    let agendaTitlesOnlyMode = false;
+    let agendaItemsTransitionTimer = null;
+    const expandedAgendaItemIds = new Set();
     const lockedAgendaItemIds = new Set();
 
     const agendaEls = {};
@@ -14706,6 +14957,8 @@ Bezug zum Retreat-Kontext:
         currentAgendaName: root.querySelector('#agendaCurrentAgendaName'),
         saveIndicator: root.querySelector('#agendaSaveIndicator'),
         panelSaveIndicator: root.querySelector('#agendaPanelSaveIndicator'),
+        itemsMenuButton: root.querySelector('#agendaItemsMenuButton'),
+        itemsMenu: root.querySelector('#agendaItemsMenu'),
         editAgendaButton: root.querySelector('#agendaEditAgendaButton'),
         addItemButton: root.querySelector('#agendaAddItemButton'),
         duplicateItemButton: root.querySelector('#agendaDuplicateItemButton'),
@@ -14941,6 +15194,7 @@ Bezug zum Retreat-Kontext:
     function setAgendaPresentationMode(enabled) {
       agendaPresentationMode = Boolean(enabled);
       agendaEls.root?.classList.toggle('agenda-flow--presenting', agendaPresentationMode);
+      closeAgendaItemsMenu();
       updateAgendaPresentationControls();
     }
 
@@ -14990,6 +15244,8 @@ Bezug zum Retreat-Kontext:
       agendaEls.inspectorForm?.addEventListener('focusout', finishAgendaEditSession);
       agendaEls.agendaTabs?.addEventListener('click', handleAgendaTabClick);
       agendaEls.agendaTabs?.addEventListener('keydown', handleAgendaTabKeydown);
+      agendaEls.itemsMenuButton?.addEventListener('click', toggleAgendaItemsMenu);
+      agendaEls.itemsMenu?.addEventListener('click', handleAgendaItemsMenuClick);
       agendaEls.editAgendaButton?.addEventListener('click', selectAgendaSettings);
       agendaEls.addItemButton?.addEventListener('click', createAgendaItem);
       agendaEls.duplicateItemButton?.addEventListener('click', duplicateSelectedItem);
@@ -15003,6 +15259,7 @@ Bezug zum Retreat-Kontext:
       agendaEls.exportJsonButton?.addEventListener('click', exportAgendasJson);
       agendaEls.importJsonButton?.addEventListener('click', () => agendaEls.jsonFileInput?.click());
       agendaEls.jsonFileInput?.addEventListener('change', importAgendasJson);
+      document.addEventListener('click', closeAgendaItemsMenuOnOutsideClick);
       document.addEventListener('keydown', handleAgendaShortcutKeydown);
     }
 
@@ -15013,6 +15270,12 @@ Bezug zum Retreat-Kontext:
 
     function handleAgendaShortcutKeydown(event) {
       if (!isAgendaFlowActive()) return;
+      if (event.key === 'Escape' && isAgendaItemsMenuOpen()) {
+        event.preventDefault();
+        closeAgendaItemsMenu();
+        agendaEls.itemsMenuButton?.focus();
+        return;
+      }
       if (event.key === 'Escape' && agendaPresentationMode) {
         event.preventDefault();
         setAgendaPresentationMode(false);
@@ -15152,7 +15415,7 @@ Bezug zum Retreat-Kontext:
 
     function buildAgendaPreviewHtml(agenda, selectedItemId = null, interactive = false) {
       const itemsHtml = agenda.items.length
-        ? agenda.items.map(item => buildAgendaItemHtml(item, selectedItemId, interactive)).join('')
+        ? agenda.items.map((item, itemIndex) => buildAgendaItemHtml(item, selectedItemId, interactive, itemIndex)).join('')
         : '<li class="agenda-empty">Noch keine Agenda-Punkte vorhanden. Erstelle im Inspector einen neuen Punkt.</li>';
 
       return `
@@ -15173,13 +15436,18 @@ Bezug zum Retreat-Kontext:
       `;
     }
 
-    function buildAgendaItemHtml(item, selectedItemId, interactive) {
+    function buildAgendaItemHtml(item, selectedItemId, interactive, itemIndex = 0) {
       const selectedClass = item.id === selectedItemId ? ' is-selected' : '';
       const typeClass = item.type === 'event' ? ' agenda-item--event' : '';
+      const expanded = expandedAgendaItemIds.has(item.id);
       const locked = lockedAgendaItemIds.has(item.id);
+      const expandedClass = expanded ? ' is-expanded-all' : '';
       const lockedClass = locked ? ' is-expanded-locked' : '';
-      const ariaExpanded = locked || item.id === selectedItemId ? 'true' : 'false';
+      const ariaExpanded = expanded || locked || item.id === selectedItemId ? 'true' : 'false';
       const roleAttributes = interactive ? ' role="button" tabindex="0" draggable="true"' : '';
+      const itemCount = getActiveAgenda()?.items?.length || 0;
+      const expandDelay = Math.min(itemIndex * 35, 180);
+      const collapseDelay = Math.min(Math.max(itemCount - itemIndex - 1, 0) * 24, 160);
       const peopleHtml = item.people.map(person => `<span>${agendaEscapeHtml(person)}</span>`).join('');
       const badgesHtml = item.badges.map(badge =>
         `<span class="agenda-badge ${getBadgeClass(item.status)}">${agendaEscapeHtml(badge)}</span>`
@@ -15189,10 +15457,11 @@ Bezug zum Retreat-Kontext:
         : '';
 
       return `
-        <li class="agenda-item agenda-item--${agendaEscapeHtml(item.color)}${typeClass}${selectedClass}${lockedClass}"
+        <li class="agenda-item agenda-item--${agendaEscapeHtml(item.color)}${typeClass}${selectedClass}${expandedClass}${lockedClass}"
             data-item-id="${agendaEscapeHtml(item.id)}"
             data-status="${agendaEscapeHtml(item.status)}"
-            data-owners="${agendaEscapeHtml(item.people.join(','))}"${roleAttributes}>
+            data-owners="${agendaEscapeHtml(item.people.join(','))}"
+            style="--agenda-expand-delay:${expandDelay}ms; --agenda-collapse-delay:${collapseDelay}ms"${roleAttributes}>
           <div class="agenda-marker" aria-hidden="true"></div>
           <article class="agenda-card">
             ${interactive ? '<span class="agenda-item__drag" draggable="true" title="Drag to reorder" aria-hidden="true">⋮⋮</span>' : ''}
@@ -15310,6 +15579,7 @@ Bezug zum Retreat-Kontext:
       if (lockButton) {
         event.preventDefault();
         event.stopPropagation();
+        if (agendaTitlesOnlyMode) return;
         const itemElement = lockButton.closest('.agenda-item[data-item-id]');
         if (itemElement) toggleAgendaItemLock(itemElement.dataset.itemId);
         return;
@@ -15339,6 +15609,142 @@ Bezug zum Retreat-Kontext:
         lockedAgendaItemIds.add(itemId);
       }
       renderAgendaPreview();
+    }
+
+    function isAgendaItemsMenuOpen() {
+      return !!agendaEls.itemsMenu && !agendaEls.itemsMenu.hidden;
+    }
+
+    function toggleAgendaItemsMenu(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      const shouldOpen = !isAgendaItemsMenuOpen();
+      if (agendaEls.itemsMenu) agendaEls.itemsMenu.hidden = !shouldOpen;
+      agendaEls.itemsMenuButton?.setAttribute('aria-expanded', String(shouldOpen));
+      updateAgendaItemsMenuState();
+    }
+
+    function closeAgendaItemsMenu() {
+      if (agendaEls.itemsMenu) agendaEls.itemsMenu.hidden = true;
+      agendaEls.itemsMenuButton?.setAttribute('aria-expanded', 'false');
+    }
+
+    function closeAgendaItemsMenuOnOutsideClick(event) {
+      if (!isAgendaItemsMenuOpen()) return;
+      if (event.target instanceof Element && event.target.closest('#agendaItemsMenu, #agendaItemsMenuButton')) return;
+      closeAgendaItemsMenu();
+    }
+
+    function handleAgendaItemsMenuClick(event) {
+      const actionButton = event.target instanceof Element
+        ? event.target.closest('[data-agenda-items-action]')
+        : null;
+      if (!actionButton) return;
+      event.preventDefault();
+      event.stopPropagation();
+      applyAgendaItemsAction(actionButton.dataset.agendaItemsAction);
+      closeAgendaItemsMenu();
+    }
+
+    function getActiveAgendaItemIds() {
+      return (getActiveAgenda()?.items || []).map(item => item.id);
+    }
+
+    function applyAgendaItemsAction(action) {
+      if (action === 'titles-only') {
+        setAgendaTitlesOnlyMode(!agendaTitlesOnlyMode);
+        showToast(agendaTitlesOnlyMode ? 'Titles only on' : 'Titles only off');
+        return;
+      }
+      const itemIds = getActiveAgendaItemIds();
+      if (!itemIds.length) {
+        if (action !== 'unlock' && agendaTitlesOnlyMode) setAgendaTitlesOnlyMode(false);
+        return;
+      }
+      const shouldAnimateFromTitlesOnly = agendaTitlesOnlyMode && ['expand', 'collapse', 'lock'].includes(action);
+      const shouldAnimateCollapseAll = action === 'collapse' && !agendaTitlesOnlyMode;
+      if (shouldAnimateFromTitlesOnly) {
+        beginAgendaItemsTransition(action);
+        applyAgendaItemsTargetState(action, itemIds);
+        renderAgendaPreview();
+        renderInspector();
+        requestAnimationFrame(() => {
+          setAgendaTitlesOnlyMode(false);
+          endAgendaItemsTransition();
+        });
+        showAgendaItemsActionToast(action);
+        return;
+      }
+      if (shouldAnimateCollapseAll) {
+        beginAgendaItemsTransition(action);
+        applyAgendaItemsTargetState(action, itemIds);
+        renderAgendaPreview();
+        renderInspector();
+        endAgendaItemsTransition();
+        showAgendaItemsActionToast(action);
+        return;
+      }
+      applyAgendaItemsTargetState(action, itemIds);
+      renderAgendaPreview();
+      renderInspector();
+      showAgendaItemsActionToast(action);
+    }
+
+    function applyAgendaItemsTargetState(action, itemIds) {
+      if (action === 'expand') {
+        itemIds.forEach(itemId => expandedAgendaItemIds.add(itemId));
+      } else if (action === 'collapse') {
+        itemIds.forEach(itemId => {
+          expandedAgendaItemIds.delete(itemId);
+          lockedAgendaItemIds.delete(itemId);
+        });
+        if (itemIds.includes(agendaState.selectedItemId)) agendaState.selectedItemId = null;
+      } else if (action === 'lock') {
+        itemIds.forEach(itemId => lockedAgendaItemIds.add(itemId));
+      } else if (action === 'unlock') {
+        itemIds.forEach(itemId => lockedAgendaItemIds.delete(itemId));
+      }
+    }
+
+    function showAgendaItemsActionToast(action) {
+      if (action === 'expand') showToast('Agenda items expanded');
+      if (action === 'collapse') showToast('Agenda items collapsed');
+      if (action === 'lock') showToast('Agenda items locked open');
+      if (action === 'unlock') showToast('Agenda items unlocked');
+    }
+
+    function setAgendaTitlesOnlyMode(enabled) {
+      agendaTitlesOnlyMode = Boolean(enabled);
+      agendaEls.root?.classList.toggle('agenda-flow--titles-only', agendaTitlesOnlyMode);
+      updateAgendaItemsMenuState();
+    }
+
+    function beginAgendaItemsTransition(action) {
+      window.clearTimeout(agendaItemsTransitionTimer);
+      agendaEls.root?.classList.add('agenda-flow--transitioning-items');
+      agendaEls.root?.classList.toggle('agenda-flow--expanding-from-titles', ['expand', 'lock'].includes(action));
+      agendaEls.root?.classList.toggle('agenda-flow--collapsing-all', action === 'collapse');
+    }
+
+    function endAgendaItemsTransition() {
+      window.clearTimeout(agendaItemsTransitionTimer);
+      agendaItemsTransitionTimer = window.setTimeout(() => {
+        agendaEls.root?.classList.remove('agenda-flow--transitioning-items');
+        agendaEls.root?.classList.remove('agenda-flow--expanding-from-titles');
+        agendaEls.root?.classList.remove('agenda-flow--collapsing-all');
+      }, getAgendaItemsTransitionDuration());
+    }
+
+    function getAgendaItemsTransitionDuration() {
+      if (agendaEls.root?.classList.contains('agenda-flow--expanding-from-titles')) return 820;
+      if (agendaEls.root?.classList.contains('agenda-flow--collapsing-all')) return 740;
+      return 360;
+    }
+
+    function updateAgendaItemsMenuState() {
+      const titlesOnlyButton = agendaEls.itemsMenu?.querySelector('[data-agenda-items-action="titles-only"]');
+      titlesOnlyButton?.classList.toggle('is-active', agendaTitlesOnlyMode);
+      titlesOnlyButton?.setAttribute('aria-checked', String(agendaTitlesOnlyMode));
     }
 
     function handleInspectorInput(event) {
